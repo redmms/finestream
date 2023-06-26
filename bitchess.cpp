@@ -266,23 +266,34 @@ public:
 #include <set>
 #include <unordered_set>
 int main() {
-	BitStream bsm("output.txt"); // struct, union
-	long long O = 0; // separator
+	BitStream bsm("output.txt");
+	uint64_t O{ 0 };
+	uint32_t o{ 0 }; // separators 
 	int i = 3;
-	char ci = 3; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char etc.
+	char ci = 3; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.
 	char cc = '3';
 	double d = 12;
 	double dpoint = 3.14;
 	double dpointm = -3.14;
+	int* p = &i;
+	int& r = i;
+	bsm << &r << O // one line in Windows binary editor consists of 16 bytes
+		<< p  << O;
 	int carr[3]{ 1, 2, 3 };
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
-	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of gurbage
+	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
 	tuple<long long, double, char> lltup{ 1, 3.14, 'a' };
 	pair<int, double> pair{ 1, 3.14 };
 	bitset <8> bs (7);
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3);
-	BitRemedy bra{ 0b00000111, 3, false }, brb{ 0b00000111, 3, true }, brc{ 0b00000111, 7, true }, brd{ 0, 7, false };
-	brd.bsByte.set(7), brd.bsByte.set(6), brd.bsByte.set(5);	
+	//bsm << bsn; cout << bsm.GetLastByte().bitsN;
+	BitRemedy bra{ 0b00000111, 3, true }, // 000
+			  brb{ 0b00000111, 3, false }, // 111
+			  brc{ 0b00000111, 7, true }, // 0000011
+			  brd{ 0, 7, false };
+	brd.bsByte.set(7), brd.bsByte.set(6), brd.bsByte.set(5); // 1110000 -> 110000, 7th bit will be lost	
+	//bsm << bra << brb; cout << bsm.GetLastByte().bitsN;
+	//bsm.PutByte(bra); bsm.PutByte(brb); cout << bsm.GetLastByte().bitsN;
 	bool b = true;
 	vector < bool> vb(13);
 	for (auto el : { 0, 12, 2, 4 }) {
@@ -290,31 +301,32 @@ int main() {
 	}
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container
 	queue <int> q;  // oops, seems you use a container adaptor
-	priority_queue <char> pq; // oops, seems you use a container adaptor
-	stack <int> st;  // oops, seems you use a container adaptor
+	priority_queue <char> pq; // ditto
+	stack <int> st;  // ditto
 	for (auto el : { 7, 6, 5 }) {
 		q.push(el);
 		pq.push(el);
 		st.push(el);
 	}
-	int* p = &i; // 8 bytes (can differ for another proccessor architecture), even more than in a usual int (4 bytes)
-	int& r = i; // will output value of i, but you can use << &r and it will have the same type as p
-	// these two values will differ for every program run like the address of i;
-	// bsm << &r << O << p;
-	union MyUnion { char u0; uint16_t u1[2]; int u2; };
-	MyUnion u{ 0xFFFFFFFF };
-	//bsm.PutAnyReversed(u);
+	union MyUnion { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees 
+	MyUnion u{ 0xFFFFFFFF }; 
+	//bsm.PutAny(u); bsm << o;
+	//bsm << O << O;
+	//bsm.PutAnyReversed(u); bsm << o;
+	//bsm << O << O;
 	u.u0 = 7;
 	u.u1[0] = 6;
 	u.u1[1] = 6;
 	u.u2 = 5;
-	/*bsm << u.u0
+	/*bsm << u.u0 << o
 		<< O << O
-		<< u.u1
+		<< u.u1[0] << o
 		<< O << O
-		<< u.u2
-		<< O << O;*/ // usable, but no guarantees 
-	struct MyStruct { char u0; uint16_t u1[2]; int u2; };
-	MyStruct s{ 7, {6, 6}, 5 }; // usable, but no guarantees
+		<< u.u1[1] << o
+		<< O << O
+		<< u.u2 << o
+		<< O << O;*/ 
+	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
+	MyStruct s{ 7, {6, 6}, 5 }; 
 }
 // it is not the best BitStream, it isn't super mega duper or even unic, it just works and works FINE
