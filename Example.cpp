@@ -1,0 +1,91 @@
+#include <queue>
+#include <stack>
+#include <unordered_map>
+#include <map>
+#include <set>
+#include <unordered_set>
+#include "bitstream.h"
+int main() {
+	BitStream bsm("output.txt");
+	uint64_t O{ 0 };
+	uint32_t o{ 0 };
+	uint8_t oo{ 0 }; // separators 
+	int i = 0x12;
+	char c = 0x12; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.
+	string str = "12";
+	double d = 12;
+	double dpoint = 3.14;
+	double dpointm = -3.14;
+	//bsm << i << o << O // one line in Windows binary editor consists of 16 bytes
+	//	<< c << oo << oo << oo << o << O
+	//	<< str << oo << oo << o << O
+	//    << d << O
+	//	<< dpoint << O
+	//	<< dpointm << O;
+	int* p = &i;
+	int& r = i;
+	//bsm << &r << O 
+	//	  << p  << O;
+	int carr[3]{ 1, 2, 3 };
+	//bsm << carr;
+	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
+	//bsm << cpparr;
+	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
+	//bsm << tup;
+	tuple<long long, double, char> lltup{ 1, 3.14, 'a' };
+	//bsm << lltup;
+	pair<int, double> pair{ 1, 3.14 };
+	//bsm << pair;
+	bitset <8> bs(7);
+	//bsm << bs;
+	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
+	//bsm << bsn; 
+	//cout << bsm.GetLastByte().bitsN;
+	BitRemedy bra{ 0b00000111, 3, true }, // 000
+		brb{ 0b00000111, 3, false }, // 111
+		brc{ 0b00000111, 7, true }, // 0000011
+		brd{ 0, 7, false };
+	brd.bsByte.set(7), brd.bsByte.set(6), brd.bsByte.set(5); // 1110000 -> 110000, 7th bit will be lost	
+	//bsm << bra << brb;                   // compact way
+	//cout << bsm.GetLastByte().bitsN;
+	//bsm.PutByte(bra); bsm.PutByte(brb);  // way without changing 
+	//cout << bsm.GetLastByte().bitsN;
+	bool b = true;
+	//bsm << b << b << b;
+	//cout << bsm.GetLastByte().bitsN;
+	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
+	for (auto el : { 0, 12, 2, 4 }) {
+		vb[el] = 1;
+	}
+	//bsm << vb;
+	//bsm << bra << brb << vb;
+	//bsm << brc << brd << vb << bsn;
+	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
+	//bsm << dq;
+	queue <int> q;  // oops, seems you use a container adaptor
+	priority_queue <char> pq; // ditto
+	stack <int> st;  // ditto
+	for (auto el : { 7, 6, 5 }) {
+		q.push(el);
+		pq.push(el);
+		st.push(el);
+	}
+	// bsm << q;
+	union MyUnion { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees 
+	MyUnion u{ 0xFFFFFFFF };
+	//bsm.PutAny(u); bsm << o << O;
+	//bsm.PutAnyReversed(u); bsm << o << O;
+	//bsm << O << O;
+	u.u0 = 7;
+	u.u1[0] = 6;
+	u.u1[1] = 6;
+	u.u2 = 5;
+	//bsm << u.u0; // 0x05
+	//bsm << u.u1[0]; // 0x00 0x05
+	//bsm << u.u1[1]; // 0x00 0x00 
+	//bsm << u.u2; // 0x00 0x00 0x00 0x05
+	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
+	MyStruct s{ 7, {6, 6}, 5 };
+	//bsm.PutAnyReversed(s);
+}
+// it is not the best BitStream, it isn't super mega duper or even unic, it just works and works FINE
