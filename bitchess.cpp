@@ -53,6 +53,9 @@ struct BitRemedy {
 	bitset <8> bsByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
+	void ClearMargins() {
+
+	}
 	BitRemedy & MoveToLeft() {
 		// moves bit to left border of bitset
 		// TODO: Check if there're no 1 bits in margins
@@ -122,7 +125,7 @@ public:
 	inline void PutByte(const bitset <8> & bsByte) {
 		fileStream.put(static_cast <uint8_t> (bsByte.to_ulong()));
 	}
-	inline void PutByte(const BitRemedy & brByte) {
+	inline void PutByte(const BitRemedy & brByte) { // add here brLastByte.CleanMargins();
 		if (brByte.movedToLeft)
 			fileStream.put(static_cast <uint8_t> (brByte.bsByte.to_ulong()));  // ineffective because of ineffective std::bitset realisation and obligatory type cast
 		else {
@@ -135,14 +138,14 @@ public:
 	template <typename T>
 	inline void PutAny(T value) { // works with double but can potentially reverse other types/structures
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
-		for (int i = sizeof(value) - 1; i >= 0; --i) {
+		for (int i = 0, size = sizeof(value); i < size; ++i) {
 			fileStream.put(static_cast <uint8_t> (bytePtr[i]));
-		}
+		}	
 	}
 	template <typename T>
 	inline void PutAnyReversed(T value) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
-		for (int i = 0, size = sizeof(value); i < size; ++i) {
+		for (int i = sizeof(value) - 1; i >= 0; --i) {
 			fileStream.put(static_cast <uint8_t> (bytePtr[i]));
 		}
 	}
@@ -220,16 +223,10 @@ public:
 		}
 		return *this;
 	}
-	BitStream& operator << (const vector <bool> & bools) {
-			for (const bool bit : bools) {
-				*this << bit;
-			}
-			return *this;
-	}
 	template <typename T>
 	BitStream& operator << (const T& type) {
 		if constexpr (Container <T>) {
-			for (auto& element : type) {
+			for (const auto & element : type) {
 				*this << element;
 			}
 		}
@@ -241,8 +238,8 @@ public:
 		else if constexpr (sizeof(T) == 1) {
 			PutByte(type);
 		}
-		else if constexpr (is_integral_v <T>) {
-			PutAny(type);
+		else if constexpr (is_arithmetic_v <T>) {
+			PutAnyReversed(type);
 		}
 		else {
 			PutAny(type);
@@ -257,7 +254,7 @@ public:
 	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 	// TODO: add modules
-	// TODO: add check of bitsN range 1-7 for BitRemedy constructor
+	// TODO: add check of bitsN range 1-7 for BitRemedy constructor and margins deletion into BR constructor or into PutByte
 };
 #include <queue>
 #include <stack>
@@ -268,38 +265,60 @@ public:
 int main() {
 	BitStream bsm("output.txt");
 	uint64_t O{ 0 };
-	uint32_t o{ 0 }; // separators 
-	int i = 3;
-	char ci = 3; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.
-	char cc = '3';
+	uint32_t o{ 0 }; 
+	uint8_t oo{ 0 }; // separators 
+	int i = 0x12;
+	char c = 0x12 ; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.
+	string str = "12";
 	double d = 12;
 	double dpoint = 3.14;
 	double dpointm = -3.14;
+	//bsm << i << o << O // one line in Windows binary editor consists of 16 bytes
+	//	<< c << oo << oo << oo << o << O
+	//	<< str << oo << oo << o << O
+	//    << d << O
+	//	<< dpoint << O
+	//	<< dpointm << O;
 	int* p = &i;
 	int& r = i;
-	bsm << &r << O // one line in Windows binary editor consists of 16 bytes
-		<< p  << O;
+	//bsm << &r << O 
+	//	  << p  << O;
 	int carr[3]{ 1, 2, 3 };
+	//bsm << carr;
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
+	//bsm << cpparr;
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
+	//bsm << tup;
 	tuple<long long, double, char> lltup{ 1, 3.14, 'a' };
+	//bsm << lltup;
 	pair<int, double> pair{ 1, 3.14 };
+	//bsm << pair;
 	bitset <8> bs (7);
-	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3);
-	//bsm << bsn; cout << bsm.GetLastByte().bitsN;
+	//bsm << bs;
+	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
+	//bsm << bsn; 
+	//cout << bsm.GetLastByte().bitsN;
 	BitRemedy bra{ 0b00000111, 3, true }, // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true }, // 0000011
 			  brd{ 0, 7, false };
 	brd.bsByte.set(7), brd.bsByte.set(6), brd.bsByte.set(5); // 1110000 -> 110000, 7th bit will be lost	
-	//bsm << bra << brb; cout << bsm.GetLastByte().bitsN;
-	//bsm.PutByte(bra); bsm.PutByte(brb); cout << bsm.GetLastByte().bitsN;
+	//bsm << bra << brb;                   // compact way
+	//cout << bsm.GetLastByte().bitsN;
+	//bsm.PutByte(bra); bsm.PutByte(brb);  // way without changing 
+	//cout << bsm.GetLastByte().bitsN;
 	bool b = true;
-	vector < bool> vb(13);
+	//bsm << b << b << b;
+	//cout << bsm.GetLastByte().bitsN;
+	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto el : { 0, 12, 2, 4 }) {
 		vb[el] = 1;
 	}
-	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container
+	//bsm << vb;
+	//bsm << bra << brb << vb;
+	//bsm << brc << brd << vb << bsn;
+	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
+	//bsm << dq;
 	queue <int> q;  // oops, seems you use a container adaptor
 	priority_queue <char> pq; // ditto
 	stack <int> st;  // ditto
@@ -308,25 +327,22 @@ int main() {
 		pq.push(el);
 		st.push(el);
 	}
+	// bsm << q;
 	union MyUnion { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees 
 	MyUnion u{ 0xFFFFFFFF }; 
-	//bsm.PutAny(u); bsm << o;
-	//bsm << O << O;
-	//bsm.PutAnyReversed(u); bsm << o;
+	//bsm.PutAny(u); bsm << o << O;
+	//bsm.PutAnyReversed(u); bsm << o << O;
 	//bsm << O << O;
 	u.u0 = 7;
 	u.u1[0] = 6;
 	u.u1[1] = 6;
 	u.u2 = 5;
-	/*bsm << u.u0 << o
-		<< O << O
-		<< u.u1[0] << o
-		<< O << O
-		<< u.u1[1] << o
-		<< O << O
-		<< u.u2 << o
-		<< O << O;*/ 
+	//bsm << u.u0; // 0x05
+	//bsm << u.u1[0]; // 0x00 0x05
+	//bsm << u.u1[1]; // 0x00 0x00 
+	//bsm << u.u2; // 0x00 0x00 0x00 0x05
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 }; 
+	//bsm.PutAnyReversed(s);
 }
 // it is not the best BitStream, it isn't super mega duper or even unic, it just works and works FINE
