@@ -13,7 +13,7 @@ concept Container = requires(T t)
 	end(t);
 };
 struct BitRemedy {
-	bitset <8> bsByte{ 0 };
+	bitset <8> iByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
 	void ClearMargins();
@@ -32,7 +32,7 @@ public:
 	~BitStream();
 	BitRemedy GetLastByte();
 	inline void PutByte(const uint8_t iByte);
-	inline void PutByte(const bitset <8>& bsByte);
+	inline void PutByte(const bitset <8>& iByte);
 	inline void PutByte(const BitRemedy& brByte);
 	template <typename T>
 	inline void PutAny(T value);

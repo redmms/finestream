@@ -1,17 +1,66 @@
-#include "bitstream.h"
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <bitset>
+#include <type_traits>
 using namespace std;
+template <typename T>
+concept Container = requires(T t)
+{
+	begin(t);
+	end(t);
+}; 
 struct BitRemedy {
-	bitset <8> bsByte{ 0 };
+	friend class BitStream; // BitStream has access to private BitRemedy members
+private:
+	uint8_t iByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
-	void ClearMargins() {
-
+	BitRemedy & ClearMargins() {
+		if (movedToLeft) {
+			iByte >>= (8 - bitsN);
+			iByte <<= (8 - bitsN);
+		}
+		else {
+			iByte <<= (8 - bitsN);
+			iByte >>= (8 - bitsN);
+		}
+		return *this;
+	}
+	inline void CheckBitsn() {
+		if (bitsN > 8 || bitsN < 0) {
+			cout << "Invalid bitsN value. It should be between 0 and 8.";
+			throw out_of_range("Invalid bitsN value. It should be between 0 and 8.");
+		}
+	}
+public:
+	BitRemedy(bitset <8> _bsByte, int _bitsN, bool _movedToLeft) : 
+		iByte(static_cast<uint8_t>(_bsByte.to_ulong())), bitsN(_bitsN), movedToLeft(_movedToLeft)
+	{
+		CheckBitsn();
+		ClearMargins();
+	}
+	BitRemedy(uint8_t _iByte, int _bitsN, bool _movedToLeft) :
+		iByte(_iByte), bitsN(_bitsN), movedToLeft(_movedToLeft)
+	{
+		CheckBitsn();
+		ClearMargins();
+	}
+	BitRemedy() {};
+	uint8_t GetIbyte() {
+		return iByte;
+	}
+	int GetBitsn() {
+		return bitsN;
+	}
+	bool GetMovedtoleft() {
+		return movedToLeft;
 	}
 	BitRemedy & MoveToLeft() {
 		// moves bit to left border of bitset
 		// TODO: Check if there're no 1 bits in margins
 		if (!this->movedToLeft) {
-			bsByte <<= (8 - bitsN);
+			iByte <<= (8 - bitsN);
 			movedToLeft = true;
 		}
 		return *this;
@@ -20,7 +69,7 @@ struct BitRemedy {
 		// moves bit to right border of bitset
 		// TODO: Check if there're no 1 bits in margins
 		if (this->movedToLeft) {
-			bsByte >>= (8 - bitsN);
+			iByte >>= (8 - bitsN);
 			movedToLeft = false;
 		}
 		return *this;
@@ -33,21 +82,21 @@ struct BitRemedy {
 		int bitSum = this->bitsN + addend.bitsN;
 		if (bitSum > 8) {
 			int remedy8 = bitSum % 8;
-			newRemedy.bsByte = bitset<8>(addend.bsByte.to_string(), addend.bitsN - remedy8, remedy8) << (8 - remedy8); // from addend.bsByte we get a string with left aligned bits representation, but that is a full string, to get our remedy we go at (addend.bitsN - remedy8) bit, because first (addend.bitsN - remedy8 - 1) bits is a part used to merge with this->bsByte, and than << (8 - remedy8) instead of MoveToLeft();
+			newRemedy.iByte = addend.iByte << (addend.bitsN - remedy8); // first (addend.bitsN - remedy8 - 1) bits is a part used to merge with this->iByte, we erase it in newRemedy
 			newRemedy.bitsN = remedy8;
 			newRemedy.movedToLeft = true;
 		}
-		this->bsByte |= addend.bsByte >> this->bitsN;
+		this->iByte |= addend.iByte >> this->bitsN;
 		this->bitsN = min(bitSum, 8);
 		return newRemedy;
 	}
 	void Clear() {
-		bsByte.reset();
+		iByte = 0;
 		bitsN = 0;
 		movedToLeft = false;
 	}
 	void ClearToLeft() {
-		bsByte.reset();
+		iByte = 0;
 		bitsN = 0;
 		movedToLeft = true;
 	}
@@ -71,33 +120,33 @@ public:
 		return brLastByte;
 	}
 	inline void PutByte(const uint8_t iByte) {
-		fileStream.put(static_cast <uint8_t> (iByte));
+		fileStream.put(iByte);
 	}
 	inline void PutByte(const bitset <8> & bsByte) {
 		fileStream.put(static_cast <uint8_t> (bsByte.to_ulong()));
 	}
 	inline void PutByte(const BitRemedy & brByte) { // add here brLastByte.CleanMargins();
 		if (brByte.movedToLeft)
-			fileStream.put(static_cast <uint8_t> (brByte.bsByte.to_ulong()));  // ineffective because of ineffective std::bitset realisation and obligatory type cast
+			fileStream.put(brByte.iByte);  // ineffective because of ineffective std::bitset realisation and obligatory type cast
 		else {
 			BitRemedy brByteCopy = brByte;
 			brByteCopy.MoveToLeft();
-			fileStream.put(static_cast <uint8_t> (brByteCopy.bsByte.to_ulong()));
+			fileStream.put(brByteCopy.iByte);
 			cout << "Error in PutByte(): the output byte isn't left aligned" << endl;
 		}
 	}
-	template <typename T>
+	template <typename T>  // if you know how to safely use reference parameter here - commit it
 	inline void PutAny(T value) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = 0, size = sizeof(value); i < size; ++i) {
-			fileStream.put(static_cast <uint8_t> (bytePtr[i]));
+			fileStream.put(bytePtr[i]);
 		}	
 	}
 	template <typename T>
 	inline void PutAnyReversed(T value) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = sizeof(value) - 1; i >= 0; --i) {
-			fileStream.put(static_cast <uint8_t> (bytePtr[i]));
+			fileStream.put(bytePtr[i]);
 		}
 	}
 	template <typename T>
@@ -137,12 +186,12 @@ public:
 		}
 		if (NOLPZN >= 8) {  // output middle bytes
 			for (short l = LPZSIZE, r = l + 8; r <= RPZLB; l += 8, r += 8) { 
-				bitset <8> bsMiddleByte(strSet, l, r);
+				bitset <8> bsMiddleByte(strSet, l, 8);
 				PutByte(bsMiddleByte);
 			}
 		}
 		if (RPZSIZE) {  // output right puzzle // should be after if (N >= 8) otherwise output order will be wrong
-			bitset <8> bsRightPuzzle(strSet, RPZLB, N);
+			bitset <8> bsRightPuzzle(strSet, RPZLB, RPZSIZE);
 			BitRemedy brRightPuzzle{ bsRightPuzzle, RPZSIZE, false };
 			brLastByte = brRightPuzzle.MoveToLeft();
 		}
@@ -162,7 +211,7 @@ public:
 			brLastByte.MoveToLeft();
 		}
 		if (bit) {
-			brLastByte.bsByte |= (bit << (7 - brLastByte.bitsN)); // 8 - curr. seq. len. - new seq. len. = 8 - brLastByte.bitsN - 1 = 7 - brLastByte.bitsN
+			brLastByte.iByte |= (true << (7 - brLastByte.bitsN)); // 8 - curr. seq. len. - new seq. len. = 8 - brLastByte.bitsN - 1 = 7 - brLastByte.bitsN
 			brLastByte.bitsN++;
 		}
 		else {
@@ -200,10 +249,8 @@ public:
 	}
 	// TODO: add >> operator definition
 	// TODO: replace cout << "Error"; by throw exception or some warnings
-	// TODO: correct bitset(str,,) parameteres
 	// TODO: revise size_t templates
 	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 	// TODO: add modules
-	// TODO: add check of bitsN range 1-7 for BitRemedy constructor and margins deletion into BR constructor or into PutByte
 };

@@ -1,10 +1,12 @@
+#include <vector>
+#include <array>
 #include <queue>
 #include <stack>
 #include <unordered_map>
 #include <map>
 #include <set>
 #include <unordered_set>
-#include "bitstream.h"
+#include "BitStream.cpp"
 int main() {
 	BitStream bsm("output.txt");
 	uint64_t O{ 0 };
@@ -40,26 +42,24 @@ int main() {
 	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn; 
-	//cout << bsm.GetLastByte().bitsN;
+	//cout << bsm.GetLastByte().GetBitsn();
 	BitRemedy bra{ 0b00000111, 3, true }, // 000
 		brb{ 0b00000111, 3, false }, // 111
-		brc{ 0b00000111, 7, true }, // 0000011
-		brd{ 0, 7, false };
-	brd.bsByte.set(7), brd.bsByte.set(6), brd.bsByte.set(5); // 1110000 -> 110000, 7th bit will be lost	
+		brc{ 0b00000111, 7, true }, // 00000111 -> 0000011, [0] bit will be erased
+		brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
 	//bsm << bra << brb;                   // compact way
-	//cout << bsm.GetLastByte().bitsN;
+	//cout << bsm.GetLastByte().GetBitsn();
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // way without changing 
-	//cout << bsm.GetLastByte().bitsN;
+	//cout << bsm.GetLastByte().GetBitsn();
 	bool b = true;
 	//bsm << b << b << b;
-	//cout << bsm.GetLastByte().bitsN;
+	//cout << bsm.GetLastByte().GetBitsn();
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto el : { 0, 12, 2, 4 }) {
 		vb[el] = 1;
 	}
 	//bsm << vb;
-	//bsm << bra << brb << vb;
-	//bsm << brc << brd << vb << bsn;
+	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
 	//bsm << dq;
 	queue <int> q;  // oops, seems you use a container adaptor
@@ -86,6 +86,7 @@ int main() {
 	//bsm << u.u2; // 0x00 0x00 0x00 0x05
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 };
-	//bsm.PutAnyReversed(s);
+	//bsm << s;
+	bsm.PutByte(3);
 }
 // it is not the best BitStream, it isn't super mega duper or even unic, it just works and works FINE
