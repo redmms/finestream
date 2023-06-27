@@ -11,29 +11,11 @@ concept Container = requires(T t)
 	end(t);
 }; 
 struct BitRemedy {
-	friend class BitStream; // BitStream has access to private BitRemedy members
-private:
+	//friend class BitStream; // BitStream has access to private BitRemedy members
 	uint8_t iByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
-	BitRemedy & ClearMargins() {
-		if (movedToLeft) {
-			iByte >>= (8 - bitsN);
-			iByte <<= (8 - bitsN);
-		}
-		else {
-			iByte <<= (8 - bitsN);
-			iByte >>= (8 - bitsN);
-		}
-		return *this;
-	}
-	inline void CheckBitsn() {
-		if (bitsN > 8 || bitsN < 0) {
-			cout << "Invalid bitsN value. It should be between 0 and 8.";
-			throw out_of_range("Invalid bitsN value. It should be between 0 and 8.");
-		}
-	}
-public:
+
 	BitRemedy(bitset <8> _bsByte, int _bitsN, bool _movedToLeft) : 
 		iByte(static_cast<uint8_t>(_bsByte.to_ulong())), bitsN(_bitsN), movedToLeft(_movedToLeft)
 	{
@@ -47,18 +29,51 @@ public:
 		ClearMargins();
 	}
 	BitRemedy() {};
-	uint8_t GetIbyte() {
-		return iByte;
+
+	inline BitRemedy& ClearMargins() {
+		if (movedToLeft) {
+			iByte >>= (8 - bitsN);
+			iByte <<= (8 - bitsN);
+		}
+		else {
+			iByte <<= (8 - bitsN);
+			iByte >>= (8 - bitsN);
+		}
+		return *this;
 	}
-	int GetBitsn() {
-		return bitsN;
+	void CheckBitsn() const {
+		if (bitsN > 8 || bitsN < 0) {
+			throw out_of_range("Invalid bitsN value. It should be from 0 to 8.");
+		}
 	}
-	bool GetMovedtoleft() {
-		return movedToLeft;
+	void CheckMargins() const {
+		if (movedToLeft) {
+			if (!iByte << bitsN) {
+				throw logic_error("Extra '1' bits in BitRemedy.iByte. Use method ClearMargins ");
+			}
+		}
+		else {
+			if (!iByte >> bitsN) {
+				throw logic_error("Extra '1' bits in BitRemedy.iByte");
+			}
+		}
+	}
+	inline void CheckValidity() const {
+		CheckBitsn();
+		CheckMargins(); // should be in this exact order
+	}
+	bool IsValid() {
+		try {
+			CheckBitsn();
+			CheckMargins(); // should be in this exact order
+			return true;
+		}
+		catch (exception& e) {
+			return false;
+		}
 	}
 	BitRemedy & MoveToLeft() {
-		// moves bit to left border of bitset
-		// TODO: Check if there're no 1 bits in margins
+		// moves bits to left border of bitset
 		if (!this->movedToLeft) {
 			iByte <<= (8 - bitsN);
 			movedToLeft = true;
@@ -66,8 +81,7 @@ public:
 		return *this;
 	}
 	BitRemedy & MoveToRight() {
-		// moves bit to right border of bitset
-		// TODO: Check if there're no 1 bits in margins
+		// moves bits to right border of bitset
 		if (this->movedToLeft) {
 			iByte >>= (8 - bitsN);
 			movedToLeft = false;
@@ -90,12 +104,12 @@ public:
 		this->bitsN = min(bitSum, 8);
 		return newRemedy;
 	}
-	void Clear() {
+	inline void Clear() {
 		iByte = 0;
 		bitsN = 0;
 		movedToLeft = false;
 	}
-	void ClearToLeft() {
+	inline void ClearToLeft() {
 		iByte = 0;
 		bitsN = 0;
 		movedToLeft = true;
@@ -119,23 +133,27 @@ public:
 	BitRemedy GetLastByte() {
 		return brLastByte;
 	}
+	inline int ExtraZerosN() {
+		return brLastByte.bitsN ? 8 - brLastByte.bitsN : 0;
+	}
 	inline void PutByte(const uint8_t iByte) {
 		fileStream.put(iByte);
 	}
 	inline void PutByte(const bitset <8> & bsByte) {
 		fileStream.put(static_cast <uint8_t> (bsByte.to_ulong()));
 	}
-	inline void PutByte(const BitRemedy & brByte) { // add here brLastByte.CleanMargins();
+	inline void PutByte(const BitRemedy & brByte) {
+		//brByte.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every BitRemedy, it would slow down the stream
 		if (brByte.movedToLeft)
-			fileStream.put(brByte.iByte);  // ineffective because of ineffective std::bitset realisation and obligatory type cast
+			fileStream.put(brByte.iByte);
 		else {
 			BitRemedy brByteCopy = brByte;
 			brByteCopy.MoveToLeft();
 			fileStream.put(brByteCopy.iByte);
-			cout << "Error in PutByte(): the output byte isn't left aligned" << endl;
+			cout << "Warning: in PutByte(): the output byte isn't left aligned";
 		}
 	}
-	template <typename T>  // if you know how to safely use reference parameter here - commit it
+	template <typename T>  // if you know how to safely use reference type parameter here - commit it
 	inline void PutAny(T value) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = 0, size = sizeof(value); i < size; ++i) {
@@ -150,7 +168,7 @@ public:
 		}
 	}
 	template <typename T>
-	void ToBytes(const T & value, uint8_t * bytesArray) {
+	void ToBytes(T & value, uint8_t * bytesArray) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = sizeof(value) - 1; i >= 0; --i) {
 			bytesArray[i] = bytePtr[i];
@@ -160,7 +178,7 @@ public:
 		PutByte(boardLine);
 		return *this;
 	}
-	template <size_t N>
+	template <int N> // N - int operations occur
 	BitStream& operator << (const bitset <N> & boardLine) {
 		string strSet = boardLine.to_string();
 		int LPZSIZE = brLastByte.bitsN ? 
@@ -168,7 +186,7 @@ public:
 						 8 - brLastByte.bitsN : 
 						 N) : 
 					  0, // left puzzle size
-			NOLPZN = N - LPZSIZE, // number of elements without left puzzle
+			NOLPZN = N - LPZSIZE, // number of elements without left puzzle, dangerous to use size_t N here, that's why it's int;
 			RPZSIZE = NOLPZN % 8, // right puzzle size (remedy on the right side of bitset)
 			RPZLB = N - RPZSIZE; // right puzzle left border
 		if (LPZSIZE) {  // output left puzzle
@@ -198,6 +216,7 @@ public:
 		return *this;
 	} 
 	BitStream& operator << (const BitRemedy & boardLine) {
+		boardLine.CheckValidity();
 		BitRemedy newRem = brLastByte.MergeWith(boardLine);
 		if (brLastByte.bitsN == 8) {
 			PutByte(brLastByte);
@@ -207,7 +226,7 @@ public:
 	}
 	BitStream& operator << (const bool bit) {
 		if (!brLastByte.movedToLeft) {
-			cout << "Error: last byte isn't left aligned" << endl;
+			cout << "Warning: last byte isn't left aligned" << endl;
 			brLastByte.MoveToLeft();
 		}
 		if (bit) {
@@ -243,14 +262,13 @@ public:
 		}
 		else {
 			PutAny(type);
-			cout << "Are you sure about this type - " << typeid(T).name() << "?" << endl;
+			cout << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 		}
 		return *this;
 	}
 	// TODO: add >> operator definition
-	// TODO: replace cout << "Error"; by throw exception or some warnings
-	// TODO: revise size_t templates
 	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 	// TODO: add modules
+	// TODO: replace cout << "Warning"; by using stderr or something like that
 };
