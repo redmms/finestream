@@ -91,7 +91,7 @@ int main() {
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 };
 	//bsm << s;
-	// I plan this method for cases when you don't want to write to file, you can contribute by commiting corrections:
+	// I plan this method for cases when you don't want to write to a file, you can contribute by commiting corrections:
 	//uint8_t bytes[16]{ 0 };
 	//bsm.ToBytes(dq, bytes);
 }
