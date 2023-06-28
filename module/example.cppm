@@ -31,7 +31,7 @@ int main() {
 	int* p = &i;
 	int& r = i;
 	//bsm << &r << O 
-	//	  << p  << O;
+	//    << p  << O;
 	bitset <8> bs(7);
 	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
@@ -41,7 +41,7 @@ int main() {
 		brb{ 0b00000111, 3, false }, // 111
 		brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
 		brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
-	//brd.iByte |= true << 7; bsm << brd; //will throw exception, don't add wrong data after initialization;
+	//brd.iByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // no compression way
