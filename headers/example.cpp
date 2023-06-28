@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-#include "BitStream.cpp"
+import bitstream;
 int main() {
 
 	BitStream bsm("output.txt");
@@ -65,7 +65,7 @@ int main() {
 	//bsm << pair;
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
 	//bsm << dq;
-	queue <int> q;  // oops, seems you use a container adaptor, message me, if you want to add them to FineStream
+	queue <int> q;  // oops, seems you use a container adaptor, contact me, if you want to add them to FineStream
 	priority_queue <char> pq; // ditto
 	stack <int> st;  // ditto
 	for (auto el : { 7, 6, 5 }) {
@@ -89,7 +89,7 @@ int main() {
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 };
 	//bsm << s;
-	// use this method if you don't want to write to file, beta version:
-	uint8_t bytes[16]{ 0 };
-	bsm.ToBytes(dq, bytes);
+	// I plan this method for cases when you don't want to write to a file, you can contribute by commiting corrections:
+	//uint8_t bytes[16]{ 0 };
+	//bsm.ToBytes(dq, bytes);
 }
