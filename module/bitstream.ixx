@@ -168,7 +168,7 @@ public:
 		}
 	}
 	template <typename T>
-	void ToBytes(T& value, uint8_t* bytesArray) {
+	void ToBytes(T& value, uint8_t* bytesArray) {  // prototype in winAPI style, not working
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = sizeof(value) - 1; i >= 0; --i) {
 			bytesArray[i] = bytePtr[i];
@@ -269,6 +269,5 @@ public:
 	// TODO: add >> operator definition
 	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
-	// TODO: add modules
 	// TODO: replace cout << "Warning"; by using stderr or something like that
 };
