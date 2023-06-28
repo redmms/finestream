@@ -1,17 +1,17 @@
 #pragma once
-#include <iostream>
+#include <string>
 #include <bitset>
-#include <vector>
-#include <array>
+//#include <vector>
+//#include <array>
 #include <fstream>
-#include <type_traits>
+//#include <type_traits>
 using namespace std;
-template <typename T>
-concept Container = requires(T t)
-{
-	begin(t);
-	end(t);
-};
+//template <typename T>
+//concept Container = requires(T t)
+//{
+//	begin(t);
+//	end(t);
+//};
 struct BitRemedy {
 	bitset <8> iByte{ 0 };
 	int bitsN{ 0 };

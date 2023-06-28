@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <array>
 #include <queue>
@@ -6,7 +7,7 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-import bitstream;
+#include "bitstream.h";
 int main() {
 
 	BitStream bsm("output.txt");
