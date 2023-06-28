@@ -25,7 +25,7 @@ int main() {
 	//bsm << i << o << O // one line in Windows binary editor consists of 16 bytes
 	//	  << c << oo << oo << oo << o << O
 	//	  << str << oo << oo << o << O
-	//    << d << O
+	//        << d << O
 	//	  << dpoint << O
 	//	  << dpointm << O;
 	int* p = &i;
