@@ -32,12 +32,10 @@ export struct BitRemedy {
 
 	inline BitRemedy& ClearMargins() {
 		if (movedToLeft) {
-			iByte >>= (8 - bitsN);
-			iByte <<= (8 - bitsN);
+			(iByte >>= (8 - bitsN)) <<= (8 - bitsN);
 		}
 		else {
-			iByte <<= (8 - bitsN);
-			iByte >>= (8 - bitsN);
+			(iByte <<= (8 - bitsN)) >>= (8 - bitsN);
 		}
 		return *this;
 	}
@@ -48,12 +46,12 @@ export struct BitRemedy {
 	}
 	void CheckMargins() const {
 		if (movedToLeft) {
-			if (!iByte << bitsN) {
+			if (iByte << bitsN) {
 				throw logic_error("Extra '1' bits in BitRemedy.iByte. Use method ClearMargins ");
 			}
 		}
 		else {
-			if (!iByte >> bitsN) {
+			if (iByte >> bitsN) {
 				throw logic_error("Extra '1' bits in BitRemedy.iByte");
 			}
 		}
@@ -270,4 +268,5 @@ public:
 	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 	// TODO: replace cout << "Warning"; by using stderr or something like that
+	// TODO: replace 8 magic number by CHAR_BIT
 };
