@@ -1,22 +1,22 @@
-#pragma once
-#include <iostream>
-#include <fstream>
-#include <bitset>
-#include <type_traits>
+export module bitstream;
+export import <iostream>;
+export import <bitset>;
+import <fstream>;
+import <type_traits>;
 using namespace std;
 template <typename T>
 concept Container = requires(T t)
 {
 	begin(t);
 	end(t);
-}; 
-struct BitRemedy {
+};
+export struct BitRemedy {
 	//friend class BitStream; // BitStream has access to private BitRemedy members
 	uint8_t iByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
 
-	BitRemedy(bitset <8> _bsByte, int _bitsN, bool _movedToLeft) : 
+	BitRemedy(bitset <8> _bsByte, int _bitsN, bool _movedToLeft) :
 		iByte(static_cast<uint8_t>(_bsByte.to_ulong())), bitsN(_bitsN), movedToLeft(_movedToLeft)
 	{
 		CheckBitsn();
@@ -72,7 +72,7 @@ struct BitRemedy {
 			return false;
 		}
 	}
-	BitRemedy & MoveToLeft() {
+	BitRemedy& MoveToLeft() {
 		// moves bits to left border of bitset
 		if (!this->movedToLeft) {
 			iByte <<= (8 - bitsN);
@@ -80,7 +80,7 @@ struct BitRemedy {
 		}
 		return *this;
 	}
-	BitRemedy & MoveToRight() {
+	BitRemedy& MoveToRight() {
 		// moves bits to right border of bitset
 		if (this->movedToLeft) {
 			iByte >>= (8 - bitsN);
@@ -115,7 +115,7 @@ struct BitRemedy {
 		movedToLeft = true;
 	}
 };
-class BitStream {
+export class BitStream {
 private:
 	fstream fileStream;
 	BitRemedy brLastByte;
@@ -139,10 +139,10 @@ public:
 	inline void PutByte(const uint8_t iByte) {
 		fileStream.put(iByte);
 	}
-	inline void PutByte(const bitset <8> & bsByte) {
+	inline void PutByte(const bitset <8>& bsByte) {
 		fileStream.put(static_cast <uint8_t> (bsByte.to_ulong()));
 	}
-	inline void PutByte(const BitRemedy & brByte) {
+	inline void PutByte(const BitRemedy& brByte) {
 		//brByte.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every BitRemedy, it would slow down the stream
 		if (brByte.movedToLeft)
 			fileStream.put(brByte.iByte);
@@ -158,7 +158,7 @@ public:
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = 0, size = sizeof(value); i < size; ++i) {
 			fileStream.put(bytePtr[i]);
-		}	
+		}
 	}
 	template <typename T>
 	inline void PutAnyReversed(T value) {
@@ -168,24 +168,24 @@ public:
 		}
 	}
 	template <typename T>
-	void ToBytes(T & value, uint8_t * bytesArray) {
+	void ToBytes(T& value, uint8_t* bytesArray) {
 		uint8_t* bytePtr = reinterpret_cast<uint8_t*>(&value);
 		for (int i = sizeof(value) - 1; i >= 0; --i) {
 			bytesArray[i] = bytePtr[i];
 		}
 	}
-	BitStream& operator << (const bitset <8> & boardLine) {
+	BitStream& operator << (const bitset <8>& boardLine) {
 		PutByte(boardLine);
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	BitStream& operator << (const bitset <N> & boardLine) {
+	BitStream& operator << (const bitset <N>& boardLine) {
 		string strSet = boardLine.to_string();
-		int LPZSIZE = brLastByte.bitsN ? 
-						(N >= (8 - brLastByte.bitsN) ? 
-						 8 - brLastByte.bitsN : 
-						 N) : 
-					  0, // left puzzle size
+		int LPZSIZE = brLastByte.bitsN ?
+			(N >= (8 - brLastByte.bitsN) ?
+				8 - brLastByte.bitsN :
+				N) :
+			0, // left puzzle size
 			NOLPZN = N - LPZSIZE, // number of elements without left puzzle, dangerous to use size_t N here, that's why it's int;
 			RPZSIZE = NOLPZN % 8, // right puzzle size (remedy on the right side of bitset)
 			RPZLB = N - RPZSIZE; // right puzzle left border
@@ -200,10 +200,10 @@ public:
 				brLastByte.MergeWith(brLeftPuzzle);
 				PutByte(brLastByte);
 				brLastByte.ClearToLeft();
-			}	
+			}
 		}
 		if (NOLPZN >= 8) {  // output middle bytes
-			for (short l = LPZSIZE, r = l + 8; r <= RPZLB; l += 8, r += 8) { 
+			for (short l = LPZSIZE, r = l + 8; r <= RPZLB; l += 8, r += 8) {
 				bitset <8> bsMiddleByte(strSet, l, 8);
 				PutByte(bsMiddleByte);
 			}
@@ -214,8 +214,8 @@ public:
 			brLastByte = brRightPuzzle.MoveToLeft();
 		}
 		return *this;
-	} 
-	BitStream& operator << (const BitRemedy & boardLine) {
+	}
+	BitStream& operator << (const BitRemedy& boardLine) {
 		boardLine.CheckValidity();
 		BitRemedy newRem = brLastByte.MergeWith(boardLine);
 		if (brLastByte.bitsN == 8) {
@@ -245,7 +245,7 @@ public:
 	template <typename T>
 	BitStream& operator << (const T& type) {
 		if constexpr (Container <T>) {
-			for (const auto & element : type) {
+			for (const auto& element : type) {
 				*this << element;
 			}
 		}
