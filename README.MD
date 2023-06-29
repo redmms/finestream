@@ -23,7 +23,7 @@ FINE START:
 ![editorslist](/pictures/0bitremedy/3.jpg)  
 8) Watch the result:  
 ![output](/pictures/0bitremedy/4.jpg)  
-9) Use Windows calculator in programmer regime to know exactly how bits sequence look like:  
+9) Use Windows calculator in programmer regime to know exactly how your bits sequence look like:  
 ![calculator](/pictures/0bitremedy/5.jpg)  
 
 
