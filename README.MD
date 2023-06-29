@@ -9,31 +9,31 @@ You can also use any other type or container you want, it will not crash FineStr
 
 There’s one ``BitRemedy`` structure and one ``BitStream`` class. I’ve written them in two variants for your convenience – using classical c-style header files, and using C++ 20 modules, though I’m not planning to support and develop headers version. In module version they are stored in "bitstream.ixx" file, in headers version they are stored in "bitremedy.cpp" and "bitstream.cpp" files respectively, their interface – in "bitstream.h" header file. Use "example.cppm" or "example.cpp" to watch how it works, just disallow double-slash comments where you need. To watch the result file, use Windows binary editor and Windows programmer calculator to convert hex to bin formats, or some analog of them.  
 
-FINE START:\n
-1) Download either "headers" or "module" folder.
-2) Add files from the folder to a new project.
-3) Open an "example" file.
-4) Uncomment an example you need:
-![cppm](/pictures/0bitremedy/0.jpg)
-5) Watch information about last byte. Here 6 is our input, and 2 - unused bits of the last byte:
-![console](/pictures/0bitremedy/1.jpg)
-6) Add recently created "output.txt" to your project.
-7) Open it with Windows Binary Editor:
-![vsmenu](/pictures/0bitremedy/2.jpg)
-![editorslist](/pictures/0bitremedy/3.jpg)
-8) Watch the result:
-![output](/pictures/0bitremedy/4.jpg)
-9) Use Windows calculator in programmer regime to know exactly how bits sequence look like:
-![calculator](/pictures/0bitremedy/5.jpg)
+FINE START:  
+1) Download either "headers" or "module" folder.  
+2) Add files from the folder to a new project.  
+3) Open an "example" file.  
+4) Uncomment an example you need:  
+![cppm](/pictures/0bitremedy/0.jpg)  
+5) Watch information about last byte. Here 6 is our input, and 2 - unused bits of the last byte:  
+![console](/pictures/0bitremedy/1.jpg)  
+6) Add recently created "output.txt" to your project.  
+7) Open it with Windows Binary Editor:  
+![vsmenu](/pictures/0bitremedy/2.jpg)  
+![editorslist](/pictures/0bitremedy/3.jpg)  
+8) Watch the result:  
+![output](/pictures/0bitremedy/4.jpg)  
+9) Use Windows calculator in programmer regime to know exactly how bits sequence look like:  
+![calculator](/pictures/0bitremedy/5.jpg)  
 
-FINE EXAMPLES:\n
-``vector <bool>``:\n
-![](/pictures/1vector_bool/0.jpg)
-![](/pictures/1vector_bool/1.jpg)
-![](/pictures/1vector_bool/2.jpg)
-![](/pictures/1vector_bool/3.jpg)
+FINE EXAMPLES:  
+``vector <bool>``:  
+![](/pictures/1vector_bool/0.jpg)  
+![](/pictures/1vector_bool/1.jpg)  
+![](/pictures/1vector_bool/2.jpg)  
+![](/pictures/1vector_bool/3.jpg)  
 
-``bitset<N>``:\n
-![](/pictures/2bitset/0.jpg)
-![](/pictures/2bitset/1.jpg)
-![](/pictures/2bitset/2.jpg)
+``bitset<N>``:  
+![](/pictures/2bitset/0.jpg)  
+![](/pictures/2bitset/1.jpg)  
+![](/pictures/2bitset/2.jpg)  
