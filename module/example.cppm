@@ -38,12 +38,12 @@ int main() {
 	//bsm << bsn; 
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
 	BitRemedy bra{ 0b00000111, 3, true },  // 000
-		brb{ 0b00000111, 3, false }, // 111
-		brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
-		brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
+			  brb{ 0b00000111, 3, false }, // 111
+			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
+			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
 	//brd.iByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
+	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // no compression way
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
 	bool b = true;
@@ -54,6 +54,7 @@ int main() {
 		vb[el] = 1;
 	}
 	//bsm << vb;
+	//cout << bsm.ExtraZerosN() << endl;
 	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
 	int carr[3]{ 1, 2, 3 };
 	//bsm << carr;
