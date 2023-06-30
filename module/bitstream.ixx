@@ -4,6 +4,14 @@ export import <bitset>;
 import <fstream>;
 import <type_traits>;
 using namespace std;
+	// TODO: add >> operator definition
+	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
+	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
+	// TODO: replace cout << "Warning"; by using stderr or something like that
+	// TODO: fix headers version
+	// TODO: add description of BitRemedy to README.MD
+	// TODO: rebrand BitStream to FineStream
+	// TODO: replace 8 magic number by CHAR_BIT
 template <typename T>
 concept Container = requires(T t)
 {
@@ -264,9 +272,4 @@ public:
 		}
 		return *this;
 	}
-	// TODO: add >> operator definition
-	// TODO: add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
-	// TODO: add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
-	// TODO: replace cout << "Warning"; by using stderr or something like that
-	// TODO: replace 8 magic number by CHAR_BIT
 };
