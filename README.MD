@@ -15,7 +15,7 @@ FINE START:
 3) Open an "example" file.  
 4) Uncomment an example you need:  
 ![cppm](/pictures/0bitremedy/0.jpg)  
-5) Watch information about last byte. Here 6 is length of FineStream, and 2 is number of unused bits of the last byte:  
+5) Watch the information about the last byte. Here, 6 is the length of FineStream, and 2 is the number of unused bits of the last byte:  
 ![console](/pictures/0bitremedy/1.jpg)  
 6) Add recently created "output.txt" to your project.  
 7) Open it with Windows Binary Editor:  
