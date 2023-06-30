@@ -7,11 +7,11 @@ import <map>;
 import <set>;
 import <unordered_set>;
 import <tuple>;
-import bitstream;
+import finestream;
 using namespace std;
 int main() {
 
-	BitStream bsm("output.txt");
+	FineStream bsm("output.txt");
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 

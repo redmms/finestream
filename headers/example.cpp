@@ -7,10 +7,10 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-#include "bitstream.h";
+#include "finestream.h";
 int main() {
 
-	BitStream bsm("output.txt");
+	FineStream bsm("output.txt");
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 

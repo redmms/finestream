@@ -1,4 +1,4 @@
-export module bitstream;
+export module finestream;
 export import <iostream>;
 export import <bitset>;
 import <fstream>;
@@ -19,7 +19,7 @@ concept Container = requires(T t)
 	end(t);
 };
 export struct BitRemedy {
-	//friend class BitStream; // BitStream has access to private BitRemedy members
+	//friend class FineStream; // FineStream has access to private BitRemedy members
 	uint8_t iByte{ 0 };
 	int bitsN{ 0 };
 	bool movedToLeft{ false }; // alias for leftAligned
@@ -121,16 +121,16 @@ export struct BitRemedy {
 		movedToLeft = true;
 	}
 };
-export class BitStream {
+export class FineStream {
 private:
 	fstream fileStream;
 	BitRemedy brLastByte;
 public:
-	BitStream(string filePath) {
+	FineStream(string filePath) {
 		fileStream.open(filePath, ios::binary | ios::out);
 		brLastByte.movedToLeft = true;
 	}
-	~BitStream() {
+	~FineStream() {
 		if (brLastByte.bitsN) { // output buffer for last byte before closing filestream
 			PutByte(brLastByte);
 		}
@@ -180,12 +180,12 @@ public:
 			bytesArray[i] = bytePtr[i];
 		}
 	}
-	BitStream& operator << (const bitset <8>& boardLine) {
+	FineStream& operator << (const bitset <8>& boardLine) {
 		PutByte(boardLine);
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	BitStream& operator << (const bitset <N>& boardLine) {
+	FineStream& operator << (const bitset <N>& boardLine) {
 		string strSet = boardLine.to_string();
 		int LPZSIZE = brLastByte.bitsN ?
 			(N >= (8 - brLastByte.bitsN) ?
@@ -202,7 +202,7 @@ public:
 				brLastByte.MergeWith(brLeftPuzzle);
 			}
 			else {
-				BitRemedy brLeftPuzzle{ bsLeftPuzzle, LPZSIZE, false };
+				BitRemedy brLeftPuzzle{ bsLeftPuzzle, LPZSIZE, false }; // compare with bsLeftPuzzle <<=) >>= .toulong() cast to uint8_t
 				brLastByte.MergeWith(brLeftPuzzle);
 				PutByte(brLastByte);
 				brLastByte.ClearToLeft();
@@ -221,7 +221,7 @@ public:
 		}
 		return *this;
 	}
-	BitStream& operator << (const BitRemedy& boardLine) {
+	FineStream& operator << (const BitRemedy& boardLine) {
 		boardLine.CheckValidity();
 		BitRemedy newRem = brLastByte.MergeWith(boardLine);
 		if (brLastByte.bitsN == 8) {
@@ -230,11 +230,11 @@ public:
 		}
 		return *this;
 	}
-	BitStream& operator << (const bool bit) {
-		if (!brLastByte.movedToLeft) {
-			cout << "Warning: last byte isn't left aligned" << endl;
-			brLastByte.MoveToLeft();
-		}
+	FineStream& operator << (const bool bit) {
+		//if (!brLastByte.movedToLeft) {
+		//	cout << "Warning: last byte isn't left aligned" << endl;
+		//	brLastByte.MoveToLeft();
+		//}
 		if (bit) {
 			brLastByte.iByte |= (true << (7 - brLastByte.bitsN)); // 8 - curr. seq. len. - new seq. len. = 8 - brLastByte.bitsN - 1 = 7 - brLastByte.bitsN
 			brLastByte.bitsN++;
@@ -249,7 +249,7 @@ public:
 		return *this;
 	}
 	template <typename T>
-	BitStream& operator << (const T& type) {
+	FineStream& operator << (const T& type) {
 		if constexpr (Container <T>) {
 			for (const auto& element : type) {
 				*this << element;

@@ -1,5 +1,5 @@
 #pragma once
-#include "bitstream.h"
+#include "finestream.h"
 #include <iostream>
 #include <fstream>
 #include <bitset>
@@ -11,12 +11,12 @@ concept Container = requires(T t)
 	begin(t);
 	end(t);
 }; 
-using namespace BitStream;
-BitStream(string filePath) {
+using namespace FineStream;
+FineStream(string filePath) {
 	fileStream.open(filePath, ios::binary | ios::out);
 	brLastByte.movedToLeft = true;
 }
-~BitStream() {
+~FineStream() {
 	if (brLastByte.bitsN) { // output buffer for last byte before closing filestream
 		PutByte(brLastByte);
 	}
@@ -66,12 +66,12 @@ void ToBytes(T & value, uint8_t * bytesArray) {
 		bytesArray[i] = bytePtr[i];
 	}
 }
-BitStream& operator << (const bitset <8> & boardLine) {
+FineStream& operator << (const bitset <8> & boardLine) {
 	PutByte(boardLine);
 	return *this;
 }
 template <int N> // N - int operations occur
-BitStream& operator << (const bitset <N> & boardLine) {
+FineStream& operator << (const bitset <N> & boardLine) {
 	string strSet = boardLine.to_string();
 	int LPZSIZE = brLastByte.bitsN ? 
 					(N >= (8 - brLastByte.bitsN) ? 
@@ -107,7 +107,7 @@ BitStream& operator << (const bitset <N> & boardLine) {
 	}
 	return *this;
 } 
-BitStream& operator << (const BitRemedy & boardLine) {
+FineStream& operator << (const BitRemedy & boardLine) {
 	boardLine.CheckValidity();
 	BitRemedy newRem = brLastByte.MergeWith(boardLine);
 	if (brLastByte.bitsN == 8) {
@@ -116,7 +116,7 @@ BitStream& operator << (const BitRemedy & boardLine) {
 	}
 	return *this;
 }
-BitStream& operator << (const bool bit) {
+FineStream& operator << (const bool bit) {
 	if (!brLastByte.movedToLeft) {
 		cout << "Warning: last byte isn't left aligned" << endl;
 		brLastByte.MoveToLeft();
@@ -135,7 +135,7 @@ BitStream& operator << (const bool bit) {
 	return *this;
 }
 template <typename T>
-BitStream& operator << (const T& type) {
+FineStream& operator << (const T& type) {
 	if constexpr (Container <T>) {
 		for (const auto & element : type) {
 			*this << element;

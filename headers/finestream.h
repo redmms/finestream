@@ -23,13 +23,13 @@ struct BitRemedy {
 	void Clear();
 	void ClearToLeft();
 };
-class BitStream {
+class FineStream {
 private:
 	fstream fileStream;
 	BitRemedy brLastByte;
 public:
-	BitStream(string filePath);
-	~BitStream();
+	FineStream(string filePath);
+	~FineStream();
 	BitRemedy GetLastByte();
 	inline void PutByte(const uint8_t iByte);
 	inline void PutByte(const bitset <8>& iByte);
@@ -40,11 +40,11 @@ public:
 	inline void PutAnyReversed(T value);
 	template <typename T>
 	void ToBytes(const T& value, uint8_t* bytesArray);
-	BitStream& operator << (const bitset <8>& boardLine);
+	FineStream& operator << (const bitset <8>& boardLine);
 	template <size_t N>
-	BitStream& operator << (const bitset <N>& boardLine);
-	BitStream& operator << (const BitRemedy& boardLine);
-	BitStream& operator << (const bool bit);
+	FineStream& operator << (const bitset <N>& boardLine);
+	FineStream& operator << (const BitRemedy& boardLine);
+	FineStream& operator << (const bool bit);
 	template <typename T>
-	BitStream& operator << (const T& type);
+	FineStream& operator << (const T& type);
 };
