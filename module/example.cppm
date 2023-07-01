@@ -22,12 +22,12 @@ int main() {
 	double d = 12;
 	double dpoint = 3.14;
 	double dpointm = -3.14;
-	//bsm << i << o << O // one line in Windows binary editor consists of 16 bytes
-	//	  << c << oo << oo << oo << o << O
-	//	  << str << oo << oo << o << O
-	//        << d << O
-	//	  << dpoint << O
-	//	  << dpointm << O;
+	//bsm << i << o << O // one line in windows binary editor consists of 16 bytes
+	//	<< c << oo << oo << oo << o << O
+	//	<< str << oo << oo << o << O
+	//	<< d << O
+	//	<< dpoint << O
+	//	<< dpointm << O;
 	int* p = &i;
 	int& r = i;
 	//bsm << &r << O 
@@ -41,7 +41,7 @@ int main() {
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
 			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
-	//brd.iByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
+	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // no compression way
@@ -55,15 +55,15 @@ int main() {
 	}
 	//bsm << vb;
 	//cout << bsm.ExtraZerosN() << endl;
-	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
+	bsm << brc << brd << vb << bsn; // you can easily combine them in any order
 	int carr[3]{ 1, 2, 3 };
 	//bsm << carr;
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
 	//bsm << cpparr;
-	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
-	//bsm << tup;
-	tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
-	//bsm << lltup;
+	//tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
+	////bsm << tup;
+	//tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
+	////bsm << lltup;
 	pair<int, double> pair{ 1, 3.14 };
 	//bsm << pair;
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
