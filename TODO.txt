@@ -1,0 +1,6 @@
+-  add >> operator definition
+-  add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
+-  add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
+-  replace cout << "Warning"; by using stderr or something like that
+-  fix headers version
+-  add description of BitRemedy to README.MD
