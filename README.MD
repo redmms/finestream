@@ -9,22 +9,22 @@ You can also use any other type or container you want, it will not crash FineStr
 
 There's one ``BitRemedy`` structure and one ``FineStream`` class. I've written them in two variants for your convenience: using classical c-style header files, and using C++20 modules, though I'm not planning to support and develop headers version. In module version they are stored in "finestream.ixx" file, in headers version they are realized in "bitremedy.cpp" and "finestream.h" files respectively. Use "example.cppm" or "example.cpp" to watch how it works, just disallow double-slash comments where you need. To watch the result file, use Windows binary editor and Windows programmer calculator to convert hex into bin formats or some analog of them.  
 
-FINE WORDS ABOUT BITREMEDY:  
-1) BitRemedy elements are:  
+FINE WORDS ABOUT BITREMEDY:
+1) ``BitRemedy`` elements are:  
 ![bitremedyelements](/pictures/00about_bitremedy/0.jpg)  
 ``unsigned char`` cByte is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
 ``int`` bitsN is used to store the number of bits you use. It's made int for convenience and less number of implicit type casts.  
 ``bool`` movedToLeft is used to store info about either bit sequence is left aligned, true when left aligned and false when right aligned.  
-2) BitRemedy methods are:  
+2) ``BitRemedy`` methods are:  
 ![bitremedymethods](/pictures/00about_bitremedy/1.jpg)  
-In constructor you can initialize BitRemedy cByte either with bitset <8> or unsigned char or type that can be automaticaly converted to unsigned char. Also you can use figure brackets for initialization.  
-ClearMargins() is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a BitRemedy you can be sure it's alright, but you need to be careful when you change the value, or to use CheckValidity() method if you are not sure.  
-MoveToLeft() and MoveToRight() move bit sequence close to the left or right edge respectively.  
-MergeWith() method add another BitRemedy passed as an argument to initial one, moving them all to left side and returning new BitRemedy if their whole length is more then one byte size (or BitRemedy with zeros if no).  
-Clear() assigns zeros to all BitRemedy members, and ClearToLeft() assigns all zeros but true for movedToLeft.  
-3) That's how you initialize a BitRemedy:  
+In constructor you can initialize ``BitRemedy`` cByte either with bitset <8> or unsigned char or type that can be automaticaly converted to unsigned char. Also you can use figure brackets for initialization.  
+``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``BitRemedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``CheckValidity()`` method if you are not sure.  
+``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
+``MergeWith()`` method add another ``BitRemedy`` passed as an argument to initial one, moving them all to left side and returning new ``BitRemedy`` if their whole length is more then one byte size (or ``BitRemedy`` with zeros if no).  
+``Clear()`` assigns zeros to all ``BitRemedy`` members, and ``ClearToLeft()`` assigns all zeros but true for movedToLeft.  
+3) That's how you initialize a ``BitRemedy``:  
 ![bitremedyinitialization](/pictures/00about_bitremedy/2.jpg)  
-All unused bits will be assigned 0 during initialization. But if a BitRemedy passed to finestream will have nonempty margins it will throw an error.  
+All unused bits will be assigned 0 during initialization. But if a ``BitRemedy`` passed to finestream will have nonempty margins it will throw an error.  
   
   
 FINE START:
