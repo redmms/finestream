@@ -18,7 +18,7 @@ FINE WORDS ABOUT BITREMEDY:
 2) ``BitRemedy`` methods are:  
 ![bitremedymethods](/pictures/00about_bitremedy/1.jpg)  
 In constructor you can initialize ``BitRemedy`` cByte either with bitset <8> or unsigned char or type that can be automaticaly converted to unsigned char. Also you can use figure brackets for initialization.  
-``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``BitRemedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``CheckValidity()`` method if you are not sure.  
+``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``BitRemedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``IsValid()`` method if you are not sure.  
 ``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
 ``MergeWith()`` method add another ``BitRemedy`` passed as an argument to initial one, moving them all to left side and returning new ``BitRemedy`` if their whole length is more then one byte size (or ``BitRemedy`` with zeros if no).  
 ``Clear()`` assigns zeros to all ``BitRemedy`` members, and ``ClearToLeft()`` assigns all zeros but true for movedToLeft.  
