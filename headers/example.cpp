@@ -94,6 +94,6 @@ int main() {
 	MyStruct s{ 7, {6, 6}, 5 };
 	//bsm << s;
 	// I plan this method for cases when you don't want to write to a file, you can contribute by commiting corrections:
-	//uint8_t bytes[16]{ 0 };
+	//unsigned char bytes[16]{ 0 };
 	//bsm.ToBytes(dq, bytes);
 }
