@@ -22,3 +22,4 @@ struct BitRemedy {
 	void Clear();
 	void ClearToLeft();
 };
+#undef uchar
