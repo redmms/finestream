@@ -1,4 +1,5 @@
 #pragma once
+#include "finestream.h"
 #include <vector>
 #include <array>
 #include <queue>
@@ -7,7 +8,9 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-#include "finestream.h";
+#include <string>
+#include <iostream>
+using namespace std;
 int main() {
 
 	FineStream bsm("output.txt");
