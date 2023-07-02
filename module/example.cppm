@@ -1,3 +1,6 @@
+import finestream;
+import <iostream>;
+import <bitset>;
 import <vector>;
 import <array>;
 import <queue>;
@@ -7,7 +10,6 @@ import <map>;
 import <set>;
 import <unordered_set>;
 import <tuple>;
-import finestream;
 using namespace std;
 int main() {
 
@@ -36,7 +38,7 @@ int main() {
 	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn; 
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
+	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
 	BitRemedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
@@ -55,7 +57,7 @@ int main() {
 	}
 	//bsm << vb;
 	//cout << bsm.ExtraZerosN() << endl;
-	bsm << brc << brd << vb << bsn; // you can easily combine them in any order
+	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
 	int carr[3]{ 1, 2, 3 };
 	//bsm << carr;
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
