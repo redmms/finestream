@@ -12,6 +12,7 @@ concept Container = requires(T t)
 	begin(t);
 	end(t);
 };
+constexpr int CHB1 = CHAR_BIT - 1;
 export struct BitRemedy {
 	uchar cByte{ 0 };
 	int bitsN{ 0 };
@@ -223,7 +224,6 @@ public:
 		}
 		return *this;
 	}
-	constexpr int CHB1 = CHAR_BIT - 1;
 	FineStream& operator << (const bool bit) {
 		//if (!brLastByte.movedToLeft) {
 		//	cout << "Warning: last byte isn't left aligned" << endl;
