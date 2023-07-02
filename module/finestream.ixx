@@ -1,10 +1,10 @@
 export module finestream;
-export import <iostream>;
-export import <bitset>;
+import <iostream>;
+import <bitset>;
 import <fstream>;
 import <type_traits>;
 import <limits>;
-#define uchar unsigned char
+using uchar = unsigned char;
 using namespace std;
 template <typename T>
 concept Container = requires(T t)
@@ -267,4 +267,3 @@ public:
 		return *this;
 	}
 };
-#undef uchar
