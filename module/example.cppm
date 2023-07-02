@@ -62,10 +62,10 @@ int main() {
 	//bsm << carr;
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
 	//bsm << cpparr;
-	//tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
-	////bsm << tup;
-	//tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
-	////bsm << lltup;
+	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
+	//bsm << tup;
+	tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
+	//bsm << lltup;
 	pair<int, double> pair{ 1, 3.14 };
 	//bsm << pair;
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
