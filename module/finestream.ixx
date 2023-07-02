@@ -89,7 +89,7 @@ export struct BitRemedy {
 	}
 	BitRemedy MergeWith(BitRemedy _addend) {
 		// merges two unfull bytes and returns remedy as BitRemedy newRemedy
-		BitRemedy addend = _addend, newRemedy;
+		BitRemedy addend{ _addend }, newRemedy;
 		addend.MoveToLeft();
 		this->MoveToLeft();
 		int bitSum = this->bitsN + addend.bitsN;
@@ -223,13 +223,14 @@ public:
 		}
 		return *this;
 	}
+	constexpr int CHB1 = CHAR_BIT - 1;
 	FineStream& operator << (const bool bit) {
 		//if (!brLastByte.movedToLeft) {
 		//	cout << "Warning: last byte isn't left aligned" << endl;
 		//	brLastByte.MoveToLeft();
 		//}
 		if (bit) {
-			brLastByte.cByte |= (true << (CHAR_BIT - 1 - brLastByte.bitsN)); // CHAR_BIT - curr. seq. len. - new seq. len. = CHAR_BIT - brLastByte.bitsN - 1 = 7 - brLastByte.bitsN
+			brLastByte.cByte |= (true << (CHB1 - brLastByte.bitsN)); // CHAR_BIT - curr. seq. len. - new seq. len. = CHAR_BIT - brLastByte.bitsN - 1 = CHB1 - brLastByte.bitsN
 			brLastByte.bitsN++;
 		}
 		else {
