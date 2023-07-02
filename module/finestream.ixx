@@ -72,7 +72,7 @@ export struct BitRemedy {
 		}
 	}
 	BitRemedy& MoveToLeft() {
-		// moves bits to left border of bitset
+		// moves bits to left border of cByte
 		if (!this->movedToLeft) {
 			cByte <<= (CHAR_BIT - bitsN);
 			movedToLeft = true;
@@ -80,7 +80,7 @@ export struct BitRemedy {
 		return *this;
 	}
 	BitRemedy& MoveToRight() {
-		// moves bits to right border of bitset
+		// moves bits to right border of cByte
 		if (this->movedToLeft) {
 			cByte >>= (CHAR_BIT - bitsN);
 			movedToLeft = false;
