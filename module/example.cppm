@@ -37,7 +37,7 @@ int main() {
 	bitset <8> bs(7);
 	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
-	//bsm << bsn; 
+	//bsm << bsn;
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
 	BitRemedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
@@ -46,7 +46,7 @@ int main() {
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
-	//bsm.PutByte(bra); bsm.PutByte(brb);  // no compression way
+	//bsm.PutByte(bra); bsm.PutByte(brb);
 	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
 	bool b = true;
 	//bsm << b << b << b;
@@ -66,8 +66,7 @@ int main() {
 	//bsm << tup;
 	tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
 	//bsm << lltup;
-	pair<int, double> pair{ 1, 3.14 };
-	//bsm << pair;
+	pair<int, double> pair{ 256, 3.14 };
 	deque <int> dq{ 7, 6, 5 }; // fine, it's a sequence container, it has begin() and end()
 	//bsm << dq;
 	queue <int> q;  // oops, seems you use a container adaptor, contact me, if you want to add them to FineStream
@@ -78,7 +77,7 @@ int main() {
 		pq.push(el);
 		st.push(el);
 	}
-	// bsm << q;
+	//bsm << q;
 	union MyUnion { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyUnion u{ 0xFFFFFFFF };
 	//bsm.PutAny(u); bsm << o << O;
@@ -86,7 +85,7 @@ int main() {
 	u.u0 = 7;
 	u.u1[0] = 6;
 	u.u1[1] = 6;
-	u.u2 = 5;
+	u.u2 = 256;
 	//bsm << u.u0; // 0x05
 	//bsm << u.u1[0]; // 0x00 0x05
 	//bsm << u.u1[1]; // 0x00 0x00
