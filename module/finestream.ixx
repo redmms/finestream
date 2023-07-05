@@ -6,54 +6,61 @@ import <type_traits>;
 using uchar = unsigned char;
 using namespace std;
 template <typename T>
-concept Container = requires(T t)
+concept container = requires(T t)
 {
 	begin(t);
 	end(t);
 };
 constexpr int CHB1 = CHAR_BIT - 1;
-export struct BitRemedy {
-	uchar cByte{ 0 };
-	int bitsN{ 0 };
-	bool movedToLeft{ false }; // alias for leftAligned
+export struct bitremedy {
+	uchar cBYTE{ 0 };
+	int BITSN{ 0 };
+	bool MOVED_LEFT{ false }; // alias for leftAligned
 
-	BitRemedy(bitset <CHAR_BIT> _bsByte, int _bitsN, bool _movedToLeft) :
-		cByte(static_cast<uchar>(_bsByte.to_ulong())), bitsN(_bitsN), movedToLeft(_movedToLeft)
+	bitremedy(bitset <CHAR_BIT> _bsBYTE, int _BITSN, bool _MOVED_LEFT) :
+		cBYTE(static_cast<uchar>(_bsBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		CheckBitsn();
 		ClearMargins();
 	}
-	BitRemedy(uchar _iByte, int _bitsN, bool _movedToLeft) :
-		cByte(_iByte), bitsN(_bitsN), movedToLeft(_movedToLeft)
+	bitremedy(uchar _iBYTE, int _BITSN, bool _MOVED_LEFT) :
+		cBYTE(_iBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		CheckBitsn();
 		ClearMargins();
 	}
-	BitRemedy() {};
+	bitremedy() {};
 
-	inline BitRemedy& ClearMargins() {
-		if (movedToLeft) {
-			(cByte >>= (CHAR_BIT - bitsN)) <<= (CHAR_BIT - bitsN);
+	inline bitremedy& ClearMargins() {
+		if (MOVED_LEFT) {
+			(cBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
+			// 1) cBYTE >>= CHAR_BIT - BITSN;
+			//    cBYTE <<= CHAR_BIT - BITSN;
+			// 2) (cBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
+			// 3) cBYTE &= 0xFF << (CHAR_BIT - BITSN); // dangerous for CHAR_BIT more than 8
+			// 4) cBYTE &= ~(0xFF >> BITSN);  // dangerous for CHAR_BIT more than 8
+			// 5) cBYTE &= ~(0xFFFFFFFF >> BITSN); // will not work
+			// 6) cBYTE &= 0xFFFFFFFF << (CHAR_BIT - BITSN); // dangerous for CHAR_BIT more than 32 and will not work for MOVED_LEFT == false;
 		}
 		else {
-			(cByte <<= (CHAR_BIT - bitsN)) >>= (CHAR_BIT - bitsN);
+			(cBYTE <<= (CHAR_BIT - BITSN)) >>= (CHAR_BIT - BITSN);
 		}
 		return *this;
 	}
 	void CheckBitsn() const {
-		if (bitsN > CHAR_BIT || bitsN < 0) {
-			throw out_of_range("Invalid bitsN value. It should be from 0 to 8 (or up to byte size of your machine).");
+		if (BITSN > CHAR_BIT || BITSN < 0) {
+			throw out_of_range("Invalid BITSN value. It should be from 0 to 8 (or up to byte size of your machine).");
 		}
 	}
 	void CheckMargins() const {
-		if (movedToLeft) {
-			if (uchar(cByte << bitsN)) {
-				throw logic_error("Extra '1' bits in BitRemedy.cByte. Use method ClearMargins ");
+		if (MOVED_LEFT) {
+			if (uchar(cBYTE << BITSN)) {
+				throw logic_error("Extra '1' bits in bitremedy.cBYTE. Use method ClearMargins ");
 			}
 		}
 		else {
-			if (uchar(cByte >> bitsN)) {
-				throw logic_error("Extra '1' bits in BitRemedy.cByte. Use method ClearMargins ");
+			if (uchar(cBYTE >> BITSN)) {
+				throw logic_error("Extra '1' bits in bitremedy.cBYTE. Use method ClearMargins ");
 			}
 		}
 	}
@@ -67,203 +74,227 @@ export struct BitRemedy {
 			CheckMargins(); // should be in this exact order
 			return true;
 		}
-		catch (exception& e) {
+		catch (exception& E) {
 			return false;
 		}
 	}
-	BitRemedy& MoveToLeft() {
-		// moves bits to left border of cByte
-		if (!this->movedToLeft) {
-			cByte <<= (CHAR_BIT - bitsN);
-			movedToLeft = true;
+	bitremedy& MoveToLeft() {
+		// moves bits to left border of cBYTE
+		if (!this->MOVED_LEFT) {
+			cBYTE <<= (CHAR_BIT - BITSN);
+			MOVED_LEFT = true;
 		}
 		return *this;
 	}
-	BitRemedy& MoveToRight() {
-		// moves bits to right border of cByte
-		if (this->movedToLeft) {
-			cByte >>= (CHAR_BIT - bitsN);
-			movedToLeft = false;
+	bitremedy& MoveToRight() {
+		// moves bits to right border of cBYTE
+		if (this->MOVED_LEFT) {
+			cBYTE >>= (CHAR_BIT - BITSN);
+			MOVED_LEFT = false;
 		}
 		return *this;
 	}
-	BitRemedy MergeWith(BitRemedy _addend) {
-		// merges two unfull bytes and returns remedy as BitRemedy newRemedy
-		BitRemedy addend{ _addend }, newRemedy;
-		addend.MoveToLeft();
+	bitremedy MergeWith(bitremedy _ADDEND) {
+		// merges two unfull bytes and returns remedy as bitremedy NEW_REMEDY
+		bitremedy ADDEND{ _ADDEND }, NEW_REMEDY;
+		ADDEND.MoveToLeft();
 		this->MoveToLeft();
-		int bitSum = this->bitsN + addend.bitsN;
-		if (bitSum > CHAR_BIT) {
-			int charRemedy = bitSum % CHAR_BIT;
-			newRemedy.cByte = addend.cByte << (addend.bitsN - charRemedy); // first (addend.bitsN - charRemedy - 1) bits is a part used to merge with this->cByte, we erase it in newRemedy
-			newRemedy.bitsN = charRemedy;
-			newRemedy.movedToLeft = true;
+		int BIT_SUM = this->BITSN + ADDEND.BITSN;
+		if (BIT_SUM > CHAR_BIT) {
+			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;
+			NEW_REMEDY.cBYTE = ADDEND.cBYTE << (ADDEND.BITSN - CHAR_REMEDY); // first (ADDEND.BITSN - CHAR_REMEDY - 1) bits is a part used to merge with this->cBYTE, we erase it in NEW_REMEDY
+			NEW_REMEDY.BITSN = CHAR_REMEDY;
+			NEW_REMEDY.MOVED_LEFT = true;
 		}
-		this->cByte |= addend.cByte >> this->bitsN;
-		this->bitsN = min(bitSum, CHAR_BIT);
-		return newRemedy;
+		this->cBYTE |= ADDEND.cBYTE >> this->BITSN;
+		this->BITSN = min(BIT_SUM, CHAR_BIT);
+		return NEW_REMEDY;
 	}
 	inline void Clear() {
-		cByte = 0;
-		bitsN = 0;
-		movedToLeft = false;
+		cBYTE = 0;
+		BITSN = 0;
+		MOVED_LEFT = false;
 	}
 	inline void ClearToLeft() {
-		cByte = 0;
-		bitsN = 0;
-		movedToLeft = true;
+		cBYTE = 0;
+		BITSN = 0;
+		MOVED_LEFT = true;
 	}
 };
-export class FineStream {
+export class finestream {
 private:
-	fstream fileStream;
-	BitRemedy brLastByte;
+	fstream FILE_STREAM;
+	bitremedy brLAST_BYTE;
 public:
-	FineStream(string filePath) {
-		fileStream.open(filePath, ios::binary | ios::out);
-		brLastByte.movedToLeft = true;
+	finestream(string FILE_PATH) {
+		FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
+		brLAST_BYTE.MOVED_LEFT = true;
 	}
-	~FineStream() {
-		if (brLastByte.bitsN) { // output buffer for last byte before closing filestream
-			fileStream.put(brLastByte.cByte);
+	~finestream() {
+		if (brLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
+			FILE_STREAM.put(brLAST_BYTE.cBYTE);
 		}
-		fileStream.close();
+		FILE_STREAM.close();
 	}
-	BitRemedy GetLastByte() {
-		return brLastByte;
+	void Flush() {
+		if (brLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
+			FILE_STREAM.put(brLAST_BYTE.cBYTE);
+			brLAST_BYTE.ClearToLeft();
+		}
+	}
+	bitremedy GetLastByte() {
+		return brLAST_BYTE;
 	}
 	inline int ExtraZerosN() {
-		return brLastByte.bitsN ? CHAR_BIT - brLastByte.bitsN : 0;
+		return brLAST_BYTE.BITSN ? CHAR_BIT - brLAST_BYTE.BITSN : 0;
 	}
-	inline void PutByte(const uchar cByte) {
-			BitRemedy brByte{ cByte, CHAR_BIT, true };
-			BitRemedy newRemedy = brLastByte.MergeWith(brByte);
-			if (brLastByte.bitsN == CHAR_BIT) {
-				fileStream.put(brLastByte.cByte);
-				brLastByte = newRemedy;
+	inline void PutByte(const uchar cBYTE) {
+			bitremedy brBYTE{ cBYTE, CHAR_BIT, true },
+					  brNEW_REMEDY = brLAST_BYTE.MergeWith(brBYTE);
+			if (brLAST_BYTE.BITSN == CHAR_BIT) {
+				FILE_STREAM.put(brLAST_BYTE.cBYTE);
+				brLAST_BYTE = brNEW_REMEDY;
 			}
 	}
-	inline void PutByte(const bitset <CHAR_BIT>& bsByte) {
-		BitRemedy brByte(bsByte, CHAR_BIT, true);
-		BitRemedy newRemedy = brLastByte.MergeWith(brByte);
-		if (brLastByte.bitsN == CHAR_BIT) {
-			fileStream.put(brLastByte.cByte);
-			brLastByte = newRemedy;
+	inline void PutByte(const bitset <CHAR_BIT>& bsBYTE) {
+		bitremedy brBYTE(bsBYTE, CHAR_BIT, true),
+				  brNEW_REMEDY = brLAST_BYTE.MergeWith(brBYTE);
+		if (brLAST_BYTE.BITSN == CHAR_BIT) {
+			FILE_STREAM.put(brLAST_BYTE.cBYTE);
+			brLAST_BYTE = brNEW_REMEDY;
 		}
 	}
-	inline void PutByte(const BitRemedy& brByte) {
-		//brByte.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every BitRemedy, it would slow down the stream
-		BitRemedy newRemedy = brLastByte.MergeWith(brByte);
-		if (brLastByte.bitsN == CHAR_BIT) {
-			fileStream.put(brLastByte.cByte);
-			brLastByte = newRemedy;
+	inline void PutByte(const bitremedy& brBYTE) {
+		//brBYTE.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
+		bitremedy brNEW_REMEDY = brLAST_BYTE.MergeWith(brBYTE);
+		if (brLAST_BYTE.BITSN == CHAR_BIT) {
+			FILE_STREAM.put(brLAST_BYTE.cBYTE);
+			brLAST_BYTE = brNEW_REMEDY;
 		}
 	}
 	template <typename T>  // if you know how to safely use reference type parameter here - commit it
-	inline void PutAny(T value) {
-		uchar* bytePtr = reinterpret_cast<uchar*>(&value);
-		for (int i = 0, size = sizeof(value); i < size; ++i) {
-			PutByte(bytePtr[i]);
+	inline void PutAny(T DATA) {
+		uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
+		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; ++I) {
+			PutByte(BYTE_PTR[I]);
 		}
 	}
 	template <typename T>
-	inline void PutAnyReversed(T value) {
-		uchar* bytePtr = reinterpret_cast<uchar*>(&value);
-		for (int i = sizeof(value) - 1; i >= 0; --i) {
-			PutByte(bytePtr[i]);
+	inline void PutAnyReversed(T DATA) {
+		uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
+		for (int I = sizeof(DATA) - 1; I >= 0; --I) {
+			PutByte(BYTE_PTR[I]);
 		}
 	}
 	template <typename T>
-	void ToBytes(T& value, uchar* bytesArray) {  // prototype in winAPI style, not working
-		uchar* bytePtr = reinterpret_cast<uchar*>(&value);
-		for (int i = sizeof(value) - 1; i >= 0; --i) {
-			bytesArray[i] = bytePtr[i];
+	void ToBytes(T& DATA, uchar* BYTES_ARRAY) {  // prototype in winAPI style, not working
+		uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
+		for (int I = sizeof(DATA) - 1; I >= 0; --I) {
+			BYTES_ARRAY[I] = BYTE_PTR[I];
 		}
 	}
-	FineStream& operator << (const bitset <CHAR_BIT>& boardLine) { // UNCORRECT REALIZATION? need to add if (brLastByte.bitsN) to all Put methods
-		PutByte(boardLine);
+	inline uchar GetByte() {
+		char cBYTE;
+		FILE_STREAM.get(cBYTE);
+		if (brLAST_BYTE.BITSN) {
+			bitremedy brREAD_BYTE{ (uchar) cBYTE, CHAR_BIT, true },
+					  brNEW_REMEDY = brLAST_BYTE.MergeWith(brREAD_BYTE);
+			cBYTE = brLAST_BYTE.cBYTE;
+			brLAST_BYTE = brNEW_REMEDY;
+		}
+		else {
+			brLAST_BYTE = { (uchar) cBYTE, CHAR_BIT, true };
+		}
+		return cBYTE; ///*(const uchar)*/ what will it return with inline key word? will it be a copy or original brLAST_BYTE.cBYTE?
+	} // добавить inline void GetByte(bitset <CHAR_BIT) и для bitremedy)
+	finestream& operator >> (bitset <CHAR_BIT>& bsBYTE) {
+		bsBYTE = GetByte();
+		return *this;
+	}
+	finestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (brLAST_BYTE.BITSN) to all Put methods
+		PutByte(bsBYTE);
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	FineStream& operator << (const bitset <N>& boardLine) {
-		string strSet = boardLine.to_string();
-		int LPZSIZE = brLastByte.bitsN ?
-			(N >= (CHAR_BIT - brLastByte.bitsN) ? // possible to replace >= by >
-				CHAR_BIT - brLastByte.bitsN :
-				N) :
-			0, // left puzzle size
+	finestream& operator << (const bitset <N>& bsLINE) {
+		string strSET = bsLINE.to_string();
+		int LPZSIZE = brLAST_BYTE.BITSN ?
+							(N >= (CHAR_BIT - brLAST_BYTE.BITSN) ? // possible to replace >= by >
+							CHAR_BIT - brLAST_BYTE.BITSN :
+							N) :
+					  0, // left puzzle size
 			NOLPZN = N - LPZSIZE, // number of elements without left puzzle, dangerous to use size_t N here, that's why it's int;
 			RPZSIZE = NOLPZN % CHAR_BIT, // right puzzle size (remedy on the right side of bitset)
 			RPZLB = N - RPZSIZE; // right puzzle left border
 		if (LPZSIZE) {  // output left puzzle
-			bitset <CHAR_BIT> bsLeftPuzzle(strSet, 0, LPZSIZE);
-			if (N < CHAR_BIT - brLastByte.bitsN) {
-				BitRemedy brLeftPuzzle{ bsLeftPuzzle, N, false };
-				brLastByte.MergeWith(brLeftPuzzle);
+			bitset <CHAR_BIT> bsLEFT_PUZZLE(strSET, 0, LPZSIZE);
+			if (N < CHAR_BIT - brLAST_BYTE.BITSN) {
+				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, N, false };
+				brLAST_BYTE.MergeWith(brLEFT_PUZZLE);
 			}
 			else {
-				BitRemedy brLeftPuzzle{ bsLeftPuzzle, LPZSIZE, false }; // compare with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
-				brLastByte.MergeWith(brLeftPuzzle);
-				fileStream.put(brLastByte.cByte);
-				brLastByte.ClearToLeft();
+				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, LPZSIZE, false }; // compare with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
+				brLAST_BYTE.MergeWith(brLEFT_PUZZLE);
+				FILE_STREAM.put(brLAST_BYTE.cBYTE);
+				brLAST_BYTE.ClearToLeft();
 			}
 		}
 		if (NOLPZN >= CHAR_BIT) {  // output middle bytes
-			for (short l = LPZSIZE, r = l + CHAR_BIT; r <= RPZLB; l += CHAR_BIT, r += CHAR_BIT) {
-				bitset <CHAR_BIT> bsMiddleByte(strSet, l, CHAR_BIT);
-				fileStream.put(static_cast <uchar> (bsMiddleByte.to_ulong()) );
+			for (short L = LPZSIZE, R = L + CHAR_BIT; R <= RPZLB; L += CHAR_BIT, R += CHAR_BIT) {
+				bitset <CHAR_BIT> bsMIDDLE_BYTE(strSET, L, CHAR_BIT);
+				FILE_STREAM.put(static_cast <uchar> (bsMIDDLE_BYTE.to_ulong()) );
 			}
 		}
 		if (RPZSIZE) {  // output right puzzle // should be after if (N >= CHAR_BIT) otherwise output order will be wrong
-			bitset <CHAR_BIT> bsRightPuzzle(strSet, RPZLB, RPZSIZE);
-			BitRemedy brRightPuzzle{ bsRightPuzzle, RPZSIZE, false };
-			brLastByte = brRightPuzzle.MoveToLeft();
+			bitset <CHAR_BIT> bsRIGHT_PUZZLE(strSET, RPZLB, RPZSIZE);
+			bitremedy brRIGHT_PUZZLE{ bsRIGHT_PUZZLE, RPZSIZE, false };
+			brLAST_BYTE = brRIGHT_PUZZLE.MoveToLeft();
 		}
 		return *this;
 	}
-	FineStream& operator << (const BitRemedy& brByte) {
-		brByte.CheckValidity();
-		PutByte(brByte);
+	finestream& operator << (const bitremedy& brBYTE) {
+		brBYTE.CheckValidity();
+		PutByte(brBYTE);
 		return *this;
 	}
-	FineStream& operator << (const bool bit) {
-		//if (!brLastByte.movedToLeft) {
+	finestream& operator << (const bool bBYTE) {
+		//if (!brLAST_BYTE.MOVED_LEFT) {
 		//	cout << "Warning: last byte isn't left aligned" << endl;
-		//	brLastByte.MoveToLeft();
+		//	brLAST_BYTE.MoveToLeft();
 		//}
-		if (bit) {
-			brLastByte.cByte |= (true << (CHB1 - brLastByte.bitsN)); // CHAR_BIT - curr. seq. len. - new seq. len. = CHAR_BIT - brLastByte.bitsN - 1 = CHB1 - brLastByte.bitsN
-			brLastByte.bitsN++;
+		if (bBYTE) {
+			brLAST_BYTE.cBYTE |= (true << (CHB1 - brLAST_BYTE.BITSN)); // CHAR_BIT - curr. seq. len. - new seq. len. = CHAR_BIT - brLAST_BYTE.BITSN - 1 = CHB1 - brLAST_BYTE.BITSN
+			brLAST_BYTE.BITSN++;
 		}
 		else {
-			brLastByte.bitsN++;
+			brLAST_BYTE.BITSN++;
 		}
-		if (brLastByte.bitsN == CHAR_BIT) {
-			fileStream.put(brLastByte.cByte);
-			brLastByte.ClearToLeft();
+		if (brLAST_BYTE.BITSN == CHAR_BIT) {
+			FILE_STREAM.put(brLAST_BYTE.cBYTE);
+			brLAST_BYTE.ClearToLeft();
 		}
 		return *this;
 	}
 	template <typename T>
-	FineStream& operator << (const T& type) {
-		if constexpr (Container <T>) {
-			for (const auto& element : type) {
-				*this << element;
+	finestream& operator << (const T& DATA) {
+		if constexpr (container <T>) {
+			for (const auto& ELEMENT : DATA) {
+				*this << ELEMENT;
 			}
 		}
 		else if constexpr (is_array_v <T>) {
-			for (int i = 0, size = sizeof(type) / sizeof(type[0]); i < size; i++) {
-				*this << type[i];
+			for (int I = 0, SIZE = sizeof(DATA) / sizeof(DATA[0]); I < SIZE; I++) {
+				*this << DATA[I];
 			}
 		}
 		else if constexpr (sizeof(T) == 1) {
-			PutByte(type);
+			PutByte(DATA);
 		}
 		else if constexpr (is_arithmetic_v <T>) {
-			PutAnyReversed(type);
+			PutAnyReversed(DATA);
 		}
 		else {
-			PutAnyReversed(type);
+			PutAnyReversed(DATA);
 			cout << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 		}
 		return *this;
