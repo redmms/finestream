@@ -314,7 +314,7 @@ public:
 		}
 		else {
 			PutAnyReversed(DATA); // need to check endianness
-			cout << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
+			cerr << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 		}
 		return *this;
 	}
