@@ -1,4 +1,4 @@
-Don't use end lines at all.
+Don't use end lines, except between classes.
 XXX
 Don't skip first line with figure bracket, skip the last one. This brackets will work as end lines.{
 	Don't avoid figure brackets in "for" cycle with no exceptions. And try to use them for all blocks even it's one line only to make it easier to add new instructions in future.
