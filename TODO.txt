@@ -5,3 +5,4 @@
 -  add endianness check to template that uses PutAny() and PutAnyReversed()
 -  add check to bitremedy::MergeWith() for the situation where two bytes are full with BITSN == CHAR_BIT
 -  check how it will work with enum type
+-  add explicit check that FILE_STREAM is .good otherwise throw an error, if for example cannot read/write from it
