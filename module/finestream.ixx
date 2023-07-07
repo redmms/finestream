@@ -5,12 +5,16 @@ import <fstream>;
 import <type_traits>;
 using uchar = unsigned char;
 using namespace std;
+
+
 template <typename T>
 concept container = requires(T t)
 {
 	begin(t);
 	end(t);
 };
+
+
 constexpr int CHB1 = CHAR_BIT - 1;
 export struct bitremedy {
 	uchar cBYTE{ 0 };
@@ -100,7 +104,7 @@ export struct bitremedy {
 		ADDEND.MoveToLeft();
 		this->MoveToLeft();
 		int BIT_SUM = this->BITSN + ADDEND.BITSN;
-		if (BIT_SUM > CHAR_BIT) {
+		if (BIT_SUM > CHAR_BIT) { // add a check that BIT_SUM != 2 * CHAR_BIT or k * CHAR_BIT k := N
 			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;
 			NEW_REMEDY.cBYTE = ADDEND.cBYTE << (ADDEND.BITSN - CHAR_REMEDY); // first (ADDEND.BITSN - CHAR_REMEDY - 1) bits is a part used to merge with this->cBYTE, we erase it in NEW_REMEDY
 			NEW_REMEDY.BITSN = CHAR_REMEDY;
@@ -121,6 +125,8 @@ export struct bitremedy {
 		MOVED_LEFT = true;
 	}
 };
+
+
 export class finestream {
 private:
 	fstream FILE_STREAM;
@@ -202,15 +208,19 @@ public:
 			cBYTE = brLAST_BYTE.cBYTE;
 			brLAST_BYTE = brNEW_REMEDY;
 		}
-		else {
-			brLAST_BYTE = { (uchar) cBYTE, CHAR_BIT, true };
-		}
+		//else {
+		//	brLAST_BYTE = { (uchar) cBYTE, CHAR_BIT, true };
+		//}
 		return cBYTE; ///*(const uchar)*/ what will it return with inline key word? will it be a copy or original brLAST_BYTE.cBYTE?
 	} // добавить inline void GetByte(bitset <CHAR_BIT) и для bitremedy)
 	finestream& operator >> (bitset <CHAR_BIT>& bsBYTE) {
 		bsBYTE = GetByte();
 		return *this;
 	}
+	//template <int N> 
+	//finestream& operator >> (bitset <N>& bsLINE) {
+
+	//}
 	finestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (brLAST_BYTE.BITSN) to all Put methods
 		PutByte(bsBYTE);
 		return *this;
@@ -233,7 +243,7 @@ public:
 				brLAST_BYTE.MergeWith(brLEFT_PUZZLE);
 			}
 			else {
-				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, LPZSIZE, false }; // compare with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
+				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, LPZSIZE, false }; // compare speed with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
 				brLAST_BYTE.MergeWith(brLEFT_PUZZLE);
 				FILE_STREAM.put(brLAST_BYTE.cBYTE);
 				brLAST_BYTE.ClearToLeft();
@@ -294,7 +304,7 @@ public:
 			PutAnyReversed(DATA);
 		}
 		else {
-			PutAnyReversed(DATA);
+			PutAnyReversed(DATA); // need to check endianness
 			cout << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 		}
 		return *this;
