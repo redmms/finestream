@@ -217,10 +217,19 @@ public:
 		bsBYTE = GetByte();
 		return *this;
 	}
-	//template <int N> 
-	//finestream& operator >> (bitset <N>& bsLINE) {
-
-	//}
+	template <int N> 
+	finestream& operator >> (bitset <N>& bsLINE) {
+			(bsLINE <<= brLAST_BYTE.BITSN) |= brLAST_BYTE.cBYTE;  // check if no brLAST_BYTE remedy is lost here
+			for (short L = 0, R = L + CHAR_BIT; R <= N; L += CHAR_BIT, R += CHAR_BIT) {
+				(bsLINE <<= CHAR_BIT) |= GetByte();
+			}
+			int CHAR_REMEDY = (N % CHAR_BIT);
+			uchar cBYTE = GetByte();
+			bitremedy RIGHT_PUZZLE{ cBYTE, CHAR_BIT - CHAR_REMEDY, false };
+			brLAST_BYTE = (RIGHT_PUZZLE);
+			(bsLINE <<= CHAR_REMEDY) |= (cBYTE >> (CHAR_BIT - CHAR_REMEDY) ); // check if no brLAST_BYTE remedy is lost here
+			return *this;
+	}
 	finestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (brLAST_BYTE.BITSN) to all Put methods
 		PutByte(bsBYTE);
 		return *this;
