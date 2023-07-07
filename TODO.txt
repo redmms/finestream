@@ -4,3 +4,4 @@
 -  replace cout << "Warning"; by using stderr or something like that
 -  add endianness check to template that uses PutAny() and PutAnyReversed()
 -  add check to bitremedy::MergeWith() for the situation where two bytes are full with BITSN == CHAR_BIT
+-  check how it will work with enum type
