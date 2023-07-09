@@ -100,8 +100,8 @@ public:
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	ofinestream& operator << (const bitset <N>& bsLINE) {
-		string strSET = bsLINE.to_string();
+	ofinestream& operator << (const bitset <N>& BSLINE) {
+		string STRSET = BSLINE.to_string();
 		int LPZSIZE = BRLAST_BYTE.BITSN ?
 			(N >= (CHAR_BIT - BRLAST_BYTE.BITSN) ? // possible to replace >= by >
 				CHAR_BIT - BRLAST_BYTE.BITSN :
@@ -111,28 +111,28 @@ public:
 			RPZSIZE = NOLPZN % CHAR_BIT, // right puzzle size (remedy on the right side of bitset)
 			RPZLB = N - RPZSIZE; // right puzzle left border
 		if (LPZSIZE) {  // output left puzzle
-			bitset <CHAR_BIT> bsLEFT_PUZZLE(strSET, 0, LPZSIZE);
+			bitset <CHAR_BIT> BSLEFT_PUZZLE(STRSET, 0, LPZSIZE);
 			if (N < CHAR_BIT - BRLAST_BYTE.BITSN) {
-				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, N, false };
-				BRLAST_BYTE.MergeWith(brLEFT_PUZZLE);
+				bitremedy BRLEFT_PUZZLE{ BSLEFT_PUZZLE, N, false };
+				BRLAST_BYTE.MergeWith(BRLEFT_PUZZLE);
 			}
 			else {
-				bitremedy brLEFT_PUZZLE{ bsLEFT_PUZZLE, LPZSIZE, false }; // compare speed with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
-				BRLAST_BYTE.MergeWith(brLEFT_PUZZLE);
+				bitremedy BRLEFT_PUZZLE{ BSLEFT_PUZZLE, LPZSIZE, false }; // compare speed with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
+				BRLAST_BYTE.MergeWith(BRLEFT_PUZZLE);
 				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
 				BRLAST_BYTE.ClearToLeft();
 			}
 		}
 		if (NOLPZN >= CHAR_BIT) {  // output middle bytes
 			for (short L = LPZSIZE, R = L + CHAR_BIT; R <= RPZLB; L += CHAR_BIT, R += CHAR_BIT) {
-				bitset <CHAR_BIT> bsMIDDLE_BYTE(strSET, L, CHAR_BIT);
-				FILE_STREAM.put(static_cast <uchar> (bsMIDDLE_BYTE.to_ulong()));
+				bitset <CHAR_BIT> BSMIDDLE_BYTE(STRSET, L, CHAR_BIT);
+				FILE_STREAM.put(static_cast <uchar> (BSMIDDLE_BYTE.to_ulong()));
 			}
 		}
 		if (RPZSIZE) {  // output right puzzle // should be after if (N >= CHAR_BIT) otherwise output order will be wrong
-			bitset <CHAR_BIT> bsRIGHT_PUZZLE(strSET, RPZLB, RPZSIZE);
-			bitremedy brRIGHT_PUZZLE{ bsRIGHT_PUZZLE, RPZSIZE, false };
-			BRLAST_BYTE = brRIGHT_PUZZLE.MoveToLeft();
+			bitset <CHAR_BIT> BSRIGHT_PUZZLE(STRSET, RPZLB, RPZSIZE);
+			bitremedy BRRIGHT_PUZZLE{ BSRIGHT_PUZZLE, RPZSIZE, false };
+			BRLAST_BYTE = BRRIGHT_PUZZLE.MoveToLeft();
 		}
 		return *this;
 	}
@@ -200,7 +200,10 @@ public:
 			BRLAST_BYTE = BRNEW_REMEDY;
 		}
 		return CBYTE; ///*(const uchar)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.cBYTE?
-	} // add inline void GetByte(bitset <CHAR_BIT>) and GetByte(bitremedy)
+	} // add inline void GetByte(bitset <CHAR_BIT>) and GetByte(bitremedy) and Flush()
+	// void Flush(){
+	//
+    //}
 	ifinestream& operator >> (bitset <CHAR_BIT>& BSBYTE) {
 		BSBYTE = GetByte();
 		return *this;
@@ -215,7 +218,7 @@ public:
 		else {
 			(BSLINE <<= BRLAST_BYTE.BITSN) |= BRLAST_BYTE.MoveToRight().CBYTE;
 			short BSSIZE = N - BRLAST_BYTE.BITSN;
-			BRLAST_BYTE.Clear(); // don't forget to clear, other functions such as GetByte can depend on BRLAST_BYTE
+			BRLAST_BYTE.Clear(); // don't forget to clear, other functions such as GetByte() can depend on BRLAST_BYTE
 			for (; BSSIZE >= CHAR_BIT; BSSIZE -= CHAR_BIT) {
 				(BSLINE <<= CHAR_BIT) |= GetByte();
 			}
