@@ -64,18 +64,18 @@ public:
 			BRLAST_BYTE = BRNEW_REMEDY;
 		}
 	}
-	inline void PutByte(const bitset <CHAR_BIT>& bsBYTE) {
+	inline void PutByte(const bitset <CHAR_BIT>& BSBYTE) {
 		bitremedy
-			BRBYTE(bsBYTE, CHAR_BIT, true),
+			BRBYTE(BSBYTE, CHAR_BIT, true),
 			BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
 		if (BRLAST_BYTE.BITSN == CHAR_BIT) {
 			FILE_STREAM.put(BRLAST_BYTE.CBYTE);
 			BRLAST_BYTE = BRNEW_REMEDY;
 		}
 	}
-	inline void PutByte(const bitremedy& brBYTE) {
+	inline void PutByte(const bitremedy& BRBYTE) {
 		//BRBYTE.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
-		bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(brBYTE);
+		bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
 		if (BRLAST_BYTE.BITSN == CHAR_BIT) {
 			FILE_STREAM.put(BRLAST_BYTE.CBYTE);
 			BRLAST_BYTE = BRNEW_REMEDY;
@@ -95,8 +95,8 @@ public:
 			PutByte(BYTE_PTR[I]);
 		}
 	}
-	ofinestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (BRLAST_BYTE.BITSN) to all Put methods
-		PutByte(bsBYTE);
+	ofinestream& operator << (const bitset <CHAR_BIT>& BSBYTE) { // UNCORRECT REALIZATION? need to add if (BRLAST_BYTE.BITSN) to all Put methods
+		PutByte(BSBYTE);
 		return *this;
 	}
 	template <int N> // N - int operations occur
@@ -136,17 +136,17 @@ public:
 		}
 		return *this;
 	}
-	ofinestream& operator << (const bitremedy& brBYTE) {
-		brBYTE.CheckValidity();
-		PutByte(brBYTE);
+	ofinestream& operator << (const bitremedy& BRBYTE) {
+		BRBYTE.CheckValidity();
+		PutByte(BRBYTE);
 		return *this;
 	}
-	ofinestream& operator << (const bool bBYTE) {
+	ofinestream& operator << (const bool BBYTE) {
 		//if (!BRLAST_BYTE.MOVED_LEFT) {
 		//	cout << "Warning: last byte isn't left aligned" << endl;
 		//	BRLAST_BYTE.MoveToLeft();
 		//}
-		if (bBYTE) {
+		if (BBYTE) {
 			BRLAST_BYTE.CBYTE |= (true << (CHB1 - BRLAST_BYTE.BITSN)); // CHAR_BIT - curr. seq. len. - new seq. len. = CHAR_BIT - BRLAST_BYTE.BITSN - 1 = CHB1 - BRLAST_BYTE.BITSN
 			BRLAST_BYTE.BITSN++;
 		}
@@ -201,8 +201,8 @@ public:
 		}
 		return CBYTE; ///*(const uchar)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.cBYTE?
 	} // add inline void GetByte(bitset <CHAR_BIT>) and GetByte(bitremedy)
-	ifinestream& operator >> (bitset <CHAR_BIT>& bsBYTE) {
-		bsBYTE = GetByte();
+	ifinestream& operator >> (bitset <CHAR_BIT>& BSBYTE) {
+		BSBYTE = GetByte();
 		return *this;
 	}
 	template <int N>
@@ -224,7 +224,7 @@ public:
 				uchar CBYTE = GetByte();
 				(BSLINE <<= BSSIZE) |= (CBYTE >> NEW_REMEDY_SIZE);
 				BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false };
-			} // last bitset gets 1 bit left shifted more than neccessary
+			}
 		}
 		return *this;
 	}
