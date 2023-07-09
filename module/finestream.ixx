@@ -95,7 +95,7 @@ public:
 			PutByte(BYTE_PTR[I]);
 		}
 	}
-	ofinestream& operator << (const bitset <CHAR_BIT>& BSBYTE) { // UNCORRECT REALIZATION? need to add if (BRLAST_BYTE.BITSN) to all Put methods
+	ofinestream& operator << (const bitset <CHAR_BIT>& BSBYTE) {
 		PutByte(BSBYTE);
 		return *this;
 	}
