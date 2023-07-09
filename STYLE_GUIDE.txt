@@ -28,3 +28,46 @@ same about streams, use:
 don't use:
  cout << "123";
  cout << "456";
+Divide lines more than 80 characters to several lines.
+If you do several identifiers declarations close to each other, left align them, for example, and there's more than one operator for each command, I mean something except = operator, do several lines:
+you can write this way:
+	int A, B;
+or this way:
+	int A = B, C = D;
+but you can't write this way:
+	int A = B + C, D = E + F;
+use this instead:
+	int 
+		A = B + C,
+		D = E + F;
+another example:
+	int 
+		RPZSIZE = N % CHAR_BIT,
+		NEW_REMEDY_SIZE = - RPZSIZE + CHAR_BIT;
+	uchar 
+		CBYTE = GetByte();
+In "for" cycles separate each ; statement this way:
+	for (short 
+		L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
+		R <= N; 
+		L += CHAR_BIT, R += CHAR_BIT)
+	{
+		(BSLINE <<= CHAR_BIT) |= GetByte();
+	}
+Don't use this way:
+	for (short 
+		L = BRLAST_BYTE.BITSN, 
+		R = L + CHAR_BIT; 
+		R <= N; 
+		L += CHAR_BIT, 
+		R += CHAR_BIT)
+	{
+		(BSLINE <<= CHAR_BIT) |= GetByte();
+	}
+and don't use this way:
+	for (short 
+		L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
+		R <= N; 
+		L += CHAR_BIT, R += CHAR_BIT){
+			(BSLINE <<= CHAR_BIT) |= GetByte();
+	}
