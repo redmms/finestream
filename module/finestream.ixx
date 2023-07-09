@@ -19,7 +19,6 @@ export class finestream {
 protected:
 	fstream FILE_STREAM;
 	bitremedy BRLAST_BYTE;
-	bool IN{ false };
 public:
 	finestream(string FILE_PATH) {
 		FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
@@ -96,12 +95,12 @@ public:
 			PutByte(BYTE_PTR[I]);
 		}
 	}
-	finestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (BRLAST_BYTE.BITSN) to all Put methods
+	ofinestream& operator << (const bitset <CHAR_BIT>& bsBYTE) { // UNCORRECT REALIZATION? need to add if (BRLAST_BYTE.BITSN) to all Put methods
 		PutByte(bsBYTE);
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	finestream& operator << (const bitset <N>& bsLINE) {
+	ofinestream& operator << (const bitset <N>& bsLINE) {
 		string strSET = bsLINE.to_string();
 		int LPZSIZE = BRLAST_BYTE.BITSN ?
 			(N >= (CHAR_BIT - BRLAST_BYTE.BITSN) ? // possible to replace >= by >
@@ -137,12 +136,12 @@ public:
 		}
 		return *this;
 	}
-	finestream& operator << (const bitremedy& brBYTE) {
+	ofinestream& operator << (const bitremedy& brBYTE) {
 		brBYTE.CheckValidity();
 		PutByte(brBYTE);
 		return *this;
 	}
-	finestream& operator << (const bool bBYTE) {
+	ofinestream& operator << (const bool bBYTE) {
 		//if (!BRLAST_BYTE.MOVED_LEFT) {
 		//	cout << "Warning: last byte isn't left aligned" << endl;
 		//	BRLAST_BYTE.MoveToLeft();
@@ -161,7 +160,7 @@ public:
 		return *this;
 	}
 	template <typename T>
-	finestream& operator << (const T& DATA) {
+	ofinestream& operator << (const T& DATA) {
 		if constexpr (container <T>) {
 			for (const auto& ELEMENT : DATA) {
 				*this << ELEMENT;
@@ -202,30 +201,31 @@ public:
 		}
 		return CBYTE; ///*(const uchar)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.cBYTE?
 	} // add inline void GetByte(bitset <CHAR_BIT>) and GetByte(bitremedy)
-	finestream& operator >> (bitset <CHAR_BIT>& bsBYTE) {
-		IN = true;
+	ifinestream& operator >> (bitset <CHAR_BIT>& bsBYTE) {
 		bsBYTE = GetByte();
 		return *this;
 	}
 	template <int N>
-	finestream& operator >> (bitset <N>& BSLINE) {
-		IN = true;
-		(BSLINE <<= BRLAST_BYTE.BITSN) |= BRLAST_BYTE.MoveToRight().CBYTE;
-		for (short
-			L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT;
-			R <= N;
-			L += CHAR_BIT, R += CHAR_BIT)
-		{
-			(BSLINE <<= CHAR_BIT) |= GetByte();
+	ifinestream& operator >> (bitset <N>& BSLINE) {
+		if (N <= BRLAST_BYTE.BITSN) {
+			BSLINE = (BRLAST_BYTE.MoveToRight().CBYTE >> (BRLAST_BYTE.BITSN - N));
+			BRLAST_BYTE.BITSN -= N;
+			BRLAST_BYTE.ClearMargins();
 		}
-		int
-			RPZSIZE = N % CHAR_BIT,
-			NEW_REMEDY_SIZE = -RPZSIZE + CHAR_BIT; // RIGHT_PUZZLE is on the left of last byte, and NEW_REMEDY is on the right, that's why - + order is used
-		uchar
-			CBYTE = GetByte();
-		(BSLINE <<= RPZSIZE) |= (CBYTE >> NEW_REMEDY_SIZE);
-		BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false }; // .MoveToLeft()? Though in >> stream, it should be RightAligned instead, so this is OK
+		else {
+			(BSLINE <<= BRLAST_BYTE.BITSN) |= BRLAST_BYTE.MoveToRight().CBYTE;
+			short BSSIZE = N - BRLAST_BYTE.BITSN;
+			BRLAST_BYTE.Clear(); // don't forget to clear, other functions such as GetByte can depend on BRLAST_BYTE
+			for (; BSSIZE >= CHAR_BIT; BSSIZE -= CHAR_BIT) {
+				(BSLINE <<= CHAR_BIT) |= GetByte();
+			}
+			if (BSSIZE) {
+				int NEW_REMEDY_SIZE = CHAR_BIT - BSSIZE;
+				uchar CBYTE = GetByte();
+				(BSLINE <<= BSSIZE) |= (CBYTE >> NEW_REMEDY_SIZE);
+				BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false };
+			} // last bitset gets 1 bit left shifted more than neccessary
+		}
 		return *this;
 	}
-
 };
