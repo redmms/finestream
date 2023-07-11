@@ -9,7 +9,7 @@ You can also use any other type or container you want, it will not crash FineStr
 
 There's one ``bitremedy`` structure and one ``finestream`` class. I've written them in two variants for your convenience: using classical c-style header files, and using C++20 modules, though I'm not planning to support and develop headers version. In module version they are stored in "module/finestream.ixx" and "module/bitremedy" files, in headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively. Use "module/example.cppm" or "headers/example.cpp" to watch how it works, just disallow double-slash comments where you need. Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them. At the moment FineStream can write only to a file, but if the project gets some stars, all methods will be added, everything depends on you.
 
-Maximum speed at the moment is the speed of reading short ``bitset``s from a file, for ``bitset <3>`` it is 27.7 MB/s with /O2 MSVC compiler argument (maximum optimization of speed). For ``bool``s it works only 30% slower than a usual ``fstream``, but writes 8x times more information per one byte.
+Maximum speed at the moment is the speed of reading short ``bitset``s from a file, for ``bitset <3>`` it is 27.7 MB/s with /O2 MSVC compiler argument (maximum optimization of speed). For ``bool``s it works only 15% slower than a usual ``fstream``, but writes 8x times more information per one byte.
 
 It is also ready for running on embedded devices and other nonstandard machines with different byte sizes and different endianness.
 

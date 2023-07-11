@@ -37,12 +37,18 @@ public:
 			BYTES_ARRAY[I] = BYTE_PTR[I];
 		}
 	}
+	template<typename T>
+	bool IsLittleEndian(const T& value) {
+		return (endian::native == endian::little);
+	}
+	// bitset <N> ClearLeadingZeroes(arithmetic type)
+	// int CountLeadingZeroes();
 };
 
 
 export class ofinestream : public finestream {
 public:
-	ofinestream(string FILE) : finestream(FILE) {}
+	ofinestream(string FILE) : finestream(FILE) {	}
 	~ofinestream() {
 		if (BRLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
 			FILE_STREAM.put(BRLAST_BYTE.CBYTE);
@@ -74,7 +80,7 @@ public:
 		}
 	}
 	inline void PutByte(const bitremedy& BRBYTE) {
-		//BRBYTE.CheckValidity(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
+		//BRBYTE.ValidityTest(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
 		bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
 		if (BRLAST_BYTE.BITSN == CHAR_BIT) {
 			FILE_STREAM.put(BRLAST_BYTE.CBYTE);
@@ -84,14 +90,14 @@ public:
 	template <typename T>  // if you know how to safely use reference type parameter here - commit it
 	inline void PutAny(T DATA) {
 		uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
-		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; ++I) {
+		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			PutByte(BYTE_PTR[I]);
 		}
 	}
 	template <typename T>
 	inline void PutAnyReversed(T DATA) {
 		uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
-		for (int I = sizeof(DATA) - 1; I >= 0; --I) {
+		for (int I = sizeof(DATA) - 1; I >= 0; I--) {
 			PutByte(BYTE_PTR[I]);
 		}
 	}
@@ -137,7 +143,7 @@ public:
 		return *this;
 	}
 	ofinestream& operator << (const bitremedy& BRBYTE) {
-		BRBYTE.CheckValidity();
+		BRBYTE.ValidityTest();
 		PutByte(BRBYTE);
 		return *this;
 	}
@@ -175,10 +181,16 @@ public:
 			PutByte(DATA);
 		}
 		else if constexpr (is_arithmetic_v <T>) {
-			PutAnyReversed(DATA);
+			if (IsLittleEndian(DATA))
+				PutAnyReversed(DATA);
+			else
+				PutAny(DATA);
 		}
 		else {
-			PutAnyReversed(DATA); // need to check endianness
+			if  (IsLittleEndian(DATA))
+				PutAnyReversed(DATA);
+			else
+				PutAny(DATA);
 			cerr << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 		}
 		return *this;

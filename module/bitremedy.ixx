@@ -1,27 +1,86 @@
 export module bitremedy;
 import <bitset>;
 import <stdexcept>;
+import <iostream>;
 using uchar = unsigned char;
 using namespace std;
 
+
 export struct bitremedy {
+public:
 	uchar CBYTE{ 0 };
 	int BITSN{ 0 };
 	bool MOVED_LEFT{ false }; // alias for leftAligned
 
+
 	bitremedy(bitset <CHAR_BIT> _bsBYTE, int _BITSN, bool _MOVED_LEFT) :
 		CBYTE(static_cast<uchar>(_bsBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
-		CheckBitsn();
+		ConstructorBitsnTest();
 		ClearMargins();
 	}
 	bitremedy(uchar _iBYTE, int _BITSN, bool _MOVED_LEFT) :
 		CBYTE(_iBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
-		CheckBitsn();
+		ConstructorBitsnTest();
 		ClearMargins();
 	}
 	bitremedy() {};
+	virtual ~bitremedy() {};
+
+
+	virtual void CheckBitsn() const {
+		if ((BITSN > CHAR_BIT || BITSN < 0)) {
+			throw out_of_range("Error: invalid BITSN value. It should be from 0 to 8"
+							   "(or up to byte size of your machine).");
+		}
+	}
+	virtual void CheckMargins() const {
+		if (MOVED_LEFT) {
+			if (uchar(CBYTE << BITSN)) {
+				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
+								  "method ClearMargins()");
+			}
+		}
+		else {
+			if (uchar(CBYTE >> BITSN)) {
+				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
+								  "method ClearMargins()");
+			}
+		}
+	}
+	virtual inline void CheckValidity() const {
+		CheckBitsn();
+		CheckMargins(); // should be in this exact order
+	}
+	virtual inline void ConstructorBitsnTest() const {
+		try {
+			CheckBitsn();
+		}
+		catch (const exception& E) {
+			cerr << E.what() << endl;
+			abort();
+		}
+	}
+	virtual inline void ValidityTest() const {
+		try {
+			CheckValidity();
+		}
+		catch (const exception& E) {
+			cerr << E.what() << endl;
+			abort();
+		}
+	}
+	virtual inline bool IsValidTest() const {
+		try {
+			CheckValidity();
+			return true;
+		}
+		catch (const exception& E) {
+			return false;
+		}
+	}
+
 
 	inline bitremedy& ClearMargins() {
 		if (MOVED_LEFT) {
@@ -39,38 +98,7 @@ export struct bitremedy {
 		}
 		return *this;
 	}
-	void CheckBitsn() const {
-		if (BITSN > CHAR_BIT || BITSN < 0) {
-			throw out_of_range("Invalid BITSN value. It should be from 0 to 8 (or up to byte size of your machine).");
-		}
-	}
-	void CheckMargins() const {
-		if (MOVED_LEFT) {
-			if (uchar(CBYTE << BITSN)) {
-				throw logic_error("Extra '1' bits in bitremedy.cBYTE. Use method ClearMargins ");
-			}
-		}
-		else {
-			if (uchar(CBYTE >> BITSN)) {
-				throw logic_error("Extra '1' bits in bitremedy.cBYTE. Use method ClearMargins ");
-			}
-		}
-	}
-	inline void CheckValidity() const {
-		CheckBitsn();
-		CheckMargins(); // should be in this exact order
-	}
-	bool IsValid() {
-		try {
-			CheckBitsn();
-			CheckMargins(); // should be in this exact order
-			return true;
-		}
-		catch (exception& E) {
-			return false;
-		}
-	}
-	bitremedy& MoveToLeft() {
+	inline bitremedy& MoveToLeft() {
 		// moves bits to left border of cBYTE
 		if (!this->MOVED_LEFT) {
 			CBYTE <<= (CHAR_BIT - BITSN);
@@ -78,7 +106,7 @@ export struct bitremedy {
 		}
 		return *this;
 	}
-	bitremedy& MoveToRight() {
+	inline bitremedy& MoveToRight() {
 		// moves bits to right border of cBYTE
 		if (this->MOVED_LEFT) {
 			CBYTE >>= (CHAR_BIT - BITSN);
@@ -86,14 +114,18 @@ export struct bitremedy {
 		}
 		return *this;
 	}
-	bitremedy MergeWith(bitremedy _ADDEND) {
+	virtual bitremedy MergeWith(bitremedy _ADDEND) {
 		// merges two unfull bytes and returns remedy as bitremedy NEW_REMEDY
+		int BIT_SUM = this->BITSN + _ADDEND.BITSN;
+		if (BIT_SUM == CHAR_BIT << 1) {
+			cerr << "Warning: merging 2 full bytes will not change them." << endl;
+			return { 0, 0, 0 };
+		}
 		bitremedy ADDEND{ _ADDEND }, NEW_REMEDY;
 		ADDEND.MoveToLeft();
 		this->MoveToLeft();
-		int BIT_SUM = this->BITSN + ADDEND.BITSN;
-		if (BIT_SUM > CHAR_BIT) { // add a check that BIT_SUM != 2 * CHAR_BIT or k * CHAR_BIT k := N
-			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;
+		if (BIT_SUM > CHAR_BIT) {
+			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;  // can't it go after this->CBYTE assigning, to lessen calculations of BITSN etc.?
 			NEW_REMEDY.CBYTE = ADDEND.CBYTE << (ADDEND.BITSN - CHAR_REMEDY); // first (ADDEND.BITSN - CHAR_REMEDY - 1) bits is a part used to merge with this->cBYTE, we erase it in NEW_REMEDY
 			NEW_REMEDY.BITSN = CHAR_REMEDY;
 			NEW_REMEDY.MOVED_LEFT = true;
