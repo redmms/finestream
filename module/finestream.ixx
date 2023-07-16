@@ -19,11 +19,15 @@ export class finestream {
 protected:
 	fstream FILE_STREAM;
 	bitremedy BRLAST_BYTE;
+
+
 public:
 	finestream(string FILE_PATH) {
 		FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
 		BRLAST_BYTE.MOVED_LEFT = true;
 	}
+
+
 	bitremedy GetLastByte() {
 		return BRLAST_BYTE;
 	}
@@ -37,8 +41,7 @@ public:
 			BYTES_ARRAY[I] = BYTE_PTR[I];
 		}
 	}
-	template<typename T>
-	bool IsLittleEndian(const T& value) {
+	virtual inline bool IsLittleEndian() {
 		return (endian::native == endian::little);
 	}
 	// bitset <N> ClearLeadingZeroes(arithmetic type)
@@ -55,6 +58,8 @@ public:
 		}
 		FILE_STREAM.close();
 	}
+
+
 	void Flush() {
 		if (BRLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
 			FILE_STREAM.put(BRLAST_BYTE.CBYTE);
@@ -101,44 +106,35 @@ public:
 			PutByte(BYTE_PTR[I]);
 		}
 	}
-	ofinestream& operator << (const bitset <CHAR_BIT>& BSBYTE) {
+
+
+	inline ofinestream& operator << (const bitset <CHAR_BIT>& BSBYTE) {
 		PutByte(BSBYTE);
 		return *this;
 	}
 	template <int N> // N - int operations occur
-	ofinestream& operator << (const bitset <N>& BSLINE) {
-		string STRSET = BSLINE.to_string();
-		int LPZSIZE = BRLAST_BYTE.BITSN ?
-			(N >= (CHAR_BIT - BRLAST_BYTE.BITSN) ? // possible to replace >= by >
-				CHAR_BIT - BRLAST_BYTE.BITSN :
-				N) :
-			0, // left puzzle size
-			NOLPZN = N - LPZSIZE, // number of elements without left puzzle, dangerous to use size_t N here, that's why it's int;
-			RPZSIZE = NOLPZN % CHAR_BIT, // right puzzle size (remedy on the right side of bitset)
-			RPZLB = N - RPZSIZE; // right puzzle left border
-		if (LPZSIZE) {  // output left puzzle
-			bitset <CHAR_BIT> BSLEFT_PUZZLE(STRSET, 0, LPZSIZE);
-			if (N < CHAR_BIT - BRLAST_BYTE.BITSN) {
-				bitremedy BRLEFT_PUZZLE{ BSLEFT_PUZZLE, N, false };
-				BRLAST_BYTE.MergeWith(BRLEFT_PUZZLE);
-			}
-			else {
-				bitremedy BRLEFT_PUZZLE{ BSLEFT_PUZZLE, LPZSIZE, false }; // compare speed with bsLeftPuzzle <<=) >>= .toulong() cast to uchar
-				BRLAST_BYTE.MergeWith(BRLEFT_PUZZLE);
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
-				BRLAST_BYTE.ClearToLeft();
-			}
+	ofinestream& operator << (const bitset <N> & BSLINE) {
+		int LPZSIZE = CHAR_BIT - BRLAST_BYTE.BITSN;  // left puzzle size
+		if (N <= LPZSIZE) {
+			//(BRLAST_BYTE.MoveToRight().CBYTE <<= N) |= (uchar) BSLINE.to_ulong();
+			//BRLAST_BYTE.BITSN += N;
+			//FILE_STREAM.put(BRLAST_BYTE.MoveToLeft().CBYTE);
+			//BRLAST_BYTE.Clear();
+			PutByte({ (uchar)BSLINE.to_ulong(), N, false });  // just use my functions :))
 		}
-		if (NOLPZN >= CHAR_BIT) {  // output middle bytes
-			for (short L = LPZSIZE, R = L + CHAR_BIT; R <= RPZLB; L += CHAR_BIT, R += CHAR_BIT) {
-				bitset <CHAR_BIT> BSMIDDLE_BYTE(STRSET, L, CHAR_BIT);
-				FILE_STREAM.put(static_cast <uchar> (BSMIDDLE_BYTE.to_ulong()));
+		else {
+			bitset <N> MASK(pow(2, CHAR_BIT) - 1);
+			MASK <<= max(N - CHAR_BIT, 0);
+			if (BRLAST_BYTE.BITSN) {
+				PutByte({ (uchar) ((BSLINE & MASK) >> (N - LPZSIZE)).to_ulong(), LPZSIZE, false });  //? N-LPZSIZE?
+				MASK >>= LPZSIZE;
 			}
-		}
-		if (RPZSIZE) {  // output right puzzle // should be after if (N >= CHAR_BIT) otherwise output order will be wrong
-			bitset <CHAR_BIT> BSRIGHT_PUZZLE(STRSET, RPZLB, RPZSIZE);
-			bitremedy BRRIGHT_PUZZLE{ BSRIGHT_PUZZLE, RPZSIZE, false };
-			BRLAST_BYTE = BRRIGHT_PUZZLE.MoveToLeft();
+			int BSSIZE = N - LPZSIZE % CHAR_BIT;
+			for (; BSSIZE > 0; BSSIZE -= CHAR_BIT) {
+				PutByte({ (uchar) ((BSLINE & MASK) >> (BSSIZE - min(BSSIZE, CHAR_BIT) )).to_ulong(), 
+					min(BSSIZE, CHAR_BIT), false}); // last byte may be not CHAR_BIT length, that's why I use min()
+				MASK >>= CHAR_BIT;
+			}			
 		}
 		return *this;
 	}
@@ -181,13 +177,13 @@ public:
 			PutByte(DATA);
 		}
 		else if constexpr (is_arithmetic_v <T>) {
-			if (IsLittleEndian(DATA))
+			if (IsLittleEndian())
 				PutAnyReversed(DATA);
 			else
 				PutAny(DATA);
 		}
 		else {
-			if  (IsLittleEndian(DATA))
+			if  (IsLittleEndian())
 				PutAnyReversed(DATA);
 			else
 				PutAny(DATA);
@@ -216,6 +212,7 @@ public:
 	// void Flush(){
 	//
     //}
+
 	ifinestream& operator >> (bitset <CHAR_BIT>& BSBYTE) {
 		BSBYTE = GetByte();
 		return *this;
@@ -238,7 +235,7 @@ public:
 				int NEW_REMEDY_SIZE = CHAR_BIT - BSSIZE;
 				uchar CBYTE = GetByte();
 				(BSLINE <<= BSSIZE) |= (CBYTE >> NEW_REMEDY_SIZE);
-				BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false };
+				BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false };  // old remedy will be erased by .ClearMargins() here
 			}
 		}
 		return *this;
