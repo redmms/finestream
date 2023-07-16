@@ -13,14 +13,14 @@ public:
 	bool MOVED_LEFT{ false }; // alias for leftAligned
 
 
-	bitremedy(bitset <CHAR_BIT> _bsBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(static_cast<uchar>(_bsBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+	bitremedy(bitset <CHAR_BIT> _BSBYTE, int _BITSN, bool _MOVED_LEFT) :
+		CBYTE(static_cast<uchar>(_BSBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();
 	}
-	bitremedy(uchar _iBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(_iBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+	bitremedy(uchar _IBYTE, int _BITSN, bool _MOVED_LEFT) :
+		CBYTE(_IBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();
