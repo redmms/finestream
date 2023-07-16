@@ -38,19 +38,19 @@ int main() {
 	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
 			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
 	//bsm.PutByte(bra); bsm.PutByte(brb);
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
+	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
 	bool b = true;
 	//bsm << b << b << b;
-	//cout << bsm.GetLastByte().bitsN << " " << bsm.ExtraZerosN();
+	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto el : { 0, 12, 2, 4 }) {
 		vb[el] = 1;
