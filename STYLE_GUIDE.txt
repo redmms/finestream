@@ -1,14 +1,15 @@
-Don't use end lines, except between classes.
-XXX
-Add two empty lines before classes and structures and two line after. Between two classes or structures use two empty lines instead of four.
+Don't use end lines, except between classes, or between logic parts, for example between member variables and constrtuctors of a class.
+
+
+Add two empty lines before classes and structures and two lines after. Between two classes or structures use two empty lines instead of four.
 Don't skip first line with figure bracket, skip the last one. This brackets will work as end lines.{
-	Don't avoid figure brackets in "for" cycle with no exceptions. And try to use them for all blocks even it's one line only, to make it easier to add new instructions in future.
+	Don't avoid figure brackets in "for" cycle with no exceptions. And try to use them for all blocks even if it's one line only, to make it easier to add new instructions in future.
 	For any type, concept, structure or class name use lower case, try to name them with one word, or with one word with 2-3 contractions, if not possible use_between words, but as rare as you can.
 }
 For any function, including methods use CamelCase(), don't add m_CamelCase() or strCamelCase();
-For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool bBYTE, string strNUMBER. If it's a phraze and at least one full word in it without contraction use _, otherwise make it a single word.
-In macros use the same rules, if it's macro for a type, use lwcs, if it's macro for a function use #define Macro(x, y) OriginalFunctionDoingThisAndThis(x, y), if it's macro for a variable or other identifier use UPCS.
-If you comment your commentary make  // two spaces before slashes and one space after, if you are commenting code to disallow it don't use a space after it: //int a = 0;
+For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool BBYTE, string STRNUMBER. If it's a phraze and at least one full word in it without contraction use _, otherwise make it a single word.
+In macros use the same rules, if it's a macro for a type, use lwcs, if it's a macro for a function use #define Macro(x, y) OriginalFunctionDoingThisAndThis(x, y), if it's macro for a variable or other identifier use UPCS.
+If you make some commentary, use  // two spaces before slashes and one space after, if you are commenting code to disallow it don't use a space after it: //int a = 0;
 Don't write two instructions on one line;
 DoInstruction1();
 do instruction = 2;
@@ -29,24 +30,27 @@ don't use:
  cout << "123";
  cout << "456";
 Divide lines more than 80 characters to several lines.
-If you do several identifiers declarations close to each other, left align them, for example, and there's more than one operator for each command, I mean something except = operator, do several lines:
+If you do several identifiers declarations close to each other, left align them, for example, and if there're some operators, not only initialization, do several lines:
 you can write this way:
 	int A, B;
-or this way:
-	int A = B, C = D;
 but you can't write this way:
 	int A = B + C, D = E + F;
+or this way:
+	int A = B, C = D;
 use this instead:
 	int 
 		A = B + C,
 		D = E + F;
+	double 
+		DA = DB;
+		DC = DD;
 another example:
 	int 
 		RPZSIZE = N % CHAR_BIT,
 		NEW_REMEDY_SIZE = - RPZSIZE + CHAR_BIT;
 	uchar 
 		CBYTE = GetByte();
-In "for" cycles separate each ; statement this way:
+In "for" cycles separate each ; statement this way, if there's more than one assigning:
 	for (short 
 		L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
 		R <= N; 
