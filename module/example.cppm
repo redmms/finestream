@@ -11,6 +11,7 @@ import <set>;
 import <unordered_set>;
 import <tuple>;
 using namespace std;
+using namespace fsm;
 int main() {
 
 	ofinestream bsm("output.txt");
@@ -36,13 +37,14 @@ int main() {
 	//    << p  << O;
 	bitset <8> bs(7);
 	//bsm << bs;
+	//bsm << NoLeadingZerosVector(7);
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
-			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
+			  brd{ (char) 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
