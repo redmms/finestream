@@ -14,7 +14,7 @@ using namespace std;
 using namespace fsm;
 int main() {
 
-	ofinestream bsm("output.txt");
+	ifinestream bsm("output.txt");
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -94,8 +94,24 @@ int main() {
 	//bsm << u.u2; // 0x00 0x00 0x00 0x05
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 };
-	//bsm << s;
-	// I plan this method for cases when you don't want to write to a file, you can contribute by commiting corrections:
-	//uint8_t bytes[16]{ 0 };
-	//bsm.ToBytes(dq, bytes);
+	MyStruct copystruct;
+	bsm >> copystruct;
+	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help compress even other types, not only bitsets and vector <bool> 
+	//vector <bool> vb1 = NoLeadingZerosVector(0b101);
+	// I plan this method for cases when you don't want to write to a file:
+	int number = 0x1234;
+	constexpr int size = sizeof(number);
+	char bytesarr[size];  // int bytesarr[size]; will crash;
+	ToBytes(number, bytesarr);
+	vector <uint8_t> bytesvec;
+	ToBytes(number, bytesvec);
+	enum M0 {
+		ena = 1, enb = 2
+	};
+	const M0 myenum0 = ena;
+	enum M {
+		spades = myenum0, arches = 2
+	};
+	M myenum = spades;
+	//bsm << myenum;
 }

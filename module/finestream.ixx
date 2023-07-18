@@ -15,11 +15,20 @@ concept container = requires(T DATA)
 constexpr int CHB1 = CHAR_BIT - 1, CHB = CHAR_BIT;
 
 export namespace fsm {
-	template <typename T>
-	void ToBytes(T& DATA, char* BYTES_ARRAY) {
-		char* BYTE_PTR = reinterpret_cast<char*>(&DATA);
-		for (int I = sizeof(DATA) - 1; I >= 0; --I) {
+	template <typename FROM_TYPE, typename ARRAY_VALUES>
+		requires (sizeof(ARRAY_VALUES) == 1)
+	void ToBytes(FROM_TYPE& DATA, ARRAY_VALUES BYTES_ARRAY[]) {
+		ARRAY_VALUES* BYTE_PTR = reinterpret_cast<ARRAY_VALUES*>(&DATA);
+		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			BYTES_ARRAY[I] = BYTE_PTR[I];
+		}
+	}	
+	template <typename FROM_TYPE, typename RANDOM_CONTAINER>
+		requires container<RANDOM_CONTAINER> && (sizeof(typename RANDOM_CONTAINER::value_type) == 1)
+	void ToBytes(FROM_TYPE& DATA, RANDOM_CONTAINER& BYTES_ARRAY) {
+		typename RANDOM_CONTAINER::value_type* BYTE_PTR = reinterpret_cast<typename RANDOM_CONTAINER::value_type*>(&DATA);
+		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
+			BYTES_ARRAY.emplace(BYTES_ARRAY.end(), BYTE_PTR[I]);
 		}
 	}
 	inline bool IsLittleEndian() {
@@ -102,22 +111,10 @@ export namespace fsm {
 			}
 		}
 		inline void PutByte(const char CBYTE) {
-			bitremedy
-				BRBYTE{ CBYTE, CHB, true },
-				BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
-			if (BRLAST_BYTE.BITSN == CHB) {
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
-				BRLAST_BYTE = BRNEW_REMEDY;
-			}
+			PutByte({ CBYTE, CHB, true });
 		}  // is it safely to use inline here?
 		inline void PutByte(const bitset <CHB>& BSBYTE) {
-			bitremedy
-				BRBYTE(BSBYTE, CHB, true),
-				BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
-			if (BRLAST_BYTE.BITSN == CHB) {
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
-				BRLAST_BYTE = BRNEW_REMEDY;
-			}
+			PutByte({ BSBYTE, CHB, true });
 		}
 		inline void PutByte(const bitremedy& BRBYTE) {
 			//BRBYTE.ValidityTest(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
@@ -157,7 +154,7 @@ export namespace fsm {
 					FILE_STREAM.put(BRLAST_BYTE.MoveToLeft().CBYTE);
 					BRLAST_BYTE.Clear();
 				}
-				//PutByte({ (char)BSLINE.to_ulong(), N, false });  // just use my functions to shorten code, only 5% slower but safer and shorter :))
+				//PutByte({ (char)BSLINE.to_ulong(), N, false });  // use my functions, if you want to shorten code, 5% slower but harder to make mistake and shorter
 			}
 			else {
 				bitset <N> MASK((1u << CHB) - 1);
@@ -183,10 +180,10 @@ export namespace fsm {
 			return *this;
 		}
 		ofinestream& operator << (const bool BBYTE) {
-			//if (!BRLAST_BYTE.MOVED_LEFT) {
-			//	cout << "Warning: last byte isn't left aligned" << endl;
-			//	BRLAST_BYTE.MoveToLeft();
-			//}
+			if (!BRLAST_BYTE.MOVED_LEFT) {
+				cout << "Warning: last byte isn't left aligned" << endl;
+				BRLAST_BYTE.MoveToLeft();
+			}
 			if (BBYTE) {
 				BRLAST_BYTE.CBYTE |= (true << (CHB1 - BRLAST_BYTE.BITSN)); // CHB - curr. seq. len. - new seq. len. = CHB - BRLAST_BYTE.BITSN - 1 = CHB1 - BRLAST_BYTE.BITSN
 				BRLAST_BYTE.BITSN++;
@@ -238,59 +235,44 @@ export namespace fsm {
 		ifinestream(string FILE) : finestream(FILE) {}
 		inline char GetByte() {
 			char CBYTE;
-			FILE_STREAM.get(CBYTE);
-			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
-				CBYTE = BRLAST_BYTE.CBYTE;
-				BRLAST_BYTE = BRNEW_REMEDY;
-			}
-			return CBYTE; ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.CBYTE?
+			GetByte(CBYTE);
+			return CBYTE;
 		} 
-		inline char & GetByte(char& CBYTE) {
+		inline void GetByte(char& CBYTE) {
 			FILE_STREAM.get(CBYTE);
 			if (BRLAST_BYTE.BITSN) {
 				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
 				CBYTE = BRLAST_BYTE.CBYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
-			}
-			return CBYTE; ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.CBYTE?
-		} // add inline void GetByte(bitset <CHB>) and GetByte(bitremedy)
-		inline bitset <CHB> & GetByte(bitset <CHB> & BSBYTE) {
-			char CBYTE;
-			FILE_STREAM.get(CBYTE);
-			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
-				CBYTE = BRLAST_BYTE.CBYTE;
-				BRLAST_BYTE = BRNEW_REMEDY;
-			}
-			BSBYTE = bitset <CHB> (CBYTE);
-			return BSBYTE;
+			}  ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.CBYTE?
 		}
-		inline bitremedy & GetByte(bitremedy & _BRBYTE) {
-			bitremedy BRBYTE{ 0, CHB, false };
+		inline void GetByte(bitset <CHB> & BSBYTE) {
+			BSBYTE = bitset <CHB> (GetByte());
+		}
+		inline void GetByte(bitremedy & BRBYTE) {
 			FILE_STREAM.get(BRBYTE.CBYTE);
+			BRBYTE.BITSN = CHB;
+			BRBYTE.MOVED_LEFT = false;
 			if (BRLAST_BYTE.BITSN) {
 				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
 				BRBYTE = BRLAST_BYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
 			}
-			_BRBYTE = BRBYTE;
-			return _BRBYTE;
 		}
 		template <typename T>
-		void GetAny(T& DATA) {
+		void GetAny(T& DATA) { 
 			char BYTES[sizeof(T)];
 			for (int I = sizeof(T) - 1; I >= 0; I--) {
-				FILE_STREAM.get(BYTES[I]);
+				GetByte(BYTES[I]);
 			}
 			const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
-			DATA = *DATAPTR;
+			DATA = *DATAPTR;   // will BYTES[] memory be released after exiting this function?
 		}
 		template <typename T>
-		void GetAnyReversed(T& DATA) {
+		void GetAnyReversed(T& DATA) { 
 			char BYTES[sizeof(T)];
 			for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
-				FILE_STREAM.get(BYTES[I]);
+				GetByte(BYTES[I]);
 			}
 			const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
 			DATA = *DATAPTR;
@@ -332,9 +314,10 @@ export namespace fsm {
 			return *this;
 		}
 		ifinestream& operator >> (bool & BBYTE) {
-			//if (BRLAST_BYTE.MOVED_LEFT) {
-			//	cerr << "Warning: BRLAST_BYTE is left aligned" << endl;
-			//}
+			if (BRLAST_BYTE.MOVED_LEFT) {
+				cerr << "Warning: BRLAST_BYTE is left aligned" << endl;
+				BRLAST_BYTE.MoveToRight();
+			}
 			if (!BRLAST_BYTE.BITSN) {
 				FILE_STREAM.get(BRLAST_BYTE.CBYTE);
 			}
@@ -356,7 +339,7 @@ export namespace fsm {
 				}
 			}
 			else if constexpr (sizeof(T) == 1) {
-				GetByte(DATA);  //? will type casts be OK or call abort()?
+				DATA = (T) GetByte(); 
 			}
 			else if constexpr (is_arithmetic_v <T>) {
 				if (IsLittleEndian())
