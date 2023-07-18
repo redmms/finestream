@@ -2,24 +2,22 @@ export module bitremedy;
 import <bitset>;
 import <stdexcept>;
 import <iostream>;
-using uchar = unsigned char;
 using namespace std;
-
 
 export struct bitremedy {
 public:
-	uchar CBYTE{ 0 };
+	char CBYTE{ 0 };
 	int BITSN{ 0 };
 	bool MOVED_LEFT{ false }; // alias for leftAligned
 
 
 	bitremedy(bitset <CHAR_BIT> _BSBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(static_cast<uchar>(_BSBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+		CBYTE(static_cast<char>(_BSBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();
 	}
-	bitremedy(uchar _IBYTE, int _BITSN, bool _MOVED_LEFT) :
+	bitremedy(char _IBYTE, int _BITSN, bool _MOVED_LEFT) :
 		CBYTE(_IBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
@@ -37,13 +35,13 @@ public:
 	}
 	virtual void CheckMargins() const {
 		if (MOVED_LEFT) {
-			if (uchar(CBYTE << BITSN)) {
+			if (char(CBYTE << BITSN)) {
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
 		}
 		else {
-			if (uchar(CBYTE >> BITSN)) {
+			if (char(CBYTE >> BITSN)) {
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
@@ -131,7 +129,7 @@ public:
 			NEW_REMEDY.MOVED_LEFT = true;
 		}
 		this->CBYTE |= ADDEND.CBYTE >> this->BITSN;
-		this->BITSN = min(BIT_SUM, CHAR_BIT);
+		this->BITSN = BIT_SUM < CHAR_BIT ? BIT_SUM : CHAR_BIT;
 		return NEW_REMEDY;
 	}
 	inline void Clear() {
