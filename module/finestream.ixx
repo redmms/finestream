@@ -15,18 +15,27 @@ concept container = requires(T DATA)
 constexpr int CHB1 = CHAR_BIT - 1, CHB = CHAR_BIT;
 
 export namespace fsm {
-	template <typename FROM_TYPE, typename ARRAY_VALUES>
+	template <typename ORIGINAL_TYPE, typename ARRAY_VALUES, size_t N>
 		requires (sizeof(ARRAY_VALUES) == 1)
-	void ToBytes(FROM_TYPE& DATA, ARRAY_VALUES BYTES_ARRAY[]) {
+	void ToBytes(ORIGINAL_TYPE& DATA, ARRAY_VALUES (&BYTES_ARRAY)[N]) {
+		 if (N != sizeof(ORIGINAL_TYPE)) {
+			cerr << "Error: use array of same size as original data in ToBytes()" << endl;
+			throw out_of_range("Error: use array of same size as original data in ToBytes()");
+		}
 		ARRAY_VALUES* BYTE_PTR = reinterpret_cast<ARRAY_VALUES*>(&DATA);
 		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			BYTES_ARRAY[I] = BYTE_PTR[I];
 		}
 	}	
-	template <typename FROM_TYPE, typename RANDOM_CONTAINER>
+	template <typename ORIGINAL_TYPE, typename RANDOM_CONTAINER>
 		requires container<RANDOM_CONTAINER> && (sizeof(typename RANDOM_CONTAINER::value_type) == 1)
-	void ToBytes(FROM_TYPE& DATA, RANDOM_CONTAINER& BYTES_ARRAY) {
-		typename RANDOM_CONTAINER::value_type* BYTE_PTR = reinterpret_cast<typename RANDOM_CONTAINER::value_type*>(&DATA);
+	void ToBytes(ORIGINAL_TYPE& DATA, RANDOM_CONTAINER& BYTES_ARRAY) {
+		if (!BYTES_ARRAY.empty()) {
+			cerr << "Warning: in ToBytes(): you are adding DATA representation to "
+					"nonempty container" << endl;
+		}
+		typename RANDOM_CONTAINER::value_type* BYTE_PTR = reinterpret_cast<typename 
+				 RANDOM_CONTAINER::value_type*>(&DATA);
 		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			BYTES_ARRAY.emplace(BYTES_ARRAY.end(), BYTE_PTR[I]);
 		}
@@ -35,7 +44,7 @@ export namespace fsm {
 		return (endian::native == endian::little);
 	}
 	template <typename T>
-	int CountLeadingZeroes(const T& DATA) {
+	constexpr int CountLeadingZeroes(const T& DATA) {
 		T MASK{ 1 };
 		int BITSN{ sizeof(T) * CHB },
 			LEADINGN{ 0 };
@@ -65,10 +74,12 @@ export namespace fsm {
 		}
 		reverse(CONTAINER.begin(), CONTAINER.end());   // could be refined by not reversing the whole user's container
 	}
-	//template <typename T, size_t N>
-	//bitset <N> NoLeadingZerosBitset(T NUMBER) {
-	//	return bitset <sizeof(T)* CHB - CountLeadingZeroes(NUMBER)>(NUMBER);
-	//}
+	template <typename T, size_t N>
+	bitset <N> NoLeadingZerosBitset(T NUMBER) {
+		constexpr size_t LEADINGN = CountLeadingZeroes(NUMBER);
+		constexpr size_t BSSIZE = sizeof(T) * CHB - LEADINGN;
+		return bitset <BSSIZE>(NUMBER);
+	}
 
 
 	class finestream {
