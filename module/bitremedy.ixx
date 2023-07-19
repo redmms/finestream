@@ -17,8 +17,8 @@ public:
 		ConstructorBitsnTest();
 		ClearMargins();
 	}
-	bitremedy(char _IBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(_IBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+	bitremedy(char _CBYTE, int _BITSN, bool _MOVED_LEFT) :
+		CBYTE(_CBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();

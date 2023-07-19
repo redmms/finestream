@@ -14,7 +14,7 @@ using namespace std;
 using namespace fsm;
 int main() {
 
-	ifinestream bsm("output.txt");
+	ofinestream bsm("output.txt");
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -38,6 +38,11 @@ int main() {
 	bitset <8> bs(7);
 	//bsm << bs;
 	//bsm << NoLeadingZerosVector(7);
+	const int nine = 9;
+	constexpr const int countz = CountLeadingZeroes<const int>(nine);
+	constexpr const int isize = sizeof (int);
+	bitset <4 * CHB - countz> bs = NoLeadingZerosBitset(9);
+	bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
@@ -95,7 +100,7 @@ int main() {
 	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
 	MyStruct s{ 7, {6, 6}, 5 };
 	MyStruct copystruct;
-	bsm >> copystruct;
+	//bsm >> copystruct;
 	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help compress even other types, not only bitsets and vector <bool> 
 	//vector <bool> vb1 = NoLeadingZerosVector(0b101);
 	// I plan this method for cases when you don't want to write to a file:
