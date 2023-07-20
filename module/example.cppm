@@ -38,11 +38,15 @@ int main() {
 	bitset <8> bs(7);
 	//bsm << bs;
 	//bsm << NoLeadingZerosVector(7);
-	const int nine = 9;
-	constexpr const int countz = CountLeadingZeroes<const int>(nine);
-	constexpr const int isize = sizeof (int);
-	bitset <4 * CHB - countz> bs = NoLeadingZerosBitset(9);
-	bsm << bs;
+	//static constinit const int 
+	//	nine = 9,
+	//	//countz = CountLeadingZeros<const int>(nine),
+	//	isize = 4,
+	//	bssize = isize * CHB - nine;
+	//bitset <bssize> bs = NoLeadingZerosBitset(9);
+	constexpr int value = CountLeadingZeros (0);
+	cout << value;
+	//bsm << bs;
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;

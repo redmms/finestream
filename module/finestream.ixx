@@ -43,19 +43,19 @@ export namespace fsm {
 	inline bool IsLittleEndian() {
 		return (endian::native == endian::little);
 	}
-	template <typename T>
-	constexpr int CountLeadingZeroes(const T& DATA) {
-		T MASK{ 1 };
-		int BITSN{ sizeof(T) * CHB },
-			LEADINGN{ 0 };
-		MASK <<= BITSN - 1;
-		for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
-			if (DATA & MASK) {
-				break;
-			}
+template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
+consteval int CountLeadingZeros(const T & DATA) {
+	MASK_TYPE MASK{ 1 };
+	int BITSN{ sizeof(T) * CHB },
+		LEADINGN{ 0 };
+	MASK <<= BITSN - 1;
+	for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
+		if (DATA & MASK) {
+			break;
 		}
-		return LEADINGN;
 	}
+	return LEADINGN;
+}
 	template <typename T>
 	vector <bool> NoLeadingZerosVector(T NUMBER) {
 		vector <bool> CONTAINER;
@@ -75,10 +75,12 @@ export namespace fsm {
 		reverse(CONTAINER.begin(), CONTAINER.end());   // could be refined by not reversing the whole user's container
 	}
 	template <typename T, size_t N>
-	bitset <N> NoLeadingZerosBitset(T NUMBER) {
-		constexpr size_t LEADINGN = CountLeadingZeroes(NUMBER);
-		constexpr size_t BSSIZE = sizeof(T) * CHB - LEADINGN;
-		return bitset <BSSIZE>(NUMBER);
+	consteval bitset <N> NoLeadingZerosBitset(T NUMBER) {
+		static constinit const size_t 
+			LEADINGN = CountLeadingZeros(NUMBER),
+			BSSIZE = sizeof(T) * CHB - LEADINGN;
+		N = BSSIZE;
+		return bitset <N>(NUMBER);
 	}
 
 
