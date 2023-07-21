@@ -43,19 +43,37 @@ export namespace fsm {
 	inline bool IsLittleEndian() {
 		return (endian::native == endian::little);
 	}
-template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
-consteval int CountLeadingZeros(const T & DATA) {
-	MASK_TYPE MASK{ 1 };
-	int BITSN{ sizeof(T) * CHB },
-		LEADINGN{ 0 };
-	MASK <<= BITSN - 1;
-	for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
-		if (DATA & MASK) {
-			break;
+	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
+	consteval int ConstCountLeadingZeros(const T& DATA) {
+		MASK_TYPE MASK{ 1 };
+		int BITSN{ sizeof(T) * CHB },
+			LEADINGN{ 0 };
+		MASK <<= BITSN - 1;
+		for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
+			if (DATA & MASK) {
+				break;
+			}
 		}
+		return LEADINGN;
 	}
-	return LEADINGN;
-}
+	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
+	int CountLeadingZeros(const T& DATA) {
+		MASK_TYPE MASK{ 1 };
+		int BITSN{ sizeof(T) * CHB },
+			LEADINGN{ 0 };
+		MASK <<= BITSN - 1;
+		for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
+			if (DATA & MASK) {
+				break;
+			}
+		}
+		return LEADINGN;
+	}
+	//template <typename T>
+	//inline int CountLeadingZeros(const T& DATA) {
+	//	constexpr int result = ConstCountLeadingZeros(DATA);
+	//	return static_cast<remove_const_t<decltype (result)>> (result);
+	//}
 	template <typename T>
 	vector <bool> NoLeadingZerosVector(T NUMBER) {
 		vector <bool> CONTAINER;
@@ -74,14 +92,9 @@ consteval int CountLeadingZeros(const T & DATA) {
 		}
 		reverse(CONTAINER.begin(), CONTAINER.end());   // could be refined by not reversing the whole user's container
 	}
-	template <typename T, size_t N>
-	consteval bitset <N> NoLeadingZerosBitset(T NUMBER) {
-		static constinit const size_t 
-			LEADINGN = CountLeadingZeros(NUMBER),
-			BSSIZE = sizeof(T) * CHB - LEADINGN;
-		N = BSSIZE;
-		return bitset <N>(NUMBER);
-	}
+	template<auto ORIGINAL_NUMBER>
+	constexpr auto NoLeadingZerosBitset = bitset<sizeof(ORIGINAL_NUMBER) * CHB - 
+				   ConstCountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
 
 
 	class finestream {
@@ -161,13 +174,14 @@ consteval int CountLeadingZeros(const T & DATA) {
 		ofinestream& operator << (const bitset <N>& BSLINE) {
 			int LPZSIZE = CHB - BRLAST_BYTE.BITSN;  // left puzzle size
 			if (N <= LPZSIZE) {
-				(BRLAST_BYTE.MoveToRight().CBYTE <<= N) |= (char) BSLINE.to_ulong();
-				BRLAST_BYTE.BITSN += N;
-				if (BRLAST_BYTE.BITSN == CHB) {
-					FILE_STREAM.put(BRLAST_BYTE.MoveToLeft().CBYTE);
-					BRLAST_BYTE.Clear();
-				}
-				//PutByte({ (char)BSLINE.to_ulong(), N, false });  // use my functions, if you want to shorten code, 5% slower but harder to make mistake and shorter
+				//(BRLAST_BYTE.MoveToRight().CBYTE <<= N) |= (char) BSLINE.to_ulong();
+				//BRLAST_BYTE.BITSN += N;
+				//BRLAST_BYTE.MoveToLeft();
+				//if (BRLAST_BYTE.BITSN == CHB) {
+				//	FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				//	BRLAST_BYTE.Clear();
+				//}
+				PutByte({ (char)BSLINE.to_ulong(), N, false });  // use my functions, if you want to shorten code, no more than 5% slower but harder to make mistake and shorter
 			}
 			else {
 				bitset <N> MASK((1u << CHB) - 1);

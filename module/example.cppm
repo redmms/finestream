@@ -11,13 +11,16 @@ import <set>;
 import <unordered_set>;
 import <tuple>;
 using namespace std;
-using namespace fsm;
+
 int main() {
 
-	ofinestream bsm("output.txt");
+	fsm::ofinestream bsm("output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
+
+
+			// Simple types:
 
 	int i = 0x12;
 	char c = 0x12; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.
@@ -35,40 +38,42 @@ int main() {
 	int& r = i;
 	//bsm << &r << O 
 	//    << p  << O;
-	bitset <8> bs(7);
-	//bsm << bs;
-	//bsm << NoLeadingZerosVector(7);
-	//static constinit const int 
-	//	nine = 9,
-	//	//countz = CountLeadingZeros<const int>(nine),
-	//	isize = 4,
-	//	bssize = isize * CHB - nine;
-	//bitset <bssize> bs = NoLeadingZerosBitset(9);
-	constexpr int value = CountLeadingZeros (0);
-	cout << value;
-	//bsm << bs;
+
+
+			// The most useful types:
+
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
 			  brd{ (char) 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
+	//
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
-	//bsm.PutByte(bra); bsm.PutByte(brb);
+	//
+	//bsm.PutByte(bra); bsm.PutByte(brb);  // universal way
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
+
 	bool b = true;
-	//bsm << b << b << b;
+	//bsm << b << false << b << b;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
+
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto el : { 0, 12, 2, 4 }) {
 		vb[el] = 1;
 	}
 	//bsm << vb;
 	//cout << bsm.ExtraZerosN() << endl;
+	//
 	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
+
+
+			// Containers 
+
 	int carr[3]{ 1, 2, 3 };
 	//bsm << carr;
 	array<int, 5> cpparr{ 1, 2, 3, 4, 5 };
@@ -89,7 +94,11 @@ int main() {
 		st.push(el);
 	}
 	//bsm << q;
-	union MyUnion { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
+
+
+			// Specific types for unic use cases
+
+	union MyUnion { char u0; uint16_t u1[2]; int u2; };
 	MyUnion u{ 0xFFFFFFFF };
 	//bsm.PutAny(u); bsm << o << O;
 	//bsm.PutAnyReversed(u); bsm << o << O;
@@ -101,19 +110,11 @@ int main() {
 	//bsm << u.u1[0]; // 0x00 0x05
 	//bsm << u.u1[1]; // 0x00 0x00
 	//bsm << u.u2; // 0x00 0x00 0x00 0x05
-	struct MyStruct { char u0; uint16_t u1[2]; int u2; }; // usable, but no guarantees
+	struct MyStruct { char u0; uint16_t u1[2]; int u2; };
 	MyStruct s{ 7, {6, 6}, 5 };
+	//bsm << s;
 	MyStruct copystruct;
 	//bsm >> copystruct;
-	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help compress even other types, not only bitsets and vector <bool> 
-	//vector <bool> vb1 = NoLeadingZerosVector(0b101);
-	// I plan this method for cases when you don't want to write to a file:
-	int number = 0x1234;
-	constexpr int size = sizeof(number);
-	char bytesarr[size];  // int bytesarr[size]; will crash;
-	ToBytes(number, bytesarr);
-	vector <uint8_t> bytesvec;
-	ToBytes(number, bytesvec);
 	enum M0 {
 		ena = 1, enb = 2
 	};
@@ -123,4 +124,32 @@ int main() {
 	};
 	M myenum = spades;
 	//bsm << myenum;
+
+
+			// Useful functions from namespace fsm
+
+	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help compress even other types, not only bitsets and vector <bool> 
+	vector <bool> compressedvb = fsm::NoLeadingZerosVector(0b101);
+	//bsm << compressedvb;
+	constexpr int num = 5;
+	auto compressedbs = fsm::NoLeadingZerosBitset<num>;
+	//bsm << compressedbs;
+
+	// I plan this method for cases when you don't want to write to a file:
+	int number = 0x1234;
+	constexpr int size = sizeof(number);
+	char bytesarr[size];  // int bytesarr[size]; will crash, you can use any inner type that has size equal 1, for example char, unsigned char int8_t, etc
+	fsm::ToBytes(number, bytesarr);
+	vector <uint8_t> bytesvec;  // I recomend you to use an empty container (excluding strings and forward_lists), because ToBytes() will not rewrite your container, but will add new items to the back, making size bigger
+	fsm::ToBytes(number, bytesvec);
+	vector <short> lengthsvec;
+	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
+			int size = 8 - fsm::CountLeadingZeros(vecelem);
+			lengthsvec.push_back(size);
+			//bsm  << fsm::NoLeadingZerosVector(vecelem);
+			//cout << hex << (int) vecelem << ": " << endl 
+			//	 << "size in finestream: " << size << ", view: " << bitset<8>(vecelem) << endl;
+		});
+	//cout << "System is " << (fsm::IsLittleEndian() ? "" : "not") << "little endian." << endl;
+
 }
