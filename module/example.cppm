@@ -45,7 +45,6 @@ int main() {
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//bsm << bsn;
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
-
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
