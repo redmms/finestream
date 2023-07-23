@@ -1,5 +1,8 @@
 <p align="center">
+   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
    <img src="https://img.shields.io/github/last-commit/redmms/FineStream" alt="Last Update">
+   <img src="https://img.shields.io/github/languages/code-size/redmms/FineStream" alt="Size">
+
 </p>
 
 This is a BitStream realization for bits, whereas usual BitStreams can work only with bytes and are tough to understand how to be used.
