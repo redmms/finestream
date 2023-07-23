@@ -33,16 +33,16 @@ It is also ready for running on embedded devices and other nonstandard machines 
 ## Fine words about bitremedy:
 1) ``bitremedy`` elements are:  
 ![bitremedyelements](/pictures/00about_bitremedy/0.jpg)  
-``char`` CBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
-``int`` BITSN is used to store the number of bits you use. It's made int for convenience and less number of implicit type casts.  
-``bool`` MOVED_LEFT is used to store info about if bit sequence is left aligned or not, true when left aligned and false when right aligned.  
+- ``char`` CBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
+- ``int`` BITSN is used to store the number of bits you use. It's made int for convenience and less number of implicit type casts.  
+- ``bool`` MOVED_LEFT is used to store info about if bit sequence is left aligned or not, true when left aligned and false when right aligned.  
 2) ``bitremedy`` methods are:  
 ![bitremedymethods](/pictures/00about_bitremedy/1.jpg)  
 In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or char or type that can be automaticaly converted to char. Also you can use figure brackets for initialization.  
-``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``bitremedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``IsValid()``/``ValidityTest()`` methods if you are not sure.  
-``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
-``MergeWith()`` method add another ``bitremedy`` passed as an argument to initial one, moving them all to the left side and returning new ``bitremedy`` if their whole length is more then one byte size (or ``bitremedy`` with zeros if no).  
-``Clear()`` assigns zeros to all ``bitremedy`` members, and ``ClearToLeft()`` assigns all zeros but true for MOVED_LEFT.  
+- ``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``bitremedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``IsValid()``/``ValidityTest()`` methods if you are not sure.  
+- ``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
+- ``MergeWith()`` method add another ``bitremedy`` passed as an argument to initial one, moving them all to the left side and returning new ``bitremedy`` if their whole length is more then one byte size (or ``bitremedy`` with zeros if no).  
+- ``Clear()`` assigns zeros to all ``bitremedy`` members, and ``ClearToLeft()`` assigns all zeros but true for MOVED_LEFT.  
 3) That's how you initialize a ``bitremedy``:  
 ![bitremedyinitialization](/pictures/00about_bitremedy/2.jpg)  
 All unused bits will be assigned 0 during initialization. But if a ``bitremedy`` passed to finestream will have nonempty margins it will throw an error.  
