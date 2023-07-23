@@ -62,8 +62,8 @@ int main() {
 	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
 
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
-	for (auto el : { 0, 12, 2, 4 }) {
-		vb[el] = 1;
+	for (auto idx : { 0, 2, 4, 12 }) {
+		vb[idx] = 1;
 	}
 	//bsm << vb;
 	//cout << bsm.ExtraZerosN() << endl;
