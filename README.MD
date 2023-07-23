@@ -68,7 +68,7 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
 
   
 ## Fine examples: 
-``vector <bool>``:  
+1) ``vector <bool>``:  
 ![](/pictures/1vector_bool/0.jpg)  
 ![](/pictures/1vector_bool/1.jpg)  
 ![](/pictures/1vector_bool/2.jpg)  
@@ -76,7 +76,7 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
   
   
   
-``bitset<N>``:  
+2) ``bitset<N>``:  
 ![](/pictures/2bitset/0.jpg)  
 ![](/pictures/2bitset/1.jpg)  
 ![](/pictures/2bitset/2.jpg)  
