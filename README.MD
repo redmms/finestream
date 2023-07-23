@@ -22,7 +22,13 @@ You can also use any other type or container you want, it will not crash FineStr
 
 ## Project structure
 
-There's one ``bitremedy`` structure and one ``finestream`` class. I've written them in two variants for your convenience: using classical c-style header files, and using C++20 modules, though I'm not planning to support and develop headers version, to watch a later version see modules. In module version they are stored in "module/finestream.ixx" and "module/bitremedy.ixx" files, in headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively. Use "module/example.cppm" to watch how it works, just disallow double-slash comments where you need. Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them. At the moment FineStream can write only to a file, but if the project gets some stars, all methods will be added, everything depends on you.
+There's one ``bitremedy`` structure and one ``finestream`` class with it's children classes - ofinestream for writing to a file and ifinestream for reading from a file. I've written them in two variants for your convenience: using classical C-style header files, and using C++20 modules, though I'm not planning to support and develop headers version, watch modules to see a later version. 
+
+In modules version they are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.
+In headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively. 
+Use "module/example.cppm" to see how it works, just disallow double-slash comments where you need. 
+Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them. At the moment FineStream can write to a file, read from a file and convert you data to a container with bytes.
+If the project gets some stars, new methods will be added, including switching stream to another place, making a package to be sent etc., everything depends on you.
 
 ## Stream characteristics
 
