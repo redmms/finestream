@@ -30,7 +30,7 @@ Maximum speed at the moment is the speed of reading short ``bitset``s from a fil
 
 It is also ready for running on embedded devices and other nonstandard machines with different byte sizes and different endianness.
 
-## FINE WORDS ABOUT BITREMEDY:
+## Fine words about bitremedy:
 1) ``bitremedy`` elements are:  
 ![bitremedyelements](/pictures/00about_bitremedy/0.jpg)  
 ``char`` CBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
@@ -48,7 +48,7 @@ In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or 
 All unused bits will be assigned 0 during initialization. But if a ``bitremedy`` passed to finestream will have nonempty margins it will throw an error.  
   
   
-## FINE START:
+## Fine start:
 1) Download "module" folder.  
 2) Add files from the folder to a new project. Make sure your project uses C++20 or later.  
 3) Open "example.cppm" file.  
@@ -67,7 +67,7 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
 
 
   
-FINE EXAMPLES:  
+## Fine examples: 
 ``vector <bool>``:  
 ![](/pictures/1vector_bool/0.jpg)  
 ![](/pictures/1vector_bool/1.jpg)  
