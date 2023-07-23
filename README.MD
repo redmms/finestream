@@ -27,7 +27,8 @@ There's one ``bitremedy`` structure and one ``finestream`` class with it's child
 In modules version they are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.  
 In headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively.   
 Use "module/example.cppm" to see how it works, just disallow double-slash comments where you need.   
-Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them. At the moment FineStream can write to a file, read from a file and convert you data to a container with bytes.  
+Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them.  
+At the moment FineStream can write to a file, read from a file and convert your data to a container with bytes.  
 If the project gets some stars, new methods will be added, including switching stream to another place, making a package to be sent etc., everything depends on you.  
 
 ## Stream characteristics
