@@ -56,6 +56,11 @@ export namespace fsm {
 		}
 		return LEADINGN;
 	}
+	//template <typename T, auto N>
+	//consteval int CountLeadingZeros(const T & N) {
+	//	auto result = ConstCountLeadingZeros(N);
+	//	return static_cast<std::remove_const_t<decltype(result)>> (result);
+	//}
 	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
 	int CountLeadingZeros(const T& DATA) {
 		MASK_TYPE MASK{ 1 };
