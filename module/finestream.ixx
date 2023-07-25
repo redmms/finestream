@@ -44,7 +44,7 @@ export namespace fsm {
 		return (endian::native == endian::little);
 	}
 	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
-	consteval int ConstCountLeadingZeros(const T& DATA) {
+	constexpr int CountLeadingZeros(const T& DATA) {
 		MASK_TYPE MASK{ 1 };
 		int BITSN{ sizeof(T) * CHB },
 			LEADINGN{ 0 };
@@ -56,29 +56,6 @@ export namespace fsm {
 		}
 		return LEADINGN;
 	}
-	//template <typename T, auto N>
-	//consteval int CountLeadingZeros(const T & N) {
-	//	auto result = ConstCountLeadingZeros(N);
-	//	return static_cast<std::remove_const_t<decltype(result)>> (result);
-	//}
-	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
-	int CountLeadingZeros(const T& DATA) {
-		MASK_TYPE MASK{ 1 };
-		int BITSN{ sizeof(T) * CHB },
-			LEADINGN{ 0 };
-		MASK <<= BITSN - 1;
-		for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
-			if (DATA & MASK) {
-				break;
-			}
-		}
-		return LEADINGN;
-	}
-	//template <typename T>
-	//inline int CountLeadingZeros(const T& DATA) {
-	//	constexpr int result = ConstCountLeadingZeros(DATA);
-	//	return static_cast<remove_const_t<decltype (result)>> (result);
-	//}
 	template <typename T>
 	vector <bool> NoLeadingZerosVector(T NUMBER) {
 		vector <bool> CONTAINER;
@@ -99,7 +76,7 @@ export namespace fsm {
 	}
 	template<auto ORIGINAL_NUMBER>
 	constexpr auto NoLeadingZerosBitset = bitset<sizeof(ORIGINAL_NUMBER) * CHB - 
-				   ConstCountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
+				   CountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
 
 
 	class finestream {
