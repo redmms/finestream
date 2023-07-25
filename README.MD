@@ -16,7 +16,7 @@ You need to write a Huffman Coding realization? Or some other encryption? FineSt
 
 ## Description
 
-At the moment FineStream can write bits to a file, read bits from a file and convert your data to a container of  bytes.  If the project gets some stars, new methods will be added, including built-in stream redirection not only to a file, making a package to be sent etc., everything depends on you.  
+At the moment FineStream can write bits to a file, read bits from a file and convert your data to a container of  bytes.  If the project gets some stars, new methods will be added, including built-in stream redirection not only to a file etc., everything depends on you.  
 
 You can easily compress your data with ``bitset`` of random size, some container with ``bool``s or using my type, created specially for storing bit sequences not bigger than 1 byte - struct ``bitremedy`` with lots of useful methods. FineStream will write them to a file (or read from) as bits without leading zeros and without casting to ``char``/``string``.
 
