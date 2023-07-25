@@ -1,4 +1,4 @@
 -  add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 -  add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 -  add explicit check that FILE_STREAM is .good otherwise throw an error, if for example cannot read/write from it
-
+-  add seekg, seekp, tellg, tellp in two variants each - int for bit number and pair <int, int> for (byte, bit)
