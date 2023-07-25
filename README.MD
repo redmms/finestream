@@ -16,20 +16,11 @@ You need to write a Huffman Coding realization? Or some other encryption? FineSt
 
 ## Description
 
-You can easily compress your data with ``bitset`` of random size, some container with ``bool``s or using my type, created specially for storing bit sequences not bigger than 1 byte - struct ``bitremedy`` with lots of useful methods. FineStream will write them to a file without leading zeros and without casting to ``char``/``string``.
+At the moment FineStream can write bits to a file, read bits from a file and convert your data to a container of  bytes.  If the project gets some stars, new methods will be added, including built-in stream redirection not only to a file, making a package to be sent etc., everything depends on you.  
 
-You can also use any other type or container you want, it will not crash FineStream, FineStream will iterate all the elements itself, no more need for boilerplate code. FineStream will work fine with every type and container, including ``union``s, ``struct``ures and ``enum``s, though it will not compress them as much as ``bool``s or ``bitset``s. The only exception are container adaptors, which are: ``stack``, ``queue`` and ``priority_queue``. You can't iterate over them, but you can pass their elements to FineStream. Also, if you really need them, you can contact me for me to add a convenient realization of them.
+You can easily compress your data with ``bitset`` of random size, some container with ``bool``s or using my type, created specially for storing bit sequences not bigger than 1 byte - struct ``bitremedy`` with lots of useful methods. FineStream will write them to a file (or read from) as bits without leading zeros and without casting to ``char``/``string``.
 
-## Project structure
-
-There's one ``bitremedy`` structure and one ``finestream`` class with it's children classes - ``ofinestream`` for writing to a file and ``ifinestream`` for reading from a file. I've written them in two variants for your convenience: using classical C-style header files, and using C++20 modules, though I'm not planning to support and develop headers version, watch modules to see a later version. 
-
-In modules version they are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.  
-In headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively.   
-Use "module/example.cppm" to see how it works, just disallow double-slash comments where you need.   
-Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them.  
-At the moment FineStream can write to a file, read from a file and convert your data to a container with bytes.  
-If the project gets some stars, new methods will be added, including switching stream to another place, making a package to be sent etc., everything depends on you.  
+You can also use any other type or container you want, it will not crash FineStream, FineStream will iterate all the elements itself, simply use ``<<`` or ``>>`` operator - no more need for boilerplate code. FineStream will work fine with every type and container, including ``union``s, ``struct``ures and ``enum``s, though it will not compress them as much as ``bool``s or ``bitset``s. The only exception are container adaptors, which are: ``stack``, ``queue`` and ``priority_queue``. You can't iterate over them, but you can pass their elements to FineStream. Also, if you really need them, you can contact me for me to add a convenient realization of them.
 
 ## Stream characteristics
 
@@ -37,7 +28,17 @@ Maximum speed at the moment is the speed of reading short ``bitset``s from a fil
 
 It is also ready for running on embedded devices and other nonstandard machines with different byte sizes and different endianness.
 
-## Fine words about bitremedy:
+## Project structure
+
+There's one ``bitremedy`` structure and one ``finestream`` class with its children classes - ``ofinestream`` for writing to a file and ``ifinestream`` for reading from a file. I've written them in two variants for your convenience: using classical C-style header files, and using C++20 modules, though I'm not planning to support and develop headers version, watch modules to see a later version. 
+
+In modules version they are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.  
+In headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively.   
+Use "module/example.cppm" to see how it works, just disallow double-slash comments where you need.   
+Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them.  
+
+## Fine words about bitremedy:  
+
 1) ``bitremedy`` elements are:  
 ![bitremedyelements](/pictures/00about_bitremedy/0.jpg)  
 - ``char`` CBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
@@ -55,7 +56,8 @@ In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or 
 All unused bits will be assigned 0 during initialization. But if a ``bitremedy`` passed to finestream will have nonempty margins it will throw an error.  
   
   
-## Fine start:
+## Fine start:  
+
 1) Download "module" folder.  
 2) Add files from the folder to a new project. Make sure your project uses C++20 or later.  
 3) Open "example.cppm" file.  
@@ -74,7 +76,8 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
 
 
   
-## Fine examples: 
+## Fine examples:  
+
 1) ``vector <bool>``:  
 ![](/pictures/1vector_bool/0.jpg)  
 ![](/pictures/1vector_bool/1.jpg)  
