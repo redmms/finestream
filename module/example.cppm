@@ -95,7 +95,7 @@ int main() {
 	//bsm << q;
 
 
-			// Specific types for unic use cases
+			// Specific types for unique use cases
 
 	union MyUnion { char u0; uint16_t u1[2]; int u2; };
 	MyUnion u{ 0xFFFFFFFF };
@@ -127,7 +127,7 @@ int main() {
 
 			// Useful functions from namespace fsm
 
-	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help compress even other types, not only bitsets and vector <bool> 
+	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help to compress even other types, not only bitsets and vector <bool> 
 	vector <bool> compressedvb = fsm::NoLeadingZerosVector(0b101);
 	//bsm << compressedvb;
 	constexpr int num = 5;
