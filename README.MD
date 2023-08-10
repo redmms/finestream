@@ -20,7 +20,7 @@ At the moment FineStream can write bits to a file, read bits from a file and con
 
 You can easily compress your data with ``bitset`` of random size, some container with ``bool``s or using my type, created specially for storing bit sequences not bigger than 1 byte - struct ``bitremedy`` with lots of useful methods. FineStream will write them to a file (or read from) as bits without leading zeros and without casting to ``char``/``string``.
 
-You can also use any other type or container you want, it will not crash FineStream, FineStream will iterate all the elements itself, simply use ``<<`` or ``>>`` operator - no more need for boilerplate code. FineStream will work fine with every type and container, including ``union``s, ``struct``ures and ``enum``s, though it will not compress them as much as ``bool``s or ``bitset``s. The only exception are container adaptors, which are: ``stack``, ``queue`` and ``priority_queue``. You can't iterate over them, but you can pass their elements to FineStream. Also, if you really need them, you can contact me for me to add a convenient realization of them.
+You can also use any other type or container you want, it will not crash FineStream, FineStream will iterate all the elements itself, simply use ``<<`` or ``>>`` operator - no more need for boilerplate code. FineStream will work fine with every type and container, including ``union``s, ``struct``ures and ``enum``s, though it will not compress them as much as ``bool``s or ``bitset``s. Even container adaptors, which are: ``stack``, ``queue`` and ``priority_queue`` are not exception, ofinestream will make a copy of them to output, and will not change them.
 
 ## Stream characteristics
 

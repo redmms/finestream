@@ -3,22 +3,31 @@ import <bitset>;
 import <stdexcept>;
 import <iostream>;
 using namespace std;
+using uchar = unsigned char;
+constexpr int CHB = CHAR_BIT;
 
 export struct bitremedy {
 public:
-	char CBYTE{ 0 };
+	uchar UCBYTE{ 0 };
 	int BITSN{ 0 };
 	bool MOVED_LEFT{ false }; // alias for leftAligned
 
 
-	bitremedy(bitset <CHAR_BIT> _BSBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(static_cast<char>(_BSBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+	template <size_t N>
+	bitremedy(bitset <N> _BSBYTE, int _BITSN, bool _MOVED_LEFT) :
+		UCBYTE(static_cast<uchar>(_BSBYTE.to_ulong())), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();
 	}
-	bitremedy(char _CBYTE, int _BITSN, bool _MOVED_LEFT) :
-		CBYTE(_CBYTE), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
+	template <size_t N>
+	bitremedy(bitset <N> _BSBYTE) :
+		UCBYTE(static_cast<uchar>(_BSBYTE.to_ulong())), BITSN(N > CHB ? CHB : N), MOVED_LEFT(false)
+	{
+	}
+	template <typename T>
+	bitremedy(T _TBYTE, int _BITSN, bool _MOVED_LEFT) :
+		UCBYTE(static_cast <uchar> (_TBYTE) ), BITSN(_BITSN), MOVED_LEFT(_MOVED_LEFT)
 	{
 		ConstructorBitsnTest();
 		ClearMargins();
@@ -35,13 +44,13 @@ public:
 	}
 	virtual void CheckMargins() const {
 		if (MOVED_LEFT) {
-			if (char(CBYTE << BITSN)) {
+			if (uchar(UCBYTE << BITSN)) {
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
 		}
 		else {
-			if (char(CBYTE >> BITSN)) {
+			if (uchar(UCBYTE >> BITSN)) {
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
@@ -82,7 +91,7 @@ public:
 
 	inline bitremedy& ClearMargins() {
 		if (MOVED_LEFT) {
-			(CBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
+			(UCBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
 			// 1) cBYTE >>= CHAR_BIT - BITSN;
 			//    cBYTE <<= CHAR_BIT - BITSN;
 			// 2) (cBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
@@ -92,14 +101,14 @@ public:
 			// 6) cBYTE &= 0xFFFFFFFF << (CHAR_BIT - BITSN); // dangerous for CHAR_BIT more than 32 and will not work for MOVED_LEFT == false;
 		}
 		else {
-			(CBYTE <<= (CHAR_BIT - BITSN)) >>= (CHAR_BIT - BITSN);
+			(UCBYTE <<= (CHAR_BIT - BITSN)) >>= (CHAR_BIT - BITSN);
 		}
 		return *this;
 	}
 	inline bitremedy& MoveToLeft() {
 		// moves bits to left border of cBYTE
 		if (!this->MOVED_LEFT) {
-			CBYTE <<= (CHAR_BIT - BITSN);
+			UCBYTE <<= (CHAR_BIT - BITSN);
 			MOVED_LEFT = true;
 		}
 		return *this;
@@ -107,7 +116,7 @@ public:
 	inline bitremedy& MoveToRight() {
 		// moves bits to right border of cBYTE
 		if (this->MOVED_LEFT) {
-			CBYTE >>= (CHAR_BIT - BITSN);
+			UCBYTE >>= (CHAR_BIT - BITSN);
 			MOVED_LEFT = false;
 		}
 		return *this;
@@ -123,22 +132,22 @@ public:
 		ADDEND.MoveToLeft();
 		this->MoveToLeft();
 		if (BIT_SUM > CHAR_BIT) {
-			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;  // can't it go after this->CBYTE assigning, to lessen calculations of BITSN etc.?
-			NEW_REMEDY.CBYTE = ADDEND.CBYTE << (ADDEND.BITSN - CHAR_REMEDY); // first (ADDEND.BITSN - CHAR_REMEDY - 1) bits is a part used to merge with this->cBYTE, we erase it in NEW_REMEDY
+			int CHAR_REMEDY = BIT_SUM % CHAR_BIT;  // can't it go after this->UCBYTE assigning, to lessen calculations of BITSN etc.?
+			NEW_REMEDY.UCBYTE = ADDEND.UCBYTE << (ADDEND.BITSN - CHAR_REMEDY); // first (ADDEND.BITSN - CHAR_REMEDY - 1) bits is a part used to merge with this->cBYTE, we erase it in NEW_REMEDY
 			NEW_REMEDY.BITSN = CHAR_REMEDY;
 			NEW_REMEDY.MOVED_LEFT = true;
 		}
-		this->CBYTE |= ADDEND.CBYTE >> this->BITSN;
+		this->UCBYTE |= ADDEND.UCBYTE >> this->BITSN;
 		this->BITSN = BIT_SUM < CHAR_BIT ? BIT_SUM : CHAR_BIT;
 		return NEW_REMEDY;
 	}
 	inline void Clear() {
-		CBYTE = 0;
+		UCBYTE = 0;
 		BITSN = 0;
 		MOVED_LEFT = false;
 	}
 	inline void ClearToLeft() {
-		CBYTE = 0;
+		UCBYTE = 0;
 		BITSN = 0;
 		MOVED_LEFT = true;
 	}

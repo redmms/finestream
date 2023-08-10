@@ -5,14 +5,23 @@ import <bitset>;
 import <fstream>;
 import <type_traits>;
 import <vector>;
+import <queue>;
 using namespace std;
 template <typename T>
-concept container = requires(T DATA)
+concept container = requires(T STRUCTURE)
 {
-	begin(DATA);
-	end(DATA);
+	begin(STRUCTURE);
+	end(STRUCTURE);
 };
+template <typename T>
+concept container_adaptor = requires(T STRUCTURE) {
+	STRUCTURE.pop();
+};
+using uchar = unsigned char;
 constexpr int CHB1 = CHAR_BIT - 1, CHB = CHAR_BIT;
+
+
+
 
 export namespace fsm {
 	template <typename ORIGINAL_TYPE, typename ARRAY_VALUES, size_t N>
@@ -77,7 +86,7 @@ export namespace fsm {
 	template<auto ORIGINAL_NUMBER>
 	constexpr auto NoLeadingZerosBitset = bitset<sizeof(ORIGINAL_NUMBER) * CHB - 
 				   CountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
-
+	
 
 	class finestream {
 	protected:
@@ -106,7 +115,7 @@ export namespace fsm {
 		ofinestream(string FILE) : finestream(FILE) {	}
 		~ofinestream() {
 			if (BRLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				FILE_STREAM.put(BRLAST_BYTE.UCBYTE);
 			}
 			FILE_STREAM.close();
 		}
@@ -114,12 +123,12 @@ export namespace fsm {
 
 		void Flush() {
 			if (BRLAST_BYTE.BITSN) { // output buffer for last byte before closing filestream
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				FILE_STREAM.put(BRLAST_BYTE.UCBYTE);
 				BRLAST_BYTE.ClearToLeft();
 			}
 		}
-		inline void PutByte(const char CBYTE) {
-			PutByte({ CBYTE, CHB, true });
+		inline void PutByte(const uchar UCBYTE) {
+			PutByte({ UCBYTE, CHB, true });
 		}  // is it safely to use inline here?
 		inline void PutByte(const bitset <CHB>& BSBYTE) {
 			PutByte({ BSBYTE, CHB, true });
@@ -128,27 +137,27 @@ export namespace fsm {
 			//BRBYTE.ValidityTest(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
 			bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
 			if (BRLAST_BYTE.BITSN == CHB) {
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				FILE_STREAM.put(BRLAST_BYTE.UCBYTE);
 				BRLAST_BYTE = BRNEW_REMEDY;
 			}
 		}
 		template <typename T>  // if you know how to safely use reference type parameter here - commit it
 		inline void PutAny(T DATA) {
-			char* BYTE_PTR = reinterpret_cast<char*>(&DATA);
+			uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
 			for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 				PutByte(BYTE_PTR[I]);
 			}
 		}
 		template <typename T>
 		inline void PutAnyReversed(T DATA) {
-			char* BYTE_PTR = reinterpret_cast<char*>(&DATA);
+			uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
 			for (int I = sizeof(DATA) - 1; I >= 0; I--) {
 				PutByte(BYTE_PTR[I]);
 			}
 		}
 
 
-		inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
+		virtual inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
 			PutByte(BSBYTE);
 			return *this;
 		}
@@ -156,20 +165,20 @@ export namespace fsm {
 		ofinestream& operator << (const bitset <N>& BSLINE) {
 			int LPZSIZE = CHB - BRLAST_BYTE.BITSN;  // left puzzle size
 			if (N <= LPZSIZE) {
-				//(BRLAST_BYTE.MoveToRight().CBYTE <<= N) |= (char) BSLINE.to_ulong();
+				//(BRLAST_BYTE.MoveToRight().UCBYTE <<= N) |= (char) BSLINE.to_ulong();
 				//BRLAST_BYTE.BITSN += N;
 				//BRLAST_BYTE.MoveToLeft();
 				//if (BRLAST_BYTE.BITSN == CHB) {
-				//	FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				//	FILE_STREAM.put(BRLAST_BYTE.UCBYTE);
 				//	BRLAST_BYTE.Clear();
 				//}
-				PutByte({ (char)BSLINE.to_ulong(), N, false });  // use my functions, if you want to shorten code, no more than 5% slower but harder to make mistake and shorter
+				PutByte((bitremedy) BSLINE);  // use my functions, if you want to shorten code, no more than 5% slower but harder to make mistake and shorter
 			}
 			else {
-				bitset <N> MASK((1u << CHB) - 1);
+				bitset <N> MASK((2u << CHB) - 1);
 				MASK <<= max(N - CHB, 0);
 				if (BRLAST_BYTE.BITSN) {
-					PutByte({ (char)((BSLINE & MASK) >> (N - LPZSIZE)).to_ulong(), LPZSIZE, false });  //? N-LPZSIZE?
+					PutByte({ (BSLINE & MASK) >> (N - LPZSIZE), LPZSIZE, false });  //? N-LPZSIZE?
 					MASK >>= LPZSIZE;
 				}
 				int BSSIZE = N - LPZSIZE % CHB;
@@ -178,30 +187,30 @@ export namespace fsm {
 					MASK >>= CHB;
 				}
 				if (BSSIZE > 0) {
-					PutByte({ (char)(BSLINE & MASK).to_ulong(), BSSIZE, false });
+					PutByte({ BSLINE & MASK, BSSIZE, false });
 				}
 			}
 			return *this;
 		}
-		ofinestream& operator << (const bitremedy& BRBYTE) {
+		virtual ofinestream& operator << (const bitremedy& BRBYTE) {
 			BRBYTE.ValidityTest();
 			PutByte(BRBYTE);
 			return *this;
 		}
-		ofinestream& operator << (const bool BBYTE) {
+		virtual ofinestream& operator << (const bool BBYTE) {
 			if (!BRLAST_BYTE.MOVED_LEFT) {
 				cout << "Warning: last byte isn't left aligned" << endl;
 				BRLAST_BYTE.MoveToLeft();
 			}
 			if (BBYTE) {
-				BRLAST_BYTE.CBYTE |= (true << (CHB1 - BRLAST_BYTE.BITSN)); // CHB - curr. seq. len. - new seq. len. = CHB - BRLAST_BYTE.BITSN - 1 = CHB1 - BRLAST_BYTE.BITSN
+				BRLAST_BYTE.UCBYTE |= (true << (CHB1 - BRLAST_BYTE.BITSN)); // CHB - curr. seq. len. - new seq. len. = CHB - BRLAST_BYTE.BITSN - 1 = CHB1 - BRLAST_BYTE.BITSN
 				BRLAST_BYTE.BITSN++;
 			}
 			else {
 				BRLAST_BYTE.BITSN++;
 			}
 			if (BRLAST_BYTE.BITSN == CHB) {
-				FILE_STREAM.put(BRLAST_BYTE.CBYTE);
+				FILE_STREAM.put(BRLAST_BYTE.UCBYTE);
 				BRLAST_BYTE.ClearToLeft();
 			}
 			return *this;
@@ -216,6 +225,22 @@ export namespace fsm {
 			else if constexpr (is_array_v <T>) {
 				for (int I = 0, SIZE = sizeof(DATA) / sizeof(DATA[0]); I < SIZE; I++) {
 					*this << DATA[I];
+				}
+			}
+			else if constexpr (container_adaptor <T>) {
+				if constexpr (is_same_v < T, queue<typename T::value_type> >) {
+					auto DATA_COPY{ DATA };
+					while (!DATA_COPY.empty()) {
+						*this << DATA_COPY.front();
+						DATA_COPY.pop();
+					}
+				}
+				else {
+					auto DATA_COPY{ DATA };
+					while (!DATA_COPY.empty()) {
+						*this << DATA_COPY.top();
+						DATA_COPY.pop();
+					}
 				}
 			}
 			else if constexpr (sizeof(T) == 1) {
@@ -239,38 +264,48 @@ export namespace fsm {
 	};
 
 
+
+
 	class ifinestream : public finestream {
 	public:
 		ifinestream(string FILE) : finestream(FILE) {}
-		inline char GetByte() {
-			char CBYTE;
-			GetByte(CBYTE);
-			return CBYTE;
+
+
+		inline uchar GetByte() {
+			uchar UCBYTE;
+			GetByte(UCBYTE);
+			return UCBYTE;
 		} 
-		inline void GetByte(char& CBYTE) {
+		inline void GetByte(uchar& UCBYTE) {
+			char CBYTE;
 			FILE_STREAM.get(CBYTE);
 			if (BRLAST_BYTE.BITSN) {
 				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
-				CBYTE = BRLAST_BYTE.CBYTE;
+				UCBYTE = BRLAST_BYTE.UCBYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
-			}  ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.CBYTE?
+			}  ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.UCBYTE?
+			else {
+				UCBYTE = (uchar)CBYTE;
+			}
 		}
 		inline void GetByte(bitset <CHB> & BSBYTE) {
 			BSBYTE = bitset <CHB> (GetByte());
 		}
-		inline void GetByte(bitremedy & BRBYTE) {
-			FILE_STREAM.get(BRBYTE.CBYTE);
-			BRBYTE.BITSN = CHB;
-			BRBYTE.MOVED_LEFT = false;
+		inline void GetByte(bitremedy & BRBYTE) {		
+			char CBYTE;
+			FILE_STREAM.get(CBYTE);
 			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith(BRBYTE);
+				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
 				BRBYTE = BRLAST_BYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
+			}
+			else {
+				BRBYTE = { CBYTE, CHB, true };
 			}
 		}
 		template <typename T>
 		void GetAny(T& DATA) { 
-			char BYTES[sizeof(T)];
+			uchar BYTES[sizeof(T)];
 			for (int I = sizeof(T) - 1; I >= 0; I--) {
 				GetByte(BYTES[I]);
 			}
@@ -279,7 +314,7 @@ export namespace fsm {
 		}
 		template <typename T>
 		void GetAnyReversed(T& DATA) { 
-			char BYTES[sizeof(T)];
+			uchar BYTES[sizeof(T)];
 			for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
 				GetByte(BYTES[I]);
 			}
@@ -291,47 +326,48 @@ export namespace fsm {
 		}
 		
 
-		ifinestream& operator >> (bitset <CHB>& BSBYTE) {
+		virtual ifinestream& operator >> (bitset <CHB>& BSBYTE) {
 			GetByte(BSBYTE);
 			return *this;
 		}
 		template <int N>
 		ifinestream& operator >> (bitset <N>& BSLINE) {
 			if (N <= BRLAST_BYTE.BITSN) {
-				BSLINE = (BRLAST_BYTE.MoveToRight().CBYTE >> (BRLAST_BYTE.BITSN - N));
+				BSLINE = (BRLAST_BYTE.MoveToRight().UCBYTE >> (BRLAST_BYTE.BITSN - N));
 				BRLAST_BYTE.BITSN -= N;
 				BRLAST_BYTE.ClearMargins();
 			}
 			else {
-				(BSLINE <<= BRLAST_BYTE.BITSN) |= BRLAST_BYTE.MoveToRight().CBYTE;
+				(BSLINE <<= BRLAST_BYTE.BITSN) |= BRLAST_BYTE.MoveToRight().UCBYTE;
 				int BSSIZE = N - BRLAST_BYTE.BITSN;
 				BRLAST_BYTE.Clear(); // don't forget to clear, other functions such as GetByte() can depend on BRLAST_BYTE
-				for (; BSSIZE >= CHB; BSSIZE -= CHB) {
-					(BSLINE <<= CHB) |= GetByte();  // it's better to avoid GetByte() for middle bytes
+				for (char INPUT_CBYTE; BSSIZE > CHB1; BSSIZE -= CHB) {
+					FILE_STREAM.get(INPUT_CBYTE);
+					(BSLINE <<= CHB) |= (uchar) INPUT_CBYTE; 
 				}
 				if (BSSIZE) {
 					int NEW_REMEDY_SIZE = CHB - BSSIZE;
-					char CBYTE = GetByte();
-					(BSLINE <<= BSSIZE) |= (CBYTE >> NEW_REMEDY_SIZE);
-					BRLAST_BYTE = { CBYTE,  NEW_REMEDY_SIZE, false };  // old remedy will be erased by .ClearMargins() here
+					uchar INPUT_UCBYTE = GetByte();
+					(BSLINE <<= BSSIZE) |= (INPUT_UCBYTE >> NEW_REMEDY_SIZE);
+					BRLAST_BYTE = { INPUT_UCBYTE,  NEW_REMEDY_SIZE, false };  // old remedy will be erased by .ClearMargins() here
 				}
 			}
 			return *this;
 		}
-		ifinestream& operator >> (bitremedy& BRBYTE) {
+		virtual ifinestream& operator >> (bitremedy& BRBYTE) {
 			GetByte(BRBYTE);
 			return *this;
 		}
-		ifinestream& operator >> (bool & BBYTE) {
+		virtual ifinestream& operator >> (bool & BBYTE) {
 			if (BRLAST_BYTE.MOVED_LEFT) {
 				cerr << "Warning: BRLAST_BYTE is left aligned" << endl;
 				BRLAST_BYTE.MoveToRight();
 			}
 			if (!BRLAST_BYTE.BITSN) {
-				FILE_STREAM.get(BRLAST_BYTE.CBYTE);
+				GetByte(BRLAST_BYTE.UCBYTE);
 			}
-			BBYTE = BRLAST_BYTE.CBYTE & true;
-			BRLAST_BYTE.CBYTE >>= 1;
+			BBYTE = BRLAST_BYTE.UCBYTE & true;
+			BRLAST_BYTE.UCBYTE >>= 1;
 			BRLAST_BYTE.BITSN--;
 			return *this;
 		}
@@ -345,6 +381,13 @@ export namespace fsm {
 			else if constexpr (is_array_v <T>) {
 				for (int I = 0, SIZE = sizeof(DATA) / sizeof(DATA[0]); I < SIZE; I++) {
 					*this >> DATA[I];
+				}
+			}
+			else if constexpr (container_adaptor <T>) {
+				typename T::value_type ELEMENT;
+				while ( !FILE_STREAM.eof() ) {
+					*this >> ELEMENT;
+					DATA.push(ELEMENT);
 				}
 			}
 			else if constexpr (sizeof(T) == 1) {
