@@ -8,8 +8,7 @@ import <vector>;
 import <queue>;
 using namespace std;
 template <typename T>
-concept container = requires(T STRUCTURE)
-{
+concept container = requires(T STRUCTURE){
 	begin(STRUCTURE);
 	end(STRUCTURE);
 };
@@ -88,6 +87,8 @@ export namespace fsm {
 				   CountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
 	
 
+
+
 	class finestream {
 	protected:
 		fstream FILE_STREAM;
@@ -108,6 +109,8 @@ export namespace fsm {
 			return BRLAST_BYTE.BITSN ? CHB - BRLAST_BYTE.BITSN : 0;
 		}
 	};
+
+
 
 
 	class ofinestream : public finestream {
@@ -157,7 +160,7 @@ export namespace fsm {
 		}
 
 
-		 inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
+		inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
 			PutByte(BSBYTE);
 			return *this;
 		}

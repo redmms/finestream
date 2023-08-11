@@ -1,9 +1,11 @@
 -  add saving stream in array/pack, prepared to be sent, and than add move semantics for this pack
 -  add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
--  add explicit check that FILE_STREAM is .good otherwise throw an error, if for example cannot read/write from it
--  add seekg, seekp, tellg, tellp in two variants each - int for bit number and pair <int, int> for (byte, bit)
--  add welcome topics to Discussions
 -  add new parameteres to finestream constructor(), including, for example, bool for saving info of lengths, and
 info about where to output - file, array/vector, package etc.
--  add a method for counting 1s in bytes 
+-  add explicit check that FILE_STREAM is .good otherwise throw an error, if for example cannot read/write from it
+-  add seekg, seekp, tellg, tellp in two variants each - int for bit number and pair <int, int> for (byte, bit)
 -  work out what to do with BRLAST_BYTE when you use seekg/seekp 
+-  add a method for counting 1s in bytes 
+-  add FromBytes(), inline LeadingN() and NonLeadingN()
+-  refine NoLeadingZerosVector() to dipose of std::reverse()
+
