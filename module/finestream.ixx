@@ -157,7 +157,7 @@ export namespace fsm {
 		}
 
 
-		virtual inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
+		 inline ofinestream& operator << (const bitset <CHB>& BSBYTE) {
 			PutByte(BSBYTE);
 			return *this;
 		}
@@ -192,12 +192,12 @@ export namespace fsm {
 			}
 			return *this;
 		}
-		virtual ofinestream& operator << (const bitremedy& BRBYTE) {
+		 ofinestream& operator << (const bitremedy& BRBYTE) {
 			BRBYTE.ValidityTest();
 			PutByte(BRBYTE);
 			return *this;
 		}
-		virtual ofinestream& operator << (const bool BBYTE) {
+		 ofinestream& operator << (const bool BBYTE) {
 			if (!BRLAST_BYTE.MOVED_LEFT) {
 				cout << "Warning: last byte isn't left aligned" << endl;
 				BRLAST_BYTE.MoveToLeft();
@@ -326,7 +326,7 @@ export namespace fsm {
 		}
 		
 
-		virtual ifinestream& operator >> (bitset <CHB>& BSBYTE) {
+		 ifinestream& operator >> (bitset <CHB>& BSBYTE) {
 			GetByte(BSBYTE);
 			return *this;
 		}
@@ -354,11 +354,11 @@ export namespace fsm {
 			}
 			return *this;
 		}
-		virtual ifinestream& operator >> (bitremedy& BRBYTE) {
+		 ifinestream& operator >> (bitremedy& BRBYTE) {
 			GetByte(BRBYTE);
 			return *this;
 		}
-		virtual ifinestream& operator >> (bool & BBYTE) {
+		 ifinestream& operator >> (bool & BBYTE) {
 			if (BRLAST_BYTE.MOVED_LEFT) {
 				cerr << "Warning: BRLAST_BYTE is left aligned" << endl;
 				BRLAST_BYTE.MoveToRight();
