@@ -122,7 +122,7 @@ public:
 		return *this;
 	}
 	virtual bitremedy MergeWith(bitremedy _ADDEND) {
-		// merges two unfull bytes and returns remedy as bitremedy NEW_REMEDY
+		// merges two unfull bytes moving them to the left and returns left aligned remedy as bitremedy NEW_REMEDY
 		int BIT_SUM = this->BITSN + _ADDEND.BITSN;
 		if (BIT_SUM == CHAR_BIT << 1) {
 			cerr << "Warning: merging 2 full bytes will not change them." << endl;
