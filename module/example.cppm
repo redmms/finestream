@@ -49,7 +49,7 @@ int main() {
 	bsm >> bs9 >> bsn;
 	cout << bs9 << endl
 		 << bsn << endl;
-	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
@@ -57,14 +57,14 @@ int main() {
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//
 	//bsm << bra << brb;                   // compact way
-	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
 	//
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // universal way
-	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
+	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN();
 
 	bool b = true;
 	//bsm << b << false << b << b;
-	//cout << bsm.GetLastByte().BITSN << " " << bsm.ExtraZerosN();
+	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN();
 
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto idx : { 0, 2, 4, 12 }) {

@@ -6,6 +6,6 @@ info about where to output - file, array/vector, package etc.
 -  add seekg, seekp, tellg, tellp in two variants each - int for bit number and pair <int, int> for (byte, bit)
 -  work out what to do with BRLAST_BYTE when you use seekg/seekp 
 -  add a method for counting 1s in bytes 
--  add FromBytes(), inline LeadingN() and NonLeadingN()
+-  add FromBytes(), inline LeadingN() and NonLeadingN(), add Get functions with editable input size and Put functions with editable output size, add method to make number from vector bool
 -  refine NoLeadingZerosVector() to dipose of std::reverse()
 

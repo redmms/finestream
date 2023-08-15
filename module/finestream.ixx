@@ -102,7 +102,7 @@ export namespace fsm {
 		}
 
 
-		bitremedy GetLastByte() {
+		bitremedy LastByte() {
 			return BRLAST_BYTE;
 		}
 		inline int ExtraZerosN() {
@@ -366,7 +366,7 @@ export namespace fsm {
 				cerr << "Warning: BRLAST_BYTE is left aligned" << endl;
 				BRLAST_BYTE.MoveToRight();
 			}
-			if (!BRLAST_BYTE.BITSN) {
+			else if (!BRLAST_BYTE.BITSN) {
 				GetByte(BRLAST_BYTE.UCBYTE);
 			}
 			BBYTE = BRLAST_BYTE.UCBYTE & true;
@@ -374,10 +374,18 @@ export namespace fsm {
 			BRLAST_BYTE.BITSN--;
 			return *this;
 		}
+		ifinestream& operator >> (vector <bool> & VB) {
+			 bool BIT;
+			 for (int I = 0, SIZE = VB.size(); I < SIZE; I++) {
+				 *this >> BIT;
+				 VB[I] = BIT;
+			 }
+			 return *this;
+		 }
 		template <typename T>
 		ifinestream& operator >> (T& DATA) {
 			if constexpr (container <T>) {
-				for (auto& ELEMENT : DATA) {
+				for (auto & ELEMENT : DATA) {
 					*this >> ELEMENT;
 				}
 			}
@@ -403,11 +411,11 @@ export namespace fsm {
 					GetAnyReversed(DATA);
 			}
 			else {
+				cerr << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 				if (IsLittleEndian())
 					GetAny(DATA);
 				else
 					GetAnyReversed(DATA);
-				cerr << "Warning: are you sure about this type - " << typeid(T).name() << "?" << endl;
 			}
 			return *this;
 		}
