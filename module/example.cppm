@@ -14,7 +14,7 @@ using namespace std;
 
 int main() {
 
-	fsm::ifinestream bsm("output.txt");  // use ifinestream for input
+	fsm::ofinestream bsm("output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -42,14 +42,9 @@ int main() {
 
 			// The most useful types:
 
-	//bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
-	bitset <18> bsn (0);
-	//bitset <9> bs9(0b110110110);
-	bitset <9> bs9(0);
-	bsm >> bs9 >> bsn;
-	cout << bs9 << endl
-		 << bsn << endl;
+	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
@@ -72,7 +67,7 @@ int main() {
 	}
 	//bsm << vb;
 	//cout << bsm.ExtraZerosN() << endl;
-	//
+	
 	//bsm << brc << brd << vb << bsn; // you can easily combine them in any order
 
 
@@ -86,7 +81,8 @@ int main() {
 	//bsm << tup;
 	tuple<long long, double, char> lltup{ 1, 3.14, 'a' }; // no garbage, only leading zeros
 	//bsm << lltup;
-	pair<int, double> pair{ 256, 3.14 };
+	pair<int, double> pr{ 256, 3.14 };
+	//bsm << pr;
 	deque <char> dq{ 7, 6, 5 };  // fine, it's a sequence container, it has begin() and end()
 	//bsm << dq;
 	queue <char> q;  // fine, it's a container adaptor, finestream will make a copy of it for outputing
