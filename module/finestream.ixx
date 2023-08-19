@@ -6,6 +6,7 @@ import <fstream>;
 import <type_traits>;
 import <vector>;
 import <queue>;
+import <bit>;
 using namespace std;
 template <typename T>
 concept container = requires(T STRUCTURE){
@@ -17,7 +18,9 @@ concept container_adaptor = requires(T STRUCTURE) {
 	STRUCTURE.pop();
 };
 using uchar = unsigned char;
-constexpr int CHB1 = CHAR_BIT - 1, CHB = CHAR_BIT;
+constexpr int CHB1 = CHAR_BIT - 1, 
+			  CHB = CHAR_BIT;
+constexpr auto UEOF = (uchar)EOF;
 
 
 
@@ -98,6 +101,9 @@ export namespace fsm {
 	public:
 		finestream(string FILE_PATH) {
 			FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
+			if (!FILE_STREAM.is_open()) {
+				throw runtime_error("File wasn't open.");
+			}
 			BRLAST_BYTE.MOVED_LEFT = true;
 		}
 
@@ -275,54 +281,71 @@ export namespace fsm {
 
 
 		inline uchar GetByte() {
-			uchar UCBYTE;
-			GetByte(UCBYTE);
-			return UCBYTE;
+			uchar UCREAD_BYTE;
+			auto ERR = GetByte(UCREAD_BYTE);
+			return ERR ? ERR : UCREAD_BYTE;
 		} 
-		inline void GetByte(uchar& UCBYTE) {
-			char CBYTE;
-			FILE_STREAM.get(CBYTE);
-			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
+		inline auto GetByte(uchar& UCBYTE) {
+			uchar UCREAD_BYTE = FILE_STREAM.get();
+			if (UCREAD_BYTE == (uchar) EOF) {
+				cerr << "Warning: reached end of file." << endl;
+				return EOF;
+			}
+			else if (BRLAST_BYTE.BITSN) {
+				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ UCREAD_BYTE, CHB, true });
 				UCBYTE = BRLAST_BYTE.UCBYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
 			}  ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.UCBYTE?
 			else {
-				UCBYTE = (uchar)CBYTE;
+				UCBYTE = UCREAD_BYTE;
 			}
+			return 0;
 		}
-		inline void GetByte(bitset <CHB> & BSBYTE) {
-			BSBYTE = bitset <CHB> (GetByte());
+		inline auto GetByte(bitset <CHB> & BSBYTE) {
+			uchar UCREAD_BYTE = GetByte();
+			if (UCREAD_BYTE == (uchar) EOF) {
+				return EOF;
+			}
+			BSBYTE = bitset <CHB> (UCREAD_BYTE);
+			return 0;
 		}
-		inline void GetByte(bitremedy & BRBYTE) {		
-			char CBYTE;
-			FILE_STREAM.get(CBYTE);
+		inline auto GetByte(bitremedy & BRBYTE) {		
+			uchar UCREAD_BYTE = FILE_STREAM.get();
+			if (UCREAD_BYTE == (uchar) EOF) {
+				cerr << "Warning: reached end of file." << endl;
+				return EOF;
+			}
 			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ CBYTE, CHB, true });
+				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ UCREAD_BYTE, CHB, true });
 				BRBYTE = BRLAST_BYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
 			}
 			else {
-				BRBYTE = { CBYTE, CHB, true };
+				BRBYTE = { UCREAD_BYTE, CHB, true };
 			}
+			return 0;
 		}
 		template <typename T>
-		void GetAny(T& DATA) { 
+		auto GetAny(T& DATA) { 
 			uchar BYTES[sizeof(T)];
+			auto ERR{ 0 };
 			for (int I = sizeof(T) - 1; I >= 0; I--) {
-				GetByte(BYTES[I]);
+				ERR = GetByte(BYTES[I]);
 			}
 			const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
 			DATA = *DATAPTR;   // will BYTES[] memory be released after exiting this function?
+			return ERR;
 		}
 		template <typename T>
-		void GetAnyReversed(T& DATA) { 
+		auto GetAnyReversed(T& DATA) { 
 			uchar BYTES[sizeof(T)];
+			auto ERR{ 0 };
 			for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
-				GetByte(BYTES[I]);
+				ERR = GetByte(BYTES[I]);
 			}
 			const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
 			DATA = *DATAPTR;
+			return ERR;
 		}
 		void Flush() {
 			BRLAST_BYTE.Clear();
