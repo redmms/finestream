@@ -20,76 +20,112 @@ concept container_adaptor = requires(T STRUCTURE) {
 using uchar = unsigned char;
 constexpr int CHB1 = CHAR_BIT - 1, 
 			  CHB = CHAR_BIT;
-constexpr auto UEOF = (uchar)EOF;
-
 
 
 
 export namespace fsm {
-	template <typename ORIGINAL_TYPE, typename ARRAY_VALUES, size_t N>
-		requires (sizeof(ARRAY_VALUES) == 1)
-	void ToBytes(ORIGINAL_TYPE& DATA, ARRAY_VALUES (&BYTES_ARRAY)[N]) {
+	template <typename ORIGINAL_TYPE, typename ARRAY_VALUES_TYPE, size_t N>
+		requires (sizeof(ARRAY_VALUES_TYPE) == 1)
+	void ToBytes(ORIGINAL_TYPE& DATA, ARRAY_VALUES_TYPE (&BYTES_ARRAY)[N]) {
 		 if (N != sizeof(ORIGINAL_TYPE)) {
 			cerr << "Error: use array of same size as original data in ToBytes()" << endl;
 			throw out_of_range("Error: use array of same size as original data in ToBytes()");
 		}
-		ARRAY_VALUES* BYTE_PTR = reinterpret_cast<ARRAY_VALUES*>(&DATA);
+		ARRAY_VALUES_TYPE* BYTE_PTR = reinterpret_cast<ARRAY_VALUES_TYPE*>(&DATA);
 		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			BYTES_ARRAY[I] = BYTE_PTR[I];
 		}
 	}	
-	template <typename ORIGINAL_TYPE, typename RANDOM_CONTAINER>
-		requires container<RANDOM_CONTAINER> && (sizeof(typename RANDOM_CONTAINER::value_type) == 1)
-	void ToBytes(ORIGINAL_TYPE& DATA, RANDOM_CONTAINER& BYTES_ARRAY) {
+	template <typename ORIGINAL_TYPE, typename CONTAINER_TYPE>
+		requires container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
+	void ToBytes(ORIGINAL_TYPE& DATA, CONTAINER_TYPE& BYTES_ARRAY) {
 		if (!BYTES_ARRAY.empty()) {
 			cerr << "Warning: in ToBytes(): you are adding DATA representation to "
 					"nonempty container" << endl;
 		}
-		typename RANDOM_CONTAINER::value_type* BYTE_PTR = reinterpret_cast<typename 
-				 RANDOM_CONTAINER::value_type*>(&DATA);
+		typename CONTAINER_TYPE::value_type* BYTE_PTR = reinterpret_cast<typename 
+				 CONTAINER_TYPE::value_type*>(&DATA);
 		for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
 			BYTES_ARRAY.emplace(BYTES_ARRAY.end(), BYTE_PTR[I]);
 		}
 	}
+	template <typename T, typename CONTAINER_TYPE>
+		requires container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
+	inline void FromBytes(CONTAINER_TYPE & BYTES, T & NUMBER) {
+		const T* NUMBERPTR = reinterpret_cast<const T*>(BYTES.data());
+		NUMBER = *NUMBERPTR;
+ 		//NUMBER = reinterpret_cast<T>(*DATA);
+	}
+	template <typename T, typename ARRAY_VALUES_TYPE, size_t N>
+		requires (sizeof(ARRAY_VALUES_TYPE) == 1)
+	inline void FromBytes(T & NUMBER, ARRAY_VALUES_TYPE (&BYTES)[N]) {
+		const T* NUMBERPTR = reinterpret_cast<const T*>(BYTES);
+		NUMBER = *NUMBERPTR;
+		//NUMBER = reinterpret_cast<T>(*DATA);
+	}
+	//template <typename T>
+	//int GetAnyReversed(T& DATA) {
+	//	uchar BYTES[sizeof(T)];
+	//	int ERR{ 0 };
+	//	for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
+	//		ERR = GetByte(BYTES[I]);
+	//	}
+	//	const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
+	//	DATA = *DATAPTR;
+	//	return ERR;
+	//}
 	inline bool IsLittleEndian() {
 		return (endian::native == endian::little);
 	}
 	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
-	constexpr int CountLeadingZeros(const T& DATA) {
-		MASK_TYPE MASK{ 1 };
-		int BITSN{ sizeof(T) * CHB },
-			LEADINGN{ 0 };
-		MASK <<= BITSN - 1;
-		for (int I = BITSN; I > 0; I--, LEADINGN++, MASK >>= 1) {
-			if (DATA & MASK) {
-				break;
-			}
-		}
-		return LEADINGN;
+	constexpr int LeadingN(const T& DATA) {  // return number of leading zeros in a bit representation
+		MASK_TYPE MASK{ 1u << BITSN - 1 };
+		int BITSN{ sizeof(T) * CHB }, I{ BITSN };
+		for (; I && !(DATA & MASK); I--, MASK >>= 1) {}
+		return BITSN - I;
 	}
 	template <typename T>
-	vector <bool> NoLeadingZerosVector(T NUMBER) {
+	constexpr inline int NonLeadingN(const T& DATA) {
+		return sizeof T * CHB - LeadingN(DATA);
+	}
+	template <typename T, typename MASK_TYPE = typename make_unsigned<typename remove_const<T>::type>::type>
+	vector <bool> NonLeadingVector(const T & NUMBER) {
 		vector <bool> CONTAINER;
-		while (NUMBER) {
-			CONTAINER.push_back(bool(NUMBER & 1));
-			NUMBER >>= 1;
+		MASK_TYPE MASK{ MASK_TYPE(1) << (sizeof(T) * CHB - 1) };
+		while (!(NUMBER & MASK)) {
+			MASK >>= 1;
+		};
+		while (MASK) {
+			CONTAINER.emplace(CONTAINER.begin(), bool(NUMBER & MASK));
+			MASK >>= 1;
 		}
-		reverse(CONTAINER.begin(), CONTAINER.end());
 		return CONTAINER;
 	}
-	template <typename T>
-	void NoLeadingZerosVector(T NUMBER, vector <bool>& CONTAINER) {
-		while (NUMBER) {
-			CONTAINER.push_back(bool(NUMBER & 1));
-			NUMBER >>= 1;
+	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
+	void NonLeadingVector(const T& NUMBER, vector <bool>& CONTAINER) {
+		MASK_TYPE MASK{ MASK_TYPE(1) << (sizeof(T) * CHB - 1) };
+		while (!(NUMBER & MASK)) { 
+			MASK >>= 1;
+		};
+		while (MASK) {
+			CONTAINER.emplace(CONTAINER.begin(), bool(NUMBER & MASK));
+			MASK >>= 1;
 		}
-		reverse(CONTAINER.begin(), CONTAINER.end());   // could be refined by not reversing the whole user's container
+	}
+	template <typename T>
+	inline void FromVector(T & NUMBER, vector <bool> VECTOR) {
+		NUMBER = 0;
+		for (size_t BIT_IDX = VECTOR.size() - 1; BIT_IDX >= 0; BIT_IDX--) {
+			NUMBER |= bool(VECTOR[BIT_IDX]);  // is bool necessary here?
+			NUMBER <<= 1;
+		}
 	}
 	template<auto ORIGINAL_NUMBER>
-	constexpr auto NoLeadingZerosBitset = bitset<sizeof(ORIGINAL_NUMBER) * CHB - 
-				   CountLeadingZeros(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
-	
-
+		constexpr auto NonLeadingBitset = bitset<NonLeadingN(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
+	template <typename T, size_t N>
+	inline void FromBitset(T & NUMBER, bitset <N> BITSET) {
+		NUMBER = (T)BITSET.to_ullong();
+	}
 
 
 	class finestream {
@@ -201,12 +237,12 @@ export namespace fsm {
 			}
 			return *this;
 		}
-		 ofinestream& operator << (const bitremedy& BRBYTE) {
+		ofinestream& operator << (const bitremedy& BRBYTE) {
 			BRBYTE.ValidityTest();
 			PutByte(BRBYTE);
 			return *this;
 		}
-		 ofinestream& operator << (const bool BBYTE) {
+		ofinestream& operator << (const bool BBYTE) {
 			if (!BRLAST_BYTE.MOVED_LEFT) {
 				cout << "Warning: last byte isn't left aligned" << endl;
 				BRLAST_BYTE.MoveToLeft();
@@ -282,12 +318,12 @@ export namespace fsm {
 
 		inline uchar GetByte() {
 			uchar UCREAD_BYTE;
-			auto ERR = GetByte(UCREAD_BYTE);
-			return ERR ? ERR : UCREAD_BYTE;
+			int ERR = GetByte(UCREAD_BYTE);
+			return ERR ? (uchar) ERR : UCREAD_BYTE;
 		} 
-		inline auto GetByte(uchar& UCBYTE) {
+		inline int GetByte(uchar& UCBYTE) {
 			uchar UCREAD_BYTE = FILE_STREAM.get();
-			if (UCREAD_BYTE == (uchar) EOF) {
+			if (UCREAD_BYTE == EOF) {
 				cerr << "Warning: reached end of file." << endl;
 				return EOF;
 			}
@@ -301,17 +337,17 @@ export namespace fsm {
 			}
 			return 0;
 		}
-		inline auto GetByte(bitset <CHB> & BSBYTE) {
+		inline int GetByte(bitset <CHB> & BSBYTE) {
 			uchar UCREAD_BYTE = GetByte();
-			if (UCREAD_BYTE == (uchar) EOF) {
+			if (UCREAD_BYTE == EOF) {
 				return EOF;
 			}
 			BSBYTE = bitset <CHB> (UCREAD_BYTE);
 			return 0;
 		}
-		inline auto GetByte(bitremedy & BRBYTE) {		
+		inline int GetByte(bitremedy & BRBYTE) {
 			uchar UCREAD_BYTE = FILE_STREAM.get();
-			if (UCREAD_BYTE == (uchar) EOF) {
+			if (UCREAD_BYTE == EOF) {
 				cerr << "Warning: reached end of file." << endl;
 				return EOF;
 			}
@@ -326,9 +362,9 @@ export namespace fsm {
 			return 0;
 		}
 		template <typename T>
-		auto GetAny(T& DATA) { 
+		int GetAny(T& DATA) {
 			uchar BYTES[sizeof(T)];
-			auto ERR{ 0 };
+			int ERR{ 0 };
 			for (int I = sizeof(T) - 1; I >= 0; I--) {
 				ERR = GetByte(BYTES[I]);
 			}
@@ -337,9 +373,9 @@ export namespace fsm {
 			return ERR;
 		}
 		template <typename T>
-		auto GetAnyReversed(T& DATA) { 
+		int GetAnyReversed(T& DATA) {  // is it really reversed? or is normal?
 			uchar BYTES[sizeof(T)];
-			auto ERR{ 0 };
+			int ERR{ 0 };
 			for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
 				ERR = GetByte(BYTES[I]);
 			}
