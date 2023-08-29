@@ -129,10 +129,13 @@ int main() {
 			// Useful functions from namespace fsm
 
 	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help to compress even other types, not only bitsets and vector <bool> 
-	vector <bool> compressedvb = fsm::NoLeadingZerosVector(0b101);
+	vector <bool> compressedvb = fsm::NonLeadingVector(0b101);
+	int n;
+	fsm::FromVector(n, compressedvb);
+	cout << n;
 	//bsm << compressedvb;
 	constexpr int num = 5;
-	auto compressedbs = fsm::NoLeadingZerosBitset<num>;
+	auto compressedbs = fsm::NonLeadingBitset<num>;
 	//bsm << compressedbs;
 
 	// I plan this method for cases when you don't want to write to a file:
@@ -144,12 +147,18 @@ int main() {
 	fsm::ToBytes(number, bytesvec);
 	vector <short> lengthsvec;
 	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
-			int size = 8 - fsm::CountLeadingZeros(vecelem);
+			int size = 8 - fsm::LeadingN(vecelem);
 			lengthsvec.push_back(size);
-			//bsm  << fsm::NoLeadingZerosVector(vecelem);
+			//bsm  << fsm::NonLeadingVector(vecelem);
 			//cout << hex << (int) vecelem << ": " << endl 
 			//	 << "size in finestream: " << size << ", view: " << bitset<8>(vecelem) << endl;
 		});
 	//cout << "System is " << (fsm::IsLittleEndian() ? "" : "not") << "little endian." << endl;
+
+	//array <uint8_t, 2> vbuff{ 0x12, 0x34 };
+	//char vbuff[]{ 0x12, 0x34 };
+	//long long n{ 0 };
+	//fsm::FromBytes(n, vbuff);
+	//cout << hex << n;
 
 }
