@@ -22,12 +22,12 @@ namespace fsm {
 	inline bool IsLittleEndian() {
 		return (std::endian::native == std::endian::little);
 	}
-	//void ToBytes(ORIGINAL_TYPE& DATA, ARRAY_VALUES_TYPE(&BYTES_ARRAY)[N]);  // NUMBER
-	//void ToBytes(ORIGINAL_TYPE& DATA, CONTAINER_TYPE& BYTES_ARRAY);  // NUMBER
-	//inline void FromBytes(CONTAINER_TYPE& BYTES, T& NUMBER);
-	//inline void FromBytes(T& NUMBER, ARRAY_VALUES_TYPE(&BYTES)[N]);  // Array, NUMBER
-	//constexpr int LeadingN(const T& DATA); // NUMBER
-	//constexpr inline int NonLeadingN(const T& DATA); // NUMBER
+	//void ToBytes(ORIGINAL_TYPE& NUMBER, ARRAY_VALUES_TYPE(&BYTES_ARRAY)[N]);
+	//void ToBytes(ORIGINAL_TYPE& NUMBER, CONTAINER_TYPE& BYTES_ARRAY);
+	//inline void FromBytes(T& NUMBER, CONTAINER_TYPE& BYTES);
+	//inline void FromBytes(T& NUMBER, ARRAY_VALUES_TYPE(&BYTES)[N]);
+	//constexpr int LeadingN(const T& NUMBER);
+	//constexpr inline int NonLeadingN(const T& NUMBER);
 	//std::vector <bool> NonLeadingVector(const T& NUMBER);
 	//void NonLeadingVector(const T& NUMBER, std::vector <bool>& CONTAINER);
 	//inline void FromVector(T& NUMBER, std::vector <bool> VECTOR);

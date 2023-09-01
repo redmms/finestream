@@ -8,4 +8,5 @@ info about where to output - file, array/vector, package etc.
 -  add a method for counting 1s in bytes 
 -  add FromBytes(), add Get functions with editable input size and Put functions with editable output size
 -  add some methods from FILE_STREAM into inline functions
+-  consider changing vector <bool> realisation so that 0 idx is for the least significant bit
 
