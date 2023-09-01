@@ -79,8 +79,8 @@ export namespace fsm {
 	}
 	template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
 	constexpr int LeadingN(const T& DATA) {  // return number of leading zeros in a bit representation
-		MASK_TYPE MASK{ 1u << BITSN - 1 };
 		int BITSN{ sizeof(T) * CHB }, I{ BITSN };
+		MASK_TYPE MASK{ 1u << BITSN - 1 };
 		for (; I && !(DATA & MASK); I--, MASK >>= 1) {}
 		return BITSN - I;
 	}
@@ -115,9 +115,9 @@ export namespace fsm {
 	template <typename T>
 	inline void FromVector(T & NUMBER, vector <bool> VECTOR) {
 		NUMBER = 0;
-		for (size_t BIT_IDX = VECTOR.size() - 1; BIT_IDX >= 0; BIT_IDX--) {
-			NUMBER |= bool(VECTOR[BIT_IDX]);  // is bool necessary here?
+		for (size_t BIT_IDX = VECTOR.size() - 1; BIT_IDX != SIZE_MAX; BIT_IDX--) {
 			NUMBER <<= 1;
+			NUMBER |= VECTOR[BIT_IDX];
 		}
 	}
 	template<auto ORIGINAL_NUMBER>

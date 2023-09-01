@@ -7,7 +7,7 @@ Don't skip first line with figure bracket, skip the last one. This brackets will
 	For any type, concept, structure or class name use lower case, try to name them with one word, or with one word with 2-3 contractions, if not possible use_between words, but as rare as you can.
 }
 For any function, including methods use CamelCase().
-For class members use M_ prefix (not m_).
+For class members use M prefix (not m_ and not M_).
 For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool BBYTE, string STRNUMBER. If it's a phraze and at least one full word in it without contraction use _, otherwise make it a single word.
 In macros use the same rules, if it's a macro for a type, use lwcs, if it's a macro for a function use #define Macro(x, y) OriginalFunctionDoingThisAndThis(x, y), if it's macro for a variable or other identifier use UPCS.
 If you make some commentary, use  // two spaces before slashes and one space after, if you are commenting code to disallow it don't use a space after it: //int a = 0;
