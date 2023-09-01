@@ -1,12 +1,10 @@
+#pragma once
 #include "..\bitremedy\bitremedy.h"
-#include <iostream>
 #include <bitset>
 #include <fstream>
 #include <type_traits>
 #include <vector>
-#include <queue>
-#include <bit>
-
+#include <iostream>
 
 namespace fsm {
 	using uchar = unsigned char;
@@ -39,7 +37,7 @@ namespace fsm {
 
 
 	class finestream {
-	public:
+	protected:
 		std::fstream FILE_STREAM;
 		bitremedy BRLAST_BYTE;
 	public:
