@@ -7,12 +7,15 @@ using namespace std;
 using uchar = unsigned char;
 constexpr int CHB1 = CHAR_BIT - 1,
 			  CHB = CHAR_BIT;
+
+
 void bitremedy::CheckBitsn() const {
 	if ((BITSN > CHAR_BIT || BITSN < 0)) {
 		throw out_of_range("Error: invalid BITSN value. It should be from 0 to 8"
 			"(or up to byte size of your machine).");
 	}
 }
+
 void bitremedy::CheckMargins() const {
 	if (MOVED_LEFT) {
 		if (uchar(UCBYTE << BITSN)) {
@@ -27,11 +30,13 @@ void bitremedy::CheckMargins() const {
 		}
 	}
 }
-inline void bitremedy::CheckValidity() const {
+
+void bitremedy::CheckValidity() const {
 	CheckBitsn();
 	CheckMargins(); // should be in this exact order
 }
-inline void bitremedy::ConstructorBitsnTest() const {
+
+void bitremedy::ConstructorBitsnTest() const {
 	try {
 		CheckBitsn();
 	}
@@ -40,7 +45,8 @@ inline void bitremedy::ConstructorBitsnTest() const {
 		abort();
 	}
 }
-inline void bitremedy::ValidityTest() const {
+
+void bitremedy::ValidityTest() const {
 	try {
 		CheckValidity();
 	}
@@ -49,7 +55,8 @@ inline void bitremedy::ValidityTest() const {
 		abort();
 	}
 }
-inline bool bitremedy::IsValidTest() const {
+
+bool bitremedy::IsValidTest() const {
 	try {
 		CheckValidity();
 		return true;
@@ -59,8 +66,7 @@ inline bool bitremedy::IsValidTest() const {
 	}
 }
 
-
-inline bitremedy& bitremedy::ClearMargins() {
+bitremedy& bitremedy::ClearMargins() {
 	if (MOVED_LEFT) {
 		(UCBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
 		// 1) cBYTE >>= CHAR_BIT - BITSN;
@@ -76,23 +82,26 @@ inline bitremedy& bitremedy::ClearMargins() {
 	}
 	return *this;
 }
-inline bitremedy& bitremedy::MoveToLeft() {
-	// moves bits to left border of cBYTE
+
+bitremedy& bitremedy::MoveToLeft() {
+	// moves bits to the left border of cBYTE
 	if (!this->MOVED_LEFT) {
 		UCBYTE <<= (CHAR_BIT - BITSN);
 		MOVED_LEFT = true;
 	}
 	return *this;
 }
-inline bitremedy& bitremedy::MoveToRight() {
-	// moves bits to right border of cBYTE
+
+bitremedy& bitremedy::MoveToRight() {
+	// moves bits to the right border of cBYTE
 	if (this->MOVED_LEFT) {
 		UCBYTE >>= (CHAR_BIT - BITSN);
 		MOVED_LEFT = false;
 	}
 	return *this;
 }
-bitremedy bitremedy::MergeWith(bitremedy _ADDEND) {
+
+ bitremedy bitremedy::MergeWith(bitremedy _ADDEND) {
 	// merges two unfull bytes moving them to the left and returns left aligned remedy as bitremedy NEW_REMEDY
 	int BIT_SUM = this->BITSN + _ADDEND.BITSN;
 	if (BIT_SUM == CHAR_BIT << 1) {
@@ -112,12 +121,14 @@ bitremedy bitremedy::MergeWith(bitremedy _ADDEND) {
 	this->BITSN = BIT_SUM < CHAR_BIT ? BIT_SUM : CHAR_BIT;
 	return NEW_REMEDY;
 }
-inline void bitremedy::Clear() {
+
+ void bitremedy::Clear() {
 	UCBYTE = 0;
 	BITSN = 0;
 	MOVED_LEFT = false;
 }
-inline void bitremedy::ClearToLeft() {
+
+ void bitremedy::ClearToLeft() {
 	UCBYTE = 0;
 	BITSN = 0;
 	MOVED_LEFT = true;

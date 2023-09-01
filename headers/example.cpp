@@ -1,5 +1,5 @@
 #pragma once
-#include "finestream.h"
+#include "finestream/finestream.h"
 #include <vector>
 #include <array>
 #include <queue>
@@ -11,6 +11,8 @@
 #include <string>
 #include <iostream>
 using namespace std;
+
+
 int main() {
 
 	fsm::ofinestream bsm("output.txt");  // use ifinestream for input
@@ -19,7 +21,7 @@ int main() {
 	uint8_t oo{ 0 }; // separators 
 
 
-	// Simple types:
+			// Simple types:
 
 	int i = 0x12;
 	char c = 0x12; // same as i, it was hard, but I managed to avoid all fstream casts from int to char, double to char [N] etc.

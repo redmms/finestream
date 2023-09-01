@@ -1,7 +1,10 @@
 #pragma once
 #include <bitset>
 using uchar = unsigned char;
+
+
 struct bitremedy {
+public:
 	uchar UCBYTE{ 0 };
 	int BITSN{ 0 };
 	bool MOVED_LEFT{ false }; // alias for leftAligned
@@ -31,16 +34,16 @@ struct bitremedy {
 
 	virtual void CheckBitsn() const;
 	virtual void CheckMargins() const;
-	virtual inline void CheckValidity() const;
-	virtual inline void ConstructorBitsnTest() const;
-	virtual inline void ValidityTest() const;
-	virtual inline bool IsValidTest() const;
+	virtual void CheckValidity() const;
+	virtual void ConstructorBitsnTest() const;
+	virtual void ValidityTest() const;
+	virtual bool IsValidTest() const;
 
 
-	inline bitremedy& ClearMargins();
-	inline bitremedy& MoveToLeft();
-	inline bitremedy& MoveToRight();
+	bitremedy& ClearMargins();
+	bitremedy& MoveToLeft();
+	bitremedy& MoveToRight();
 	virtual bitremedy MergeWith(bitremedy _ADDEND);
-	inline void Clear();
-	inline void ClearToLeft();
+	void Clear();
+	void ClearToLeft();
 };
