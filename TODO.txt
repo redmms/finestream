@@ -14,3 +14,6 @@ info about where to output - file, array/vector, package etc.
 otherwise write only the size of variable
 -  define +, -, += and -=, etc. for bitremedy
 -  create subclasses of bitremedy - leftaligned bitremedy and right aligned bitremedy, and they can be summed only with their type
+-  fix FromBytes()
+-  add method to bitremedy to extract subsequence of bits from [left_bit; right_bit] including borders
+
