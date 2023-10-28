@@ -6,6 +6,9 @@ using namespace std;
 using uchar = unsigned char;
 constexpr int CHB = CHAR_BIT;
 
+
+// TODO:
+// // add an operator = to bitremedy, so that there would be no need to do checks manually
 export struct bitremedy {
 public:
 	uchar UCBYTE{ 0 };
@@ -44,13 +47,13 @@ public:
 	}
 	virtual void CheckMargins() const {
 		if (MOVED_LEFT) {
-			if (uchar(UCBYTE << BITSN)) {
+			if (bool(UCBYTE << BITSN)) { // will it work with CHAR_BIT > 8? Or we need to use (uchar)()?
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
 		}
 		else {
-			if (uchar(UCBYTE >> BITSN)) {
+			if (bool(UCBYTE >> BITSN)) {
 				throw logic_error("Error: extra '1' bits in bitremedy.CBYTE. Use "
 								  "method ClearMargins()");
 			}
@@ -91,17 +94,22 @@ public:
 
 	inline bitremedy& ClearMargins() {
 		if (MOVED_LEFT) {
-			(UCBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
+			UCBYTE &= ~((uchar)(-1) >> BITSN);  // don't change the spelling, 
+			// otherwise it may fail to build in other compilers except MSVC, 
+			// because of a problem with long type names in type casts
 			// 1) cBYTE >>= CHAR_BIT - BITSN;
 			//    cBYTE <<= CHAR_BIT - BITSN;
 			// 2) (cBYTE >>= (CHAR_BIT - BITSN)) <<= (CHAR_BIT - BITSN);
 			// 3) cBYTE &= 0xFF << (CHAR_BIT - BITSN); // dangerous for CHAR_BIT more than 8
+			// // can be modifed with (uchar)(-1) instead of 0xFF to substitute 7) variant, but the benifit is disputable
+			// // though it's definitely better than the 2d variant: it has 3o instead of 4o there
 			// 4) cBYTE &= ~(0xFF >> BITSN);  // dangerous for CHAR_BIT more than 8
 			// 5) cBYTE &= ~(0xFFFFFFFF >> BITSN); // will not work
 			// 6) cBYTE &= 0xFFFFFFFF << (CHAR_BIT - BITSN); // dangerous for CHAR_BIT more than 32 and will not work for MOVED_LEFT == false;
+			// 7) Modified 5): UCBYTE &= ~((unsigned char)(-1) >> BITSN);
 		}
 		else {
-			(UCBYTE <<= (CHAR_BIT - BITSN)) >>= (CHAR_BIT - BITSN);
+			UCBYTE &= ~((uchar)(-1) << BITSN);
 		}
 		return *this;
 	}

@@ -14,7 +14,7 @@ using namespace std;
 
 int main() {
 
-	fsm::ofinestream bsm("output.txt");  // use ifinestream for input
+	fsm::ofinestream bsm("../output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -132,7 +132,7 @@ int main() {
 	vector <bool> compressedvb = fsm::NonLeadingVector(0b101);
 	int n;
 	fsm::FromVector(n, compressedvb);
-	cout << n;
+	//cout << n;
 	//bsm << compressedvb;
 	constexpr int num = 5;
 	auto compressedbs = fsm::NonLeadingBitset<num>;
@@ -147,7 +147,7 @@ int main() {
 	fsm::ToBytes(number, bytesvec);
 	vector <short> lengthsvec;
 	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
-			int size = 8 - fsm::LeadingN(vecelem);
+			int size = fsm::NonLeadingN(vecelem);
 			lengthsvec.push_back(size);
 			//bsm  << fsm::NonLeadingVector(vecelem);
 			//cout << hex << (int) vecelem << ": " << endl 
