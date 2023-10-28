@@ -9,4 +9,8 @@ info about where to output - file, array/vector, package etc.
 -  add FromBytes(), add Get functions with editable input size and Put functions with editable output size
 -  add some methods from FILE_STREAM into inline functions
 -  consider changing vector <bool> realisation so that 0 idx is for the least significant bit
-
+-  add an operator= to bitremedy, so that there would be no need to do checks manually
+-  add GetByte() or GetAny() that will input random number of bits given as a parameter, if the variable is bigger than just assign to the start of it
+otherwise write only the size of variable
+-  define +, -, += and -=, etc. for bitremedy
+-  create subclasses of bitremedy - leftaligned bitremedy and right aligned bitremedy, and they can be summed only with their type

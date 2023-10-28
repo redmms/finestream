@@ -8,6 +8,11 @@ import <vector>;
 import <queue>;
 import <bit>;
 using namespace std;
+
+
+export namespace fsm {
+
+
 template <typename T>
 concept container = requires(T STRUCTURE){
 	begin(STRUCTURE);
@@ -20,10 +25,6 @@ concept container_adaptor = requires(T STRUCTURE) {
 using uchar = unsigned char;
 constexpr int CHB1 = CHAR_BIT - 1, 
 			  CHB = CHAR_BIT;
-
-
-
-export namespace fsm {
 	inline bool IsLittleEndian() {
 		return (endian::native == endian::little);
 	}
@@ -120,11 +121,11 @@ export namespace fsm {
 
 	class finestream {
 	protected:
-		fstream FILE_STREAM;
 		bitremedy BRLAST_BYTE;
 
 
 	public:
+		fstream FILE_STREAM;
 		finestream(string FILE_PATH) {
 			FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
 			if (!FILE_STREAM.is_open()) {
@@ -139,6 +140,9 @@ export namespace fsm {
 		}
 		inline int ExtraZerosN() {
 			return BRLAST_BYTE.BITSN ? CHB - BRLAST_BYTE.BITSN : 0;
+		}
+		auto Eof() {
+			return FILE_STREAM.eof();
 		}
 	};
 
@@ -335,19 +339,33 @@ export namespace fsm {
 			BSBYTE = bitset <CHB> (UCREAD_BYTE);
 			return 0;
 		}
-		inline int GetByte(bitremedy & BRBYTE) {
-			uchar UCREAD_BYTE = FILE_STREAM.get();
+		inline int GetByte(bitremedy& BRBYTE) {
+			uchar 
+				UCREAD_BYTE = (uchar) FILE_STREAM.get();
 			if (UCREAD_BYTE == EOF) {
 				cerr << "Warning: reached end of file." << endl;
 				return EOF;
 			}
 			if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ UCREAD_BYTE, CHB, true });
-				BRBYTE = BRLAST_BYTE;
-				BRLAST_BYTE = BRNEW_REMEDY;
+				if (BRLAST_BYTE.BITSN < BRBYTE.BITSN) {
+					bitremedy 
+						RIGHT_PART{ UCREAD_BYTE, BRBYTE.BITSN - BRLAST_BYTE.BITSN, true };
+					bitremedy
+						NEW_REMEDY = BRLAST_BYTE.MergeWith(RIGHT_PART);
+					BRBYTE = BRLAST_BYTE;
+					BRLAST_BYTE = NEW_REMEDY;
+				}
+				else {
+					BRBYTE = { BRLAST_BYTE.MoveToLeft().UCBYTE, BRBYTE.BITSN, true };
+					BRLAST_BYTE.Clear();
+				}
 			}
 			else {
-				BRBYTE = { UCREAD_BYTE, CHB, true };
+				int
+					LEFT_SIZE = BRBYTE.BITSN,
+					RIGHT_SIZE = CHB - LEFT_SIZE;
+				BRBYTE = { UCREAD_BYTE, LEFT_SIZE, true };
+				BRLAST_BYTE = { UCREAD_BYTE, RIGHT_SIZE, false };
 			}
 			return 0;
 		}
