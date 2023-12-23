@@ -311,18 +311,22 @@ constexpr int CHB1 = CHAR_BIT - 1,
 
 
 		inline uchar GetByte() {
-			uchar UCREAD_BYTE;
-			int ERR = GetByte(UCREAD_BYTE);
+			uchar 
+				UCREAD_BYTE;
+			int 
+				ERR = GetByte(UCREAD_BYTE);
 			return ERR ? (uchar) ERR : UCREAD_BYTE;
 		} 
 		inline int GetByte(uchar& UCBYTE) {
-			uchar UCREAD_BYTE = FILE_STREAM.get();
-			if (UCREAD_BYTE == EOF) {
+			uchar 
+				UCREAD_BYTE = FILE_STREAM.get();
+			if (UCREAD_BYTE == (uchar) EOF) {
 				cerr << "Warning: reached end of file." << endl;
 				return EOF;
 			}
 			else if (BRLAST_BYTE.BITSN) {
-				bitremedy BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ UCREAD_BYTE, CHB, true });
+				bitremedy 
+					BRNEW_REMEDY = BRLAST_BYTE.MergeWith({ UCREAD_BYTE, CHB, true });
 				UCBYTE = BRLAST_BYTE.UCBYTE;
 				BRLAST_BYTE = BRNEW_REMEDY;
 			}  ///*(const char)*/ what will it return with inline key word? will it be a copy or original BRLAST_BYTE.UCBYTE?
@@ -332,26 +336,34 @@ constexpr int CHB1 = CHAR_BIT - 1,
 			return 0;
 		}
 		inline int GetByte(bitset <CHB> & BSBYTE) {
-			uchar UCREAD_BYTE = GetByte();
-			if (UCREAD_BYTE == EOF) {
+			uchar 
+				UCREAD_BYTE = GetByte();
+			if (UCREAD_BYTE == (uchar) EOF) {
 				return EOF;
 			}
 			BSBYTE = bitset <CHB> (UCREAD_BYTE);
 			return 0;
 		}
+		//template <size_t N>
+		//int TemplateGetByte(bitremedy& BRBYTE) {
+		//	bitset<N> input_byte;
+		//	*this >> input_byte;
+		//	BRBYTE = bitremedy(input_byte);
+		//	return 0;
+		//}
 		inline int GetByte(bitremedy& BRBYTE) {
-			uchar 
-				UCREAD_BYTE = (uchar) FILE_STREAM.get();
-			if (UCREAD_BYTE == EOF) {
-				cerr << "Warning: reached end of file." << endl;
-				return EOF;
-			}
+			//TemplateGetByte<BRBYTE.BITSN>(BRBYTE);
+			//return 0;
+			uchar UCREAD_BYTE;
+			bool MOVED_LEFT = BRBYTE.MOVED_LEFT;
 			if (BRLAST_BYTE.BITSN) {
 				if (BRLAST_BYTE.BITSN < BRBYTE.BITSN) {
-					bitremedy 
-						RIGHT_PART{ UCREAD_BYTE, BRBYTE.BITSN - BRLAST_BYTE.BITSN, true };
-					bitremedy
-						NEW_REMEDY = BRLAST_BYTE.MergeWith(RIGHT_PART);
+					UCREAD_BYTE = (uchar)FILE_STREAM.get();
+					if (UCREAD_BYTE == (uchar)EOF) {
+						cerr << "Warning: reached end of file." << endl;
+						return EOF;
+					}					bitremedy RIGHT_PART{ UCREAD_BYTE, BRBYTE.BITSN - BRLAST_BYTE.BITSN, true },
+					NEW_REMEDY = BRLAST_BYTE.MergeWith(RIGHT_PART);
 					BRBYTE = BRLAST_BYTE;
 					BRLAST_BYTE = NEW_REMEDY;
 				}
@@ -361,12 +373,17 @@ constexpr int CHB1 = CHAR_BIT - 1,
 				}
 			}
 			else {
-				int
-					LEFT_SIZE = BRBYTE.BITSN,
-					RIGHT_SIZE = CHB - LEFT_SIZE;
+				UCREAD_BYTE = (uchar)FILE_STREAM.get();
+				if (UCREAD_BYTE == (uchar)EOF) {
+					cerr << "Warning: reached end of file." << endl;
+					return EOF;
+				}				int	LEFT_SIZE = BRBYTE.BITSN,
+				RIGHT_SIZE = CHB - LEFT_SIZE;
 				BRBYTE = { UCREAD_BYTE, LEFT_SIZE, true };
 				BRLAST_BYTE = { UCREAD_BYTE, RIGHT_SIZE, false };
 			}
+			if (!MOVED_LEFT)
+				BRBYTE.MoveToRight();
 			return 0;
 		}
 		template <typename T>
