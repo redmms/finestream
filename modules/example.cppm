@@ -36,8 +36,8 @@ int main() {
 	//	<< dpointm << O;
 	int* p = &i;
 	int& r = i;
-	//bsm << &r << O 
-	//    << p  << O;
+	bsm << &r << O 
+	    << p  << O;
 
 
 			// The most useful types:
@@ -160,5 +160,4 @@ int main() {
 	//long long n{ 0 };
 	//fsm::FromBytes(n, vbuff);
 	//cout << hex << n;
-
 }
