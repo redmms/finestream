@@ -49,8 +49,14 @@ Use Windows binary editor to watch the result file and Windows programmer calcul
 In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or char or type that can be automaticaly converted to char. Also you can use figure brackets for initialization.  
 - ``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``bitremedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``IsValid()``/``ValidityTest()`` methods if you are not sure.  
 - ``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
-- ``MergeWith()`` method add another ``bitremedy`` passed as an argument to initial one, moving them all to the left side and returning new ``bitremedy`` if their whole length is more then one byte size (or ``bitremedy`` with zeros if no).  
+- ``AddToRight()`` method add another ``bitremedy`` passed as an argument to initial one, moving them all to the left side and returning new ``bitremedy`` if their whole length is more then one byte size (or ``bitremedy`` with zeros if no).  
 - ``Clear()`` assigns zeros to all ``bitremedy`` members, and ``ClearToLeft()`` assigns all zeros but true for MOVED_LEFT.  
+- Other useful functions:  
+-- ``AddToLeft/Right``  
+-- ``CopyNFromLeft/Right``    
+-- ``CutNFromLeft/Right``  
+-- ``RestoreLastAlign``  
+-- ``toStr``  
 3) That's how you initialize a ``bitremedy``:  
 ![bitremedyinitialization](/pictures/00about_bitremedy/2.jpg)  
 All unused bits will be assigned 0 during initialization. But if a ``bitremedy`` passed to finestream will have nonempty margins it will throw an error.  

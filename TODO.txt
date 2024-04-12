@@ -17,3 +17,6 @@ otherwise write only the size of variable
 -  add analog of std::countr_zero, countr_one, countl_one (countl_zero is already added)
 -  add size constraints for operator << for container_adaptors (so that it could define how much bytes need to be written)
 -  add functors for writting info about size of outputed bit sequences (like in Qt functions but as a functor in std::cout style)
+-  add operator << (vector<bool>&, ofstream&) as for a bitset
+-  return back operator << (bitremedy&, ofstream&)
+-  add conversion function: from vb to bs and back

@@ -94,7 +94,18 @@ int main() {
 		st.push(el);
 	}
 	//bsm << q;
-
+	vector<vector<uint8_t>> tree {
+		{ 0, 1, 3 },
+		{ 4, 3 },
+		{ 1, 3, 5, 7, 9 }
+	};
+	bsm << tree;
+	vector<vector<uint8_t>> read_tree{
+		{ 0, 0, 0 },
+		{ 0, 0 },
+		{ 0, 0, 0, 0, 0 }
+	};
+	//bsm >> read_tree;
 
 			// Specific types for unique use cases
 
@@ -160,4 +171,7 @@ int main() {
 	//long long n{ 0 };
 	//fsm::FromBytes(n, vbuff);
 	//cout << hex << n;
+
+
+
 }

@@ -99,22 +99,22 @@ constexpr int CHB1 = CHAR_BIT - 1,
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 1)
     constexpr size_t LeadingN(T& NUMBER) {  // return number of leading zeros in a bit representation
-        return static_cast<size_t>(countl_zero(reinterpret_cast<uint8_t&>(NUMBER)));
+        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint8_t&>(&NUMBER)));
     }
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 2)
     constexpr size_t LeadingN(T& NUMBER) {  
-        return static_cast<size_t>(countl_zero(reinterpret_cast<uint16_t&>(NUMBER)));
+        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint16_t&>(&NUMBER)));
     }    
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 4)
     constexpr size_t LeadingN(T& NUMBER) {  
-        return static_cast<size_t>(countl_zero(reinterpret_cast<uint32_t&>(NUMBER)));
+        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint32_t&>(&NUMBER)));
     }    
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 8)
     constexpr size_t LeadingN(T& NUMBER) { 
-        return static_cast<size_t>(countl_zero(reinterpret_cast<uint64_t&>(NUMBER)));
+        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint64_t&>(&NUMBER)));
     }
     template <typename T>
         requires(is_same_v<vector<bool>, T> || is_same_v<bitset, T>)
