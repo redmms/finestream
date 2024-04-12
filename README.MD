@@ -91,3 +91,8 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
 ![](/pictures/2bitset/1.jpg)  
 ![](/pictures/2bitset/2.jpg)  
 ![](/pictures/2bitset/3.jpg)  
+
+## Build
+  
+To compile it enable C++20 and for MSVC use this compiler command: /dxifcInlineFunctions- because of this MSVC bug:  
+https://developercommunity.visualstudio.com/t/Modules-ICE-when-using-cout-inside-of/10299789
