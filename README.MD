@@ -51,7 +51,7 @@ In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or 
 - ``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
 - ``AddToRight()`` method add another ``bitremedy`` passed as an argument to initial one, moving them all to the left side and returning new ``bitremedy`` if their whole length is more then one byte size (or ``bitremedy`` with zeros if no).  
 - ``Clear()`` assigns zeros to all ``bitremedy`` members, and ``ClearToLeft()`` assigns all zeros but true for MOVED_LEFT.  
-- Other useful functions:  
+- Other useful methods:  
 -- ``AddToLeft/Right``  
 -- ``CopyNFromLeft/Right``    
 -- ``CutNFromLeft/Right``  
