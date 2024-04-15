@@ -45,7 +45,6 @@ Use Windows binary editor to watch the result file and Windows programmer calcul
 - ``int`` BITSN is used to store the number of bits you use. It's made int for convenience and less number of implicit type casts.  
 - ``bool`` MOVED_LEFT is used to store info about if bit sequence is left aligned or not, true when left aligned and false when right aligned.  
 2) ``bitremedy`` methods are:  
-![bitremedymethods](/pictures/00about_bitremedy/1.jpg)  
 In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or char or type that can be automaticaly converted to char. Also you can use figure brackets for initialization.  
 - ``ClearMargins()`` is the method cleaning unused bits to erase all extra 1 bits. This method is called in all constructors, so when you initialize a ``bitremedy`` you can be sure it's alright, but you need to be careful when you change the value, or to use ``IsValid()``/``ValidityTest()`` methods if you are not sure.  
 - ``MoveToLeft()`` and ``MoveToRight()`` shift bit sequence close to the left or right edge respectively.  
