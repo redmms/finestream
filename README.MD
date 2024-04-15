@@ -41,7 +41,7 @@ Use Windows binary editor to watch the result file and Windows programmer calcul
 
 1) ``bitremedy`` elements are:  
 ![bitremedyelements](/pictures/00about_bitremedy/0.jpg)  
-- ``char`` CBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
+- ``char`` UCBYTE is used to store from 0 to 8 (or ``CHAR_BIT``) bits.  
 - ``int`` BITSN is used to store the number of bits you use. It's made int for convenience and less number of implicit type casts.  
 - ``bool`` MOVED_LEFT is used to store info about if bit sequence is left aligned or not, true when left aligned and false when right aligned.  
 2) ``bitremedy`` methods are:  
@@ -60,7 +60,7 @@ In constructor you can initialize ``bitremedy`` CBYTE either with bitset <8> or 
 3) That's how you initialize a ``bitremedy``:  
 ![bitremedyinitialization](/pictures/00about_bitremedy/2.jpg)  
 All unused bits will be assigned 0 during initialization. But if a ``bitremedy`` passed to finestream will have nonempty margins it will throw an error.  
-  
+NOTE: the project is updated regularly, so the pictures can be out of date a little bit.  
   
 ## Fine start  
 
@@ -99,6 +99,14 @@ All unused bits will be assigned 0 during initialization. But if a ``bitremedy``
 ![](/pictures/2bitset/3.jpg)  
 
 ## Build
-  
-To compile it enable C++20 and for MSVC use this compiler command: /dxifcInlineFunctions- because of this MSVC bug:  
-https://developercommunity.visualstudio.com/t/Modules-ICE-when-using-cout-inside-of/10299789
+
+1) Install last version of MS Visual Studio  
+2) Open Visual Studio.  
+3) In Get Started menu press "Open project or solution" and choose .sln file from the repo  
+To compile it in other IDEs enable C++20 and for MSVC use this compiler command: /dxifcInlineFunctions- if you have this MSVC bug:  
+https://developercommunity.visualstudio.com/t/Modules-ICE-when-using-cout-inside-of/10299789  
+NOTE:  
+In MS Visual Studio you may encounter this bug:  
+https://developercommunity.visualstudio.com/t/macros-vc-includepath-and-vc-librarypath-x86-expan/4974   
+Try to add ucrt library paths manually to the project properties:  
+https://stackoverflow.com/questions/33104562/error-c1083-cannot-open-include-file-crtdbg-h-no-such-file-or-directory/77377130#77377130  

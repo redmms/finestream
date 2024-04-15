@@ -4,11 +4,17 @@ import <bitset>;
 import <stdexcept>;
 import <algorithm>;
 import <string>;
+import <bit>;
 using uchar = unsigned char;
 constexpr int CHB = CHAR_BIT;
 constexpr int CHB1 = CHAR_BIT - 1;
 using namespace std;
 
+namespace fsm {
+    class finestream;
+    class ifinestream;
+    class ofinestream;
+}
 
 // TODO:
 // // add an operator = to bitremedy, so that there would be no need to do checks manually
@@ -16,7 +22,10 @@ export struct bitremedy {
 private :
     bool LAST_ALIGN{ false };
 
-public:
+    friend class fsm::finestream;
+    friend class fsm::ifinestream;
+    friend class fsm::ofinestream;
+protected:
     uchar UCBYTE{0};
     int BITSN{0};
     bool MOVED_LEFT{false}; // alias for leftAligned
@@ -27,33 +36,39 @@ public:
     bitremedy(bitset <N> BSBYTE_, int BITSN_, bool MOVED_LEFT_) :
         UCBYTE((uchar)BSBYTE_.to_ulong()), BITSN(BITSN_), MOVED_LEFT(MOVED_LEFT_)
     {
-        ConstructorBitsnTest();
+        CheckBitsn();
         ClearMargins();
     }
+
     template <size_t N>
     bitremedy(bitset <N> BSBYTE_) :
-        UCBYTE((uchar)BSBYTE_.to_ulong()), BITSN(MinBits(UCBYTE)), MOVED_LEFT(false)
+        UCBYTE((uchar)BSBYTE_.to_ulong()), BITSN(bit_width(UCBYTE)), MOVED_LEFT(false)
     {
-        if (MinBits(BSBYTE_.to_ulong()) > BITSN) {
+        if (bit_width(BSBYTE_.to_ulong()) > BITSN) {
             cerr << "WARNING: the number in bitremedy constructor is bigger than 1 byte can contain and will be cut" << endl;
         }
     }
+
     template <typename T>
     bitremedy(T TBYTE_, int BITSN_, bool MOVED_LEFT_) :
         UCBYTE((uchar)TBYTE_), BITSN(BITSN_), MOVED_LEFT(MOVED_LEFT_)
     {
-        ConstructorBitsnTest();
+        CheckBitsn();
         ClearMargins();
     }
+
     template <typename T>
+        requires(is_arithmetic_v<T>)
     bitremedy(T TBYTE_) :
-        UCBYTE((uchar) TBYTE_), BITSN(MinBits(UCBYTE)), MOVED_LEFT(false)
+        UCBYTE((uchar) TBYTE_), BITSN(bit_width(UCBYTE)), MOVED_LEFT(false)
     {
-        if (MinBits(TBYTE_) > BITSN) {
+        if (bit_width(bit_cast<make_unsigned<T>>(TBYTE_)) > BITSN) {
             cerr << "WARNING: the number in bitremedy constructor is bigger than 1 byte can contain and will be cut" << endl;
         }
     }
+
     bitremedy() {};
+
      ~bitremedy() {};
     // TODO: add constructor from char and other 1 byte types
 
@@ -62,69 +77,54 @@ public:
         COPY.MoveToRight();
         return int(COPY.UCBYTE);
     }
+
     operator unsigned char() const {
         bitremedy COPY = *this;
         COPY.MoveToRight();
         return COPY.UCBYTE;
     }
+
     operator char() const {
         bitremedy COPY = *this;
         COPY.MoveToRight();
         return char(COPY.UCBYTE);
     }
 
-     void CheckBitsn() const {
-        if ((BITSN > CHB || BITSN < 0)) {
+    bool BitsnIsValid() const {
+        return 0 <= BITSN && BITSN <= CHB;
+    }
+
+    void CheckBitsn() const {
+        if (!BitsnIsValid()) {
             throw out_of_range("ERROR: invalid BITSN value. It should be from 0 to 8"
-                               "(or up to byte size of your machine).");
-        }
-    }
-     void CheckMargins() const {
-        if (MOVED_LEFT) {
-            if (bool(UCBYTE << BITSN)) { // will it work with CHB > 8? Or we need to use (uchar)()?
-                throw logic_error("ERROR: extra '1' bits in bitremedy.CBYTE. Use "
-                                  "method ClearMargins()");
-            }
-        }
-        else {
-            if (bool(UCBYTE >> BITSN)) {
-                throw logic_error("ERROR: extra '1' bits in bitremedy.CBYTE. Use "
-                                  "method ClearMargins()");
-            }
-        }
-    }
-     inline void CheckValidity() const {
-        CheckBitsn();
-        CheckMargins(); // should be in this exact order
-    }
-     inline void ConstructorBitsnTest() const {
-        try {
-            CheckBitsn();
-        }
-        catch (const exception& E) {
-            cout << E.what() << endl;
-            abort();
-        }
-    }
-     inline void ValidityTest() const {
-        try {
-            CheckValidity();
-        }
-        catch (const exception& E) {
-            cout << E.what() << endl;
-            abort();
-        }
-    }
-     inline bool IsValidTest() const {
-        try {
-            CheckValidity();
-            return true;
-        }
-        catch (const exception& E) {
-            return false;
+                "(or up to byte size of your machine).");
         }
     }
 
+    bool MarginsAreClear() const {
+        if (MOVED_LEFT) {
+            return UCBYTE << BITSN;
+        }
+        else {
+            return UCBYTE >> BITSN;
+        }
+    }
+
+    void CheckMargings() const {
+        if (!MarginsAreClear()) {
+            throw logic_error("ERROR: extra '1' bits in bitremedy.CBYTE. Use "
+                "method ClearMargins()");
+        }
+    }
+
+    inline bool IsValid() const {
+        return BitsnIsValid() && MarginsAreClear(); // order matters here
+    }
+
+    inline void CheckValidity() const {
+        CheckBitsn();
+        CheckMargings(); // should be in this exact order
+    }
 
     inline bitremedy& ClearMargins() {
         if (MOVED_LEFT) {
@@ -147,6 +147,7 @@ public:
         }
         return *this;
     }
+
     inline bitremedy& MoveToLeft() {
         // moves bits to left border of cBYTE
         LAST_ALIGN = MOVED_LEFT;
@@ -156,6 +157,7 @@ public:
         }
         return *this;
     }
+
     inline bitremedy& MoveToRight() {
         // moves bits to right border of cBYTE
         LAST_ALIGN = MOVED_LEFT;
@@ -165,15 +167,18 @@ public:
         }
         return *this;
     }
-     bitremedy AddToRight(bitremedy ADDEND_) {
+
+    bitremedy AddToRight(bitremedy ADDEND_) {
         // merges two unfull bytes moving them to the left and returns left aligned remedy as bitremedy REMEDY
+        bitremedy REMEDY{ ADDEND_ };
         int BIT_SUM = this->BITSN + ADDEND_.BITSN;
         if (BIT_SUM == CHB << 1) {
-            cout << "WARNING: merging 2 full bytes will not change them." << endl;
-            return {};
+            cerr << "WARNING: merging 2 full bytes will not change them." << endl;
+            return REMEDY;
         }
-        bitremedy ADDEND{ ADDEND_ }, REMEDY{ ADDEND_ };
-        ADDEND.MoveToLeft(); this->MoveToLeft();
+        bitremedy ADDEND{ ADDEND_ };
+        ADDEND.MoveToLeft(); 
+        this->MoveToLeft();
         if (BIT_SUM > CHB) {
             REMEDY.CutNFromLeft(ADDEND.BITSN - BIT_SUM % CHB);
         }
@@ -184,25 +189,29 @@ public:
         RestoreLastAlign();
         return REMEDY;
     }
-     bitremedy AddToLeft(bitremedy ADDEND_) {
-        // merges two unfull bytes moving them to the left and returns left aligned remedy as bitremedy REMEDY
+
+    bitremedy AddToLeft(bitremedy ADDEND_) {
+        // merges two unfull bytes moving them to the left and returns right aligned remedy as bitremedy REMEDY
+        bitremedy REMEDY{ ADDEND_ };
         int BIT_SUM = this->BITSN + ADDEND_.BITSN;
         if (BIT_SUM == CHB << 1) {
-            cout << "WARNING: merging 2 full bytes will not change them." << endl;
-            return {};
+            cerr << "WARNING: merging 2 full bytes will not change them." << endl;
+            return REMEDY;
         }
-        bitremedy ADDEND{ ADDEND_ }, REMEDY{ ADDEND_};
-        ADDEND.MoveToRight(); this->MoveToRight();
+        bitremedy ADDEND{ ADDEND_ };
+        ADDEND.MoveToRight(); 
+        this->MoveToRight();
         if (BIT_SUM > CHB) {
             REMEDY.CutNFromRight(ADDEND.BITSN - BIT_SUM % CHB);
         }
         else {
             REMEDY = {};
         }
-        *this = { UCBYTE | (ADDEND.UCBYTE << BITSN), min(BIT_SUM, CHB), MOVED_LEFT };
+        *this = { (ADDEND.UCBYTE << BITSN) | UCBYTE, min(BIT_SUM, CHB), MOVED_LEFT };
         RestoreLastAlign();
         return REMEDY;
     }
+
     inline bitremedy& ExtractFromLeft(bitremedy& LESS) {
         if (LESS.BITSN > this->BITSN) {
             cerr << "ERROR: you can't extract bigger bitremedy from less one" << endl;
@@ -213,6 +222,7 @@ public:
         this->RestoreLastAlign(); LESS.RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& ExtractFromRight(bitremedy& LESS) {
         if (LESS.BITSN > this->BITSN) {
             cerr << "ERROR: you can't extract bigger bitremedy from less one" << endl;
@@ -223,18 +233,21 @@ public:
         this->RestoreLastAlign(); LESS.RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& CutNFromLeft(int N) {
         this->MoveToLeft();
         *this = { UCBYTE << N, BITSN - N, true };
         RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& CutNFromRight(int N) {
         this->MoveToRight();
         *this = { UCBYTE >> N, BITSN - N, false };
         RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& AddNToLeft(int N) {
         this->MoveToRight();
         BITSN += N;
@@ -242,6 +255,7 @@ public:
         RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& AddNToLeft(int N, bitremedy& FROM) {
         bitremedy ADDEND = { 0, N, false };
         ADDEND.CheckBitsn();
@@ -249,6 +263,7 @@ public:
         this->AddToLeft(ADDEND);
         return *this;
     }
+
     inline bitremedy& AddNToRight(int N) {
         this->MoveToLeft();
         BITSN += N;
@@ -256,6 +271,7 @@ public:
         RestoreLastAlign();
         return *this;
     }
+
     inline bitremedy& AddNToRight(int N, bitremedy& FROM) {
     // cuts from left side of FROM bitremedy, because files always are written and read from left to right
         bitremedy ADDEND = { 0, N, true };
@@ -264,35 +280,33 @@ public:
         this->AddToRight(ADDEND);
         return *this;
     }
+
     inline bitremedy CopyNFromLeft(int N) {
         this->MoveToLeft();
         bitremedy ret{ UCBYTE, N, MOVED_LEFT };
         RestoreLastAlign();
         return ret;
     }
+
     inline bitremedy CopyNFromRight(int N) {
         this->MoveToRight();
         bitremedy ret{ UCBYTE, N, MOVED_LEFT };
         RestoreLastAlign();
         return ret;
     }
+
     inline void Clear() {
         UCBYTE = 0;
         BITSN = 0;
         MOVED_LEFT = false;
     }
+
     inline void ClearToLeft() {
         UCBYTE = 0;
         BITSN = 0;
         MOVED_LEFT = true;
     }
-    template<typename T>
-    int MinBits(T number) {
-        if (!number) {
-            //cerr << "WARNING: minBits input was 0, output is 0 (0 bit), this case should be user defined" << endl;
-        }
-        return ceil(log2(number + 1));
-    }
+
     inline void RestoreLastAlign() {
         if (LAST_ALIGN) {
             MoveToLeft();
@@ -301,6 +315,7 @@ public:
             MoveToRight();
         }
     }
+
     inline string toStr() {
         uchar MASK{ 1 };
         if (MOVED_LEFT) {
@@ -310,7 +325,7 @@ public:
             MASK <<= BITSN - 1;
         }
         string RES{ "" };
-        for (int I = 0; I < BITSN; MASK >>= 1, I++) {
+        for (int I = 0; I < BITSN; MASK >>= 1, ++I) {
             RES.push_back(UCBYTE & MASK ? '1' : '0');
         }
         return RES;

@@ -12,25 +12,33 @@ using namespace std;
 
 
 export namespace fsm {
-template <typename T>
-concept container = requires(T STRUCTURE){
-    begin(STRUCTURE);
-    end(STRUCTURE);
-};
-template <typename T>
-concept container_adaptor = requires(T STRUCTURE) {
-    STRUCTURE.pop();
-};
-template <typename T>
-    constexpr bool is_tuple_v = false;
-template<typename ... types>
-    constexpr bool is_tuple_v<std::tuple<types...>> = true;
-using uchar = unsigned char;
-constexpr int CHB1 = CHAR_BIT - 1, 
-              CHB = CHAR_BIT;
+
+    template <typename T>
+    concept container = requires(T STRUCTURE){
+        begin(STRUCTURE);
+        end(STRUCTURE);
+    };
+
+    template <typename T>
+    concept container_adaptor = requires(T STRUCTURE) {
+        STRUCTURE.pop();
+    };
+
+    template <typename T>
+        constexpr bool is_tuple_v = false;
+
+    template<typename ... types>
+        constexpr bool is_tuple_v<std::tuple<types...>> = true;
+
+    using uchar = unsigned char;
+
+    constexpr int CHB1 = CHAR_BIT - 1, 
+                  CHB = CHAR_BIT;
+
     inline bool IsLittleEndian() {
         return (endian::native == endian::little);
     }
+
     template <typename ORIGINAL_TYPE, typename ARRAY_VALUES_TYPE, size_t N>
         requires (sizeof(ARRAY_VALUES_TYPE) == 1)
     void ToBytes(ORIGINAL_TYPE& NUMBER, ARRAY_VALUES_TYPE(&BYTES_ARRAY)[N]) {
@@ -43,6 +51,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
             BYTES_ARRAY[I] = BYTE_PTR[I];
         }
     }
+
     template <typename ORIGINAL_TYPE, typename CONTAINER_TYPE>
         requires fsm::container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
     void ToBytes(ORIGINAL_TYPE& NUMBER, CONTAINER_TYPE& BYTES_ARRAY) {
@@ -56,6 +65,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
             BYTES_ARRAY.emplace(BYTES_ARRAY.end(), BYTE_PTR[I]);
         }
     }
+
     template <typename T, typename CONTAINER_TYPE>
         requires fsm::container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
     inline void FromBytes(T& NUMBER, CONTAINER_TYPE& BYTES) {
@@ -63,6 +73,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
         NUMBER = *NUMBERPTR;
         //NUMBER = reinterpret_cast<T>(*DATA);
     }
+
     template <typename T, typename ARRAY_VALUES_TYPE, size_t N>
         requires (sizeof(ARRAY_VALUES_TYPE) == 1)
     inline void FromBytes(T& NUMBER, ARRAY_VALUES_TYPE(&BYTES)[N]) {
@@ -76,16 +87,19 @@ constexpr int CHB1 = CHAR_BIT - 1,
     inline constexpr size_t BitSize(const T& CONTAINER) {
         return CONTAINER.size();
     }
+
     template <typename T>
         requires(is_arithmetic_v<T>)
     inline constexpr size_t BitSize(const T& DATA) {
         return sizeof(DATA) * CHB;
     }
+
     template <typename T>
     inline constexpr size_t BitSize(const T& DATA) {
         static_assert(!is_tuple_v<T>, "Not available for tuples yet");
         return size(DATA) * CHB;
     }
+
     template <typename T>
         requires(container<T> || is_array_v<T>)
     inline constexpr size_t BitSize(const T& CONTAINER) {
@@ -98,24 +112,28 @@ constexpr int CHB1 = CHAR_BIT - 1,
 
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 1)
-    constexpr size_t LeadingN(T& NUMBER) {  // return number of leading zeros in a bit representation
-        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint8_t&>(&NUMBER)));
+    constexpr size_t LeadingN(const T& NUMBER) {  // return number of leading zeros in a bit representation
+        return static_cast<size_t>(countl_zero(static_cast<uint8_t>(NUMBER)));
     }
+
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 2)
-    constexpr size_t LeadingN(T& NUMBER) {  
-        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint16_t&>(&NUMBER)));
-    }    
+    constexpr size_t LeadingN(const T& NUMBER) {
+        return static_cast<size_t>(countl_zero(static_cast<uint16_t>(NUMBER)));
+    }
+
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 4)
-    constexpr size_t LeadingN(T& NUMBER) {  
-        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint32_t&>(&NUMBER)));
-    }    
+    constexpr size_t LeadingN(const T& NUMBER) {  
+        return static_cast<size_t>(countl_zero(static_cast<uint32_t>(NUMBER)));
+    }
+
     template <typename T>
         requires(is_arithmetic_v<T> && sizeof(T) == 8)
-    constexpr size_t LeadingN(T& NUMBER) { 
-        return reinterpret_cast<size_t&>(&countl_zero(reinterpret_cast<uint64_t&>(&NUMBER)));
+    constexpr size_t LeadingN(const T& NUMBER) {
+        return static_cast<size_t>(countl_zero(static_cast<uint64_t>(NUMBER)));
     }
+
     template <typename T>
         requires(is_same_v<vector<bool>, T> || is_same_v<bitset, T>)
     constexpr size_t LeadingN(const T& BIG_NUMBER) {  
@@ -136,6 +154,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
         }
         return LEADING_N;
     }
+
     template <typename CONTAINER_TYPE>
         requires(is_array_v<CONTAINER_TYPE> || container<CONTAINER_TYPE>)
     constexpr size_t LeadingN(const CONTAINER_TYPE& CONTAINER) {  // returns number of leading zeros in a bit representation
@@ -148,6 +167,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
         }
         return LEADING_N;
     }
+
     template <typename T>
     inline constexpr int intLeadingN(const T& NUMBER) {
         return static_cast<int>(LeadingN(NUMBER));
@@ -157,6 +177,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
     inline constexpr size_t NonLeadingN(const T& DATA) {
         return static_cast<size_t>(BitSize(DATA) - LeadingN(DATA));
     }
+
     template <typename T>
     inline constexpr int intNonLeadingN(const T& NUMBER) {
         return static_cast<int>(NonLeadingN(NUMBER));
@@ -173,12 +194,14 @@ constexpr int CHB1 = CHAR_BIT - 1,
             MASK >>= 1;
         }
     }
+
     template <typename T>
     inline vector<bool> NonLeadingVector(const T& NUMBER) {
         vector<bool> CONTAINER;
         NonLeadingVector(NUMBER, CONTAINER);
         return CONTAINER;
     } 
+
     template <typename T, typename MASK_TYPE = typename make_unsigned<typename remove_const<T>::type>::type>
     void ToVector(const T& NUMBER, vector<bool>& CONTAINER) {
         MASK_TYPE MASK{ MASK_TYPE(1u) << sizeof(T) * CHB - 1 };
@@ -187,12 +210,14 @@ constexpr int CHB1 = CHAR_BIT - 1,
             MASK >>= 1;
         }
     }
+
     template <typename T>
     inline vector<bool> ToVector(const T& NUMBER) {
         vector<bool> CONTAINER;
         ToVector(NUMBER, CONTAINER);
         return CONTAINER;
     }
+
     template <typename T, typename MASK_TYPE = typename make_unsigned<typename remove_const<T>::type>::type>
     void ToSizedVector(const T& NUMBER, vector<bool>& CONTAINER) {
         if (CONTAINER.empty()){
@@ -207,64 +232,62 @@ constexpr int CHB1 = CHAR_BIT - 1,
             CONTAINER[BIT_IDX] = bool(NUMBER & MASK); // result casted to bool
         }
     }
+
     template <typename T>
     inline vector<bool> ToSizedVector(const T& NUMBER) {
         vector<bool> CONTAINER;
         ToSizedVector(NUMBER, CONTAINER);
         return CONTAINER;
     }
+
     template <typename T>
     inline void FromVector(T& NUMBER, const vector<bool>& VECTOR) {
         NUMBER = 0;
-        for (size_t BIT_IDX = VECTOR.size() - 1; BIT_IDX != SIZE_MAX; BIT_IDX--) {
+        for (size_t I = VECTOR.size() - 1; I != SIZE_MAX; I--) {
             NUMBER <<= 1;
-            NUMBER |= VECTOR[BIT_IDX];
+            NUMBER |= bool(VECTOR[I]);
         }
     }
+
     template<auto ORIGINAL_NUMBER>
         constexpr auto NonLeadingBitset = bitset<NonLeadingN(ORIGINAL_NUMBER)>(ORIGINAL_NUMBER);
     template <typename T, size_t N>
     inline void FromBitset(T& NUMBER, bitset<N> BITSET) {
         NUMBER = (T)BITSET.to_ullong();
     }
-    template<typename T>
-    size_t MinBits(T NUMBER) {
-        if (NUMBER < 0) {
-            cerr << "WARNING: minBits parameter was less than 0" << endl;
-            return SIZE_MAX;
-        }
-        return /*ceil(log2(NUMBER + 1));*/ static_cast<size_t>(BitSize(NUMBER) - LeadingN(NUMBER));
-    }
-    template<typename T>
-    inline int intMinBits(T NUMBER) {
-        return static_cast<int>(MinBits(NUMBER));
-    }
+
+
 
     class finestream {
     protected:
         bitremedy LAST;
+        fstream FILE_STREAM;
 
 
     public:
-        fstream FILE_STREAM;
+
         finestream(const filesystem::path& FILE_PATH) {
-            FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in);
+            FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in );
             if (!FILE_STREAM.is_open()) {
                 throw runtime_error("File wasn't open.");
             }
             LAST.MOVED_LEFT = true;
         }
-        //finestream(){}
+
+        finestream(){}
 
         bitremedy LastByte() {
             return LAST;
         }
+
         inline int ExtraZerosN() {
             return LAST.BITSN ? CHB - LAST.BITSN : 0;
         }
+
         auto Eof() {
             return FILE_STREAM.eof();
         }
+
         void open(string FILE_PATH) {
             FILE_STREAM.open(FILE_PATH);
         }
@@ -275,13 +298,17 @@ constexpr int CHB1 = CHAR_BIT - 1,
 
     class ofinestream : public finestream {
     public:
-        //ofinestream() = default;
-        //ofinestream() noexcept = default;
-        //ofinestream(const ofinestream& other) = default;
-        //ofinestream& operator=(const ofinestream& other) = default;
 
-        ofinestream(const filesystem::path& FILE_PATH) : finestream(FILE_PATH) {}
-        //ofinestream() {}
+        ofinestream(const filesystem::path& FILE_PATH) :
+            finestream()
+        {
+            FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::app);
+            if (!FILE_STREAM.is_open()) {
+                throw runtime_error("File wasn't open.");
+            }
+            LAST.MOVED_LEFT = true;
+        }
+
         ~ofinestream() {
             Flush();
             FILE_STREAM.close();
@@ -296,15 +323,19 @@ constexpr int CHB1 = CHAR_BIT - 1,
             FILE_STREAM.seekp(BYTE_POS + 1);
             LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), BIT_POS + 1, true };
         }
+
         auto TellBitP() {
             return FILE_STREAM.tellp() * CHB + LAST.BITSN;
         }
+
         void SeekP(fstream::pos_type POS) {
             FILE_STREAM.seekp(POS);
         }
+
         auto TellP() {
             return FILE_STREAM.tellp();
         }
+
         void Flush() {
             if (LAST.BITSN) { // output buffer for last byte before closing filestream
                 uchar ALREADY_WRITTEN = (uchar) FILE_STREAM.rdbuf()->sgetc();
@@ -315,12 +346,15 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             FILE_STREAM.flush();
         }
+
         inline void PutByte(const uchar UCBYTE) {
             PutByte({ UCBYTE, CHB, true });
-        }  // is it safely to use inline here?
+        }  // is it safe to use inline here?
+
         inline void PutByte(const bitset <CHB>& BSBYTE) {
             PutByte({ BSBYTE, CHB, true });
         }
+
         inline void PutByte(const bitremedy& BRBYTE) {
             //BRBYTE.ValidityTest(); // it will be on the user's discretion when uses PutByte(), don't want to double check every bitremedy, it would slow down the stream
             bitremedy NEW_REMEDY = LAST.AddToRight(BRBYTE);
@@ -329,6 +363,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
                 LAST = NEW_REMEDY;
             }
         }
+
         template <typename T>  // if you know how to safely use reference type parameter here - commit it
         inline void PutAny(T DATA) {
             uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
@@ -336,6 +371,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
                 PutByte(BYTE_PTR[I]);
             }
         }
+
         template <typename T>
         inline void PutAnyReversed(T DATA) {
             uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
@@ -345,22 +381,18 @@ constexpr int CHB1 = CHAR_BIT - 1,
         }
 
 
+
+
         inline ofinestream& operator << (const bitset<CHB>& BSBYTE) {
             PutByte(BSBYTE);
             return *this;
         }
+
         template <int N> // N - int operations occur
-        ofinestream& operator << (const bitset <N>& BSLINE) {
+        ofinestream& operator << (const bitset<N>& BSLINE) {
             int LPZSIZE = CHB - LAST.BITSN;  // left puzzle size
             if (N <= LPZSIZE) {
-                //(LAST.MoveToRight().UCBYTE <<= N) |= (char) BSLINE.to_ulong();
-                //LAST.BITSN += N;
-                //LAST.MoveToLeft();
-                //if (LAST.BITSN == CHB) {
-                //    FILE_STREAM.put(LAST.UCBYTE);
-                //    LAST.Clear();
-                //}
-                PutByte((bitremedy) BSLINE);  // use my functions, if you want to shorten code, no more than 5% slower but harder to make mistake and shorter
+                PutByte((bitremedy) BSLINE);
             }
             else {
                 bitset <N> MASK((1u << CHB) - 1);
@@ -379,12 +411,14 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             return *this;
         }
+
         ofinestream& operator << (const bitremedy& BRBYTE) {
-            BRBYTE.ValidityTest();
+            BRBYTE.CheckBitsn();
             PutByte(BRBYTE);
             return *this;
         }
-        ofinestream& operator << (const bool BBYTE) {
+
+        ofinestream& operator << (bool BBYTE) {
             LAST.MoveToLeft();
             if (BBYTE) {
                 LAST.UCBYTE |= (true << (CHB1 - LAST.BITSN)); // CHB - curr. seq. len. - new seq. len. = CHB - LAST.BITSN - 1 = CHB1 - LAST.BITSN
@@ -399,50 +433,71 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             return *this;
         }
-        template <typename T>           
+
+        template <typename T>
+            requires(container<T>)
         ofinestream& operator << (const T& DATA) {
-            if constexpr (container<T>) {
-                for (const auto& ELEMENT : DATA) {
-                    *this << ELEMENT;
-                }
+            for (const auto& ELEMENT : DATA) { // const typename T::value_type&
+                *this << ELEMENT;
             }
-            else if constexpr (is_array_v<T>) {
-                for (int I = 0, SIZE = size(DATA); I < SIZE; I++) {
-                    *this << DATA[I];
-                }
+            return *this;
+        }
+
+        template <typename T>
+            requires(is_array_v<T>)
+        ofinestream& operator << (const T& DATA) {
+            for (int I = 0, SIZE = size(DATA); I < SIZE; I++) {
+                *this << DATA[I];
             }
-            else if constexpr (container_adaptor<T>) {
-                if constexpr (is_same_v < T, queue<typename T::value_type> >) {
-                    auto DATA_COPY{ DATA };
-                    while (!DATA_COPY.empty()) {
-                        *this << DATA_COPY.front();
-                        DATA_COPY.pop();
-                    }
-                }
-                else {
-                    auto DATA_COPY{ DATA };
-                    while (!DATA_COPY.empty()) {
-                        *this << DATA_COPY.top();
-                        DATA_COPY.pop();
-                    }
-                }
+            return *this;
+        }
+
+        template <typename T>
+            requires(is_same_v<T, queue<typename T::value_type>>)
+        ofinestream& operator << (const T& DATA) {
+            auto DATA_COPY{ DATA };
+            while (!DATA_COPY.empty()) {
+                *this << DATA_COPY.front();
+                DATA_COPY.pop();
             }
-            else if constexpr (sizeof(T) == 1) {
-                PutByte(DATA);
+            return *this;
+        }
+
+        template <typename T>
+            requires(container_adaptor<T>)
+        ofinestream& operator << (const T& DATA) {
+            auto DATA_COPY{ DATA };
+            while (!DATA_COPY.empty()) {
+                *this << DATA_COPY.top();
+                DATA_COPY.pop();
             }
-            else if constexpr (is_arithmetic_v <T>) {
-                if (IsLittleEndian())
-                    PutAnyReversed(DATA);
-                else
-                    PutAny(DATA);
-            }
-            else {
-                if (IsLittleEndian())
-                    PutAnyReversed(DATA);
-                else
-                    PutAny(DATA);
-                cerr << "WARNING: are you sure about this type - " << typeid(T).name() << "?" << endl;
-            }
+            return *this;
+        }
+
+        template <typename T>
+            requires(sizeof(T) == 1)
+        ofinestream& operator << (const T& DATA) {
+            PutByte(DATA);
+            return *this;
+        }
+
+        template <typename T>
+            requires(is_arithmetic_v <T> && sizeof(T) != 1)
+        ofinestream& operator << (const T& DATA) {
+            if (IsLittleEndian())
+                PutAnyReversed(DATA);
+            else
+                PutAny(DATA);
+            return *this;
+        }
+
+        template <typename T>
+        ofinestream& operator << (const T& DATA) {
+            cerr << "WARNING: are you sure about this type - " << typeid(T).name() << "?" << endl;
+            if (IsLittleEndian())
+                PutAnyReversed(DATA);
+            else
+                PutAny(DATA);
             return *this;
         }
     };
@@ -452,8 +507,15 @@ constexpr int CHB1 = CHAR_BIT - 1,
 
     class ifinestream : public finestream {
     public:
-        ifinestream(const filesystem::path& FILE_PATH) : finestream(FILE_PATH) {}
-        //ifinestream() {}
+        ifinestream(const filesystem::path& FILE_PATH) :
+            finestream()
+        {
+            FILE_STREAM.open(FILE_PATH, ios::binary | ios::in);
+            if (!FILE_STREAM.is_open()) {
+                throw runtime_error("File wasn't open.");
+            }
+            LAST.MOVED_LEFT = true;
+        }
 
         
         template <typename T>
@@ -464,12 +526,15 @@ constexpr int CHB1 = CHAR_BIT - 1,
             FILE_STREAM.seekg(BYTE_POS + 1);
             LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), BIT_POS + 1, true };
         }
+
         auto TellBitG() {
             return FILE_STREAM.tellg() * CHB + LAST.BITSN;
         }
+
         void SeekG(fstream::pos_type pos) {
             FILE_STREAM.seekg(pos);
         }
+
         auto TellG() {
             return FILE_STREAM.tellg();
         }
@@ -479,6 +544,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
             int ERR = GetByte(UCREAD_BYTE);
             return ERR ? (uchar) ERR : UCREAD_BYTE;
         } 
+
         inline int GetByte(uchar& UCBYTE) {
             if (LAST.BITSN == CHB) {
                 UCBYTE = LAST.UCBYTE;
@@ -500,12 +566,14 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             return 0;
         }
+
         inline int GetByte(bitset<CHB> & BSBYTE) {
             uchar UCREAD_BYTE;
             int RET = GetByte(UCREAD_BYTE);
             BSBYTE = bitset<CHB> (UCREAD_BYTE);
             return RET;
         }
+
         inline int GetByte(bitremedy& BRBYTE) {
             if (LAST.BITSN >= BRBYTE.BITSN) {
                 LAST.ExtractFromLeft(BRBYTE);
@@ -529,17 +597,18 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             return 0;
         }
+
         template <typename T>
         int GetAny(T& DATA) {
             uchar BYTES[sizeof(T)];
             int ERR{ 0 };
-            for (int I = sizeof(T) - 1; I >= 0; I--) {
+            for (int I = sizeof(T) - 1; I >= 0 && ERR != int(EOF); I--) {
                 ERR = GetByte(BYTES[I]);
             }
-            const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
-            DATA = *DATAPTR;   // will BYTES[] memory be released after exiting this function?
+            DATA = *reinterpret_cast<const T*>(BYTES);   // will BYTES[] memory be released after exiting this function?
             return ERR;
         }
+
         template <typename T>
         int GetAnyReversed(T& DATA) {  // is it really reversed? or is normal?
             uchar BYTES[sizeof(T)];
@@ -551,16 +620,20 @@ constexpr int CHB1 = CHAR_BIT - 1,
             DATA = *DATAPTR;
             return ERR;
         }
+
         void Flush() {
             LAST.Clear();
             FILE_STREAM.flush();
         }
         
 
+
+
         ifinestream& operator >> (bitset <CHB>& BSBYTE) {
             GetByte(BSBYTE);
             return *this;
         }
+
         template <int N>
         ifinestream& operator >> (bitset <N>& BSLINE) {
             if (N <= LAST.BITSN) {
@@ -584,10 +657,12 @@ constexpr int CHB1 = CHAR_BIT - 1,
             }
             return *this;
         }
+
         ifinestream& operator >> (bitremedy& BRBYTE) {
             GetByte(BRBYTE);
             return *this;
         }
+
         ifinestream& operator >> (bool& BBYTE) {
             LAST.MoveToRight();
             if (!LAST.BITSN) {
@@ -598,6 +673,7 @@ constexpr int CHB1 = CHAR_BIT - 1,
             LAST.BITSN--;
             return *this;
         }
+
         ifinestream& operator >> (vector<bool>& VB) {
              bool BIT;
              for (size_t I = 0, SIZE = VB.size(); I < SIZE; I++) {
@@ -606,41 +682,60 @@ constexpr int CHB1 = CHAR_BIT - 1,
              }
              return *this;
          }
+
+        template <typename T>
+            requires(container <T>)
+        ifinestream& operator >> (T& DATA) {
+            for (auto& ELEMENT : DATA) {
+                *this >> ELEMENT;
+            }
+            return *this;
+        }
+
+        template <typename T>
+            requires(is_array_v <T>)
+        ifinestream& operator >> (T& DATA) {
+            for (size_t I = 0, SIZE = size(DATA); I < SIZE; I++) {
+                *this >> DATA[I];
+            }
+            return *this;
+        }
+
+        template <typename T>
+            requires(container_adaptor <T>)
+        ifinestream& operator >> (T& DATA) {
+            typename T::value_type ELEMENT;
+            while (!FILE_STREAM.eof()) {
+                *this >> ELEMENT;
+                DATA.push(ELEMENT);
+            }
+            return *this;
+        }
+
+        template <typename T>
+            requires(sizeof(T) == 1)
+        ifinestream& operator >> (T& DATA) {
+            DATA = (T)GetByte();
+            return *this;
+        }
+
+        template <typename T>
+            requires(is_arithmetic_v <T> && sizeof(T) != 1)
+        ifinestream& operator >> (T& DATA) {
+            if (IsLittleEndian())
+                GetAny(DATA);
+            else
+                GetAnyReversed(DATA);
+            return *this;
+        }
+
         template <typename T>
         ifinestream& operator >> (T& DATA) {
-            if constexpr (container <T>) {
-                for (auto & ELEMENT : DATA) {
-                    *this >> ELEMENT;
-                }
-            }
-            else if constexpr (is_array_v <T>) {
-                for (size_t I = 0, SIZE = size(DATA); I < SIZE; I++) {
-                    *this >> DATA[I];
-                }
-            }
-            else if constexpr (container_adaptor <T>) {
-                typename T::value_type ELEMENT;
-                while ( !FILE_STREAM.eof() ) {
-                    *this >> ELEMENT;
-                    DATA.push(ELEMENT);
-                }
-            }
-            else if constexpr (sizeof(T) == 1) {
-                DATA = (T) GetByte(); 
-            }
-            else if constexpr (is_arithmetic_v <T>) {
-                if (IsLittleEndian())
-                    GetAny(DATA);
-                else
-                    GetAnyReversed(DATA);
-            }
-            else {
-                cerr << "WARNING: are you sure about this type - " << typeid(T).name() << "?" << endl;
-                if (IsLittleEndian())
-                    GetAny(DATA);
-                else
-                    GetAnyReversed(DATA);
-            }
+            cerr << "WARNING: are you sure about this type - " << typeid(T).name() << "?" << endl;
+            if (IsLittleEndian())
+                GetAny(DATA);
+            else
+                GetAnyReversed(DATA);
             return *this;
         }
     };

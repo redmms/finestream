@@ -14,7 +14,7 @@ using namespace std;
 
 int main() {
 
-	fsm::ofinestream bsm("../output.txt");  // use ifinestream for input
+	fsm::ifinestream bsm("../output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -36,8 +36,8 @@ int main() {
 	//	<< dpointm << O;
 	int* p = &i;
 	int& r = i;
-	bsm << &r << O 
-	    << p  << O;
+	//bsm << &r << O 
+	//    << p  << O;
 
 
 			// The most useful types:
@@ -47,8 +47,8 @@ int main() {
 
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
-			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit will be erased
-			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit will be erased	
+			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit (the right one) will be erased
+			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit (the left one) will be erased	
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//
 	//bsm << bra << brb;                   // compact way
@@ -99,13 +99,13 @@ int main() {
 		{ 4, 3 },
 		{ 1, 3, 5, 7, 9 }
 	};
-	bsm << tree;
+	//bsm << tree;
 	vector<vector<uint8_t>> read_tree{
 		{ 0, 0, 0 },
 		{ 0, 0 },
 		{ 0, 0, 0, 0, 0 }
-	};
-	//bsm >> read_tree;
+	}; // could also be achieved by read_tree[n].resize();
+	bsm >> read_tree;
 
 			// Specific types for unique use cases
 
@@ -140,9 +140,11 @@ int main() {
 			// Useful functions from namespace fsm
 
 	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help to compress even other types, not only bitsets and vector <bool> 
-	vector <bool> compressedvb = fsm::NonLeadingVector(0b101);
+	vector<bool> compressedvb = fsm::NonLeadingVector(0b00101);
 	int n;
-	fsm::FromVector(n, compressedvb);
+	fsm::FromVector(n, compressedvb); 
+	// open suggestion on github if you want this function
+	// or others with template argument, aka fsm::FromVector<int>(compressedvb);
 	//cout << n;
 	//bsm << compressedvb;
 	constexpr int num = 5;
@@ -151,14 +153,13 @@ int main() {
 
 	// I plan this method for cases when you don't want to write to a file:
 	int number = 0x1234;
-	constexpr int size = sizeof(number);
-	char bytesarr[size];  // int bytesarr[size]; will crash, you can use any inner type that has size equal 1, for example char, unsigned char int8_t, etc
+	char bytesarr[sizeof(number)];  // int bytesarr[size]; will crash, you can use any inner type that has size equal 1, for example char, unsigned char int8_t, etc
 	fsm::ToBytes(number, bytesarr);
 	vector <uint8_t> bytesvec;  // I recomend you to use an empty container (excluding strings and forward_lists), because ToBytes() will not rewrite your container, but will add new items to the back, making size bigger
 	fsm::ToBytes(number, bytesvec);
-	vector <short> lengthsvec;
+	vector<short> lengthsvec;
 	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
-			int size = fsm::NonLeadingN(vecelem);
+			int size = fsm::intNonLeadingN(vecelem);
 			lengthsvec.push_back(size);
 			//bsm  << fsm::NonLeadingVector(vecelem);
 			//cout << hex << (int) vecelem << ": " << endl 
