@@ -2,18 +2,16 @@
 -  add saving stream in another representable view: some analog or extension of vector <bool> / bitset to store in bits, but show in chars '1' or '0'
 -  add new parameteres to finestream constructor(), including, for example, bool for saving info of lengths, and
 info about where to output - file, array/vector, package etc.
--  add explicit check that FILE_STREAM is .good otherwise throw an error, if for example cannot read/write from it
 -  add a method for counting 1s in bytes 
--  add FromBytes(), add Get functions with editable input size and Put functions with editable output size
+-  add FromBytes(), add Get functions with input size parameter and Put functions with output size parameter
 -  add some methods from FILE_STREAM into inline functions
 -  consider changing vector <bool> realisation so that 0 idx is for the least significant bit
 -  add an operator= to bitremedy, so that there would be no need to do checks manually
 -  add GetByte() or GetAny() that will input random number of bits given as a parameter, if the variable is bigger then just assign to the start of it
 otherwise write only the size of variable
 -  define +, -, += and -=, etc. for bitremedy
--  create subclasses of bitremedy - leftaligned bitremedy and right aligned bitremedy, and they can be summed only with their type
--  fix FromBytes()
--  add method to bitremedy to extract subsequence of bits from [left_bit; right_bit] including borders
+-  create child classes of bitremedy - leftaligned bitremedy and right aligned bitremedy, and they can be summed only with their type
+-  fix FromBytes() ??
 -  add analog of std::countr_zero, countr_one, countl_one (countl_zero is already added)
 -  add size constraints for operator << for container_adaptors (so that it could define how much bytes need to be written)
 -  add functors for writting info about size of outputed bit sequences (like in Qt functions but as a functor in std::cout style)
