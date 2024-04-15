@@ -96,6 +96,26 @@ NOTE: the project is updated regularly, so the pictures can be out of date a lit
 ![](/pictures/2bitset/1.jpg)  
 ![](/pictures/2bitset/2.jpg)  
 ![](/pictures/2bitset/3.jpg)  
+  
+  
+  
+3) ``containers``:  
+You can use any type with ``finestream``, though tuples are least tested at the moment.  
+For example, here'are random size containers:  
+```	vector<vector<uint8_t>> tree {
+```		{ 0, 1, 3 },
+```		{ 4, 3 },
+```		{ 1, 3, 5, 7, 9 }
+```	};
+```	bsm << tree;  
+   
+```	vector<vector<uint8_t>> read_tree{
+```		{ 0, 0, 0 },
+```		{ 0, 0 },
+```		{ 0, 0, 0, 0, 0 }
+```	};  
+```	bsm >> read_tree;
+
 
 ## Build
 

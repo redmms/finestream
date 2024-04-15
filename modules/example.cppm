@@ -43,7 +43,7 @@ int main() {
 			// The most useful types:
 
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
-	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 
 	bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
@@ -52,14 +52,14 @@ int main() {
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//
 	//bsm << bra << brb;                   // compact way
-	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 	//
 	//bsm.PutByte(bra); bsm.PutByte(brb);  // universal way
-	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN();
+	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN();
 
 	bool b = true;
 	//bsm << b << false << b << b;
-	//cout << bsm.LastByte().BITSN << " " << bsm.ExtraZerosN();
+	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN();
 
 	vector <bool> vb(13, 0); // 0 pos - left, N pos - right
 	for (auto idx : { 0, 2, 4, 12 }) {
@@ -105,7 +105,7 @@ int main() {
 		{ 0, 0 },
 		{ 0, 0, 0, 0, 0 }
 	}; // could also be achieved by read_tree[n].resize();
-	bsm >> read_tree;
+	//bsm >> read_tree;
 
 			// Specific types for unique use cases
 

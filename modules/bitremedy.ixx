@@ -50,6 +50,7 @@ public:
     }
 
     template <typename T>
+        requires(is_arithmetic_v<T>)
     bitremedy(T TBYTE_, int BITSN_, bool MOVED_LEFT_) :
         UCBYTE((uchar)TBYTE_), BITSN(BITSN_), MOVED_LEFT(MOVED_LEFT_)
     {
@@ -70,7 +71,19 @@ public:
     bitremedy() {};
 
      ~bitremedy() {};
-    // TODO: add constructor from char and other 1 byte types
+    // TODO: add constructor from vector <bool> 
+
+    uchar Ucbyte() {
+        return UCBYTE;
+    }
+
+    int Bitsn() {
+        return BITSN;
+    }
+
+    bool MovedLeft() {
+        return MOVED_LEFT;
+    }
 
     operator int() const {
         bitremedy COPY = *this;
