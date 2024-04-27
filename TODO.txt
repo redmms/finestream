@@ -18,3 +18,4 @@ otherwise write only the size of variable
 -  add operator << (vector<bool>&, ofstream&) as for a bitset
 -  return back operator << (bitremedy&, ofstream&)
 -  add conversion function: from vb to bs and back
+-  add functions to round current byte in the output stream, I mean skip ExtraZerosN() bits, same in ifinestream
