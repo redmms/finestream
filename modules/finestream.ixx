@@ -11,7 +11,8 @@ import <filesystem>;
 using namespace std;
 
 
-export namespace fsm {
+export namespace fn 
+{
 
     template <typename T>
     concept container = requires(T STRUCTURE){
@@ -28,32 +29,28 @@ export namespace fsm {
         constexpr bool is_tuple_v = false;
 
     template<typename ... types>
-        constexpr bool is_tuple_v<std::tuple<types...>> = true;
+        constexpr bool is_tuple_v<tuple<types...>> = true;
 
     using uchar = unsigned char;
 
     constexpr int CHB1 = CHAR_BIT - 1, 
                   CHB = CHAR_BIT;
 
-    inline bool IsLittleEndian() {
+    inline constexpr bool IsLittleEndian() {
         return (endian::native == endian::little);
     }
 
     template <typename ORIGINAL_TYPE, typename ARRAY_VALUES_TYPE, size_t N>
         requires (sizeof(ARRAY_VALUES_TYPE) == 1)
     void ToBytes(ORIGINAL_TYPE& NUMBER, ARRAY_VALUES_TYPE(&BYTES_ARRAY)[N]) {
-        if (N != sizeof(ORIGINAL_TYPE)) {
-            cerr << "ERROR: use array of same size as original data in ToBytes()" << endl;
-            throw out_of_range("ERROR: use array of same size as original data in ToBytes()");
-        }
+        static_assert(N == sizeof(ORIGINAL_TYPE),
+            "ERROR: use array of same size as original data in ToBytes()");
         ARRAY_VALUES_TYPE* BYTE_PTR = reinterpret_cast<ARRAY_VALUES_TYPE*>(&NUMBER);
-        for (int I = 0, SIZE = sizeof(NUMBER); I < SIZE; I++) {
-            BYTES_ARRAY[I] = BYTE_PTR[I];
-        }
+        memcpy(&BYTES_ARRAY, BYTE_PTR, sizeof(NUMBER));
     }
 
     template <typename ORIGINAL_TYPE, typename CONTAINER_TYPE>
-        requires fsm::container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
+        requires container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
     void ToBytes(ORIGINAL_TYPE& NUMBER, CONTAINER_TYPE& BYTES_ARRAY) {
         if (!BYTES_ARRAY.empty()) {
             cerr << "WARNING: in ToBytes(): you are adding NUMBER representation to "
@@ -61,30 +58,29 @@ export namespace fsm {
         }
         typename CONTAINER_TYPE::value_type* BYTE_PTR = reinterpret_cast<typename
             CONTAINER_TYPE::value_type*>(&NUMBER);
-        for (int I = 0, SIZE = sizeof(NUMBER); I < SIZE; I++) {
+        for (int I = 0, SIZE = sizeof(NUMBER); I < SIZE; ++I) {
             BYTES_ARRAY.emplace(BYTES_ARRAY.end(), BYTE_PTR[I]);
         }
     }
 
     template <typename T, typename CONTAINER_TYPE>
-        requires fsm::container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
+        requires container<CONTAINER_TYPE> && (sizeof(typename CONTAINER_TYPE::value_type) == 1)
     inline void FromBytes(T& NUMBER, CONTAINER_TYPE& BYTES) {
-        const T* NUMBERPTR = reinterpret_cast<const T*>(BYTES.data());
-        NUMBER = *NUMBERPTR;
-        //NUMBER = reinterpret_cast<T>(*DATA);
+        memcpy(&NUMBER, BYTES.data(), sizeof(NUMBER));
     }
 
     template <typename T, typename ARRAY_VALUES_TYPE, size_t N>
         requires (sizeof(ARRAY_VALUES_TYPE) == 1)
     inline void FromBytes(T& NUMBER, ARRAY_VALUES_TYPE(&BYTES)[N]) {
-        const T* NUMBERPTR = reinterpret_cast<const T*>(BYTES);
-        NUMBER = *NUMBERPTR;
-        //NUMBER = reinterpret_cast<T>(*DATA);
+        memcpy(&NUMBER, &BYTES, sizeof(NUMBER));
     }
 
-    template <typename T>
-        requires(is_same_v<vector<bool>, T> || is_same_v<bitset, T>)
-    inline constexpr size_t BitSize(const T& CONTAINER) {
+    inline constexpr size_t BitSize(const vector<bool>& CONTAINER) {
+        return CONTAINER.size();
+    }
+
+    template <size_t N>
+    inline constexpr size_t BitSize(const bitset<N>& CONTAINER) {
         return CONTAINER.size();
     }
 
@@ -104,7 +100,7 @@ export namespace fsm {
         requires(container<T> || is_array_v<T>)
     inline constexpr size_t BitSize(const T& CONTAINER) {
         size_t TOTAL_SIZE = 0;
-        for (size_t I = 0, SIZE = size(CONTAINER); I < SIZE; SIZE++) {
+        for (size_t I = 0, SIZE = size(CONTAINER); I < SIZE; ++SIZE) {
             TOTAL_SIZE += BitSize(CONTAINER[I]);
         }
         return TOTAL_SIZE;
@@ -144,27 +140,28 @@ export namespace fsm {
         // any differences between these two ways of counting to adjust this 
         // function, but the intent is to make it work same way as said above.
         size_t LEADING_N = 0;
-        for (size_t BIT_IDX = size(BIG_NUMBER) - 1; BIT_IDX != SIZE_MAX; BIT_IDX--) {
+        for (size_t BIT_IDX = size(BIG_NUMBER); --BIT_IDX;) {
             if (BIG_NUMBER[BIT_IDX]) {
                 return LEADING_N;
             }
             else {
-                LEADING_N++;
+                ++LEADING_N;
             }
         }
         return LEADING_N;
     }
 
     template <typename CONTAINER_TYPE>
-        requires(is_array_v<CONTAINER_TYPE> || container<CONTAINER_TYPE>)
+        requires(is_array_v<CONTAINER_TYPE> || container<CONTAINER_TYPE> && !is_same_v<vector<bool>, CONTAINER_TYPE>)
     constexpr size_t LeadingN(const CONTAINER_TYPE& CONTAINER) {  // returns number of leading zeros in a bit representation
         size_t LEADING_N = 0;
-        for (size_t IDX = 0, SIZE = size(CONTAINER), TEMP = 0;
-            IDX < SIZE && (TEMP = LeadingN(CONTAINER[IDX]) == BitSize(CONTAINER[IDX]));
-            IDX++) 
-        {
+        size_t IDX = 0;
+        size_t SIZE = size(CONTAINER);
+        size_t TEMP = LeadingN(CONTAINER[IDX]);
+        do {
             LEADING_N += TEMP;
-        }
+            TEMP = LeadingN(CONTAINER[++IDX]);
+        } while (IDX < SIZE && TEMP == BitSize(CONTAINER[IDX]));
         return LEADING_N;
     }
 
@@ -228,7 +225,7 @@ export namespace fsm {
             cerr << "WARNING: in ToSizedVector: aim NUMBER size is less than vector<bool> size";
         }
         MASK_TYPE MASK{ MASK_TYPE(1u) << MASK_TYPE(CONTAINER.size() - 1) };
-        for (size_t BIT_IDX = 0, SIZE = CONTAINER.size(); BIT_IDX < SIZE; BIT_IDX++, MASK >>= 1) {
+        for (size_t BIT_IDX = 0, SIZE = CONTAINER.size(); BIT_IDX < SIZE; ++BIT_IDX, MASK >>= 1) {
             CONTAINER[BIT_IDX] = bool(NUMBER & MASK); // result casted to bool
         }
     }
@@ -243,7 +240,7 @@ export namespace fsm {
     template <typename T>
     inline void FromVector(T& NUMBER, const vector<bool>& VECTOR) {
         NUMBER = 0;
-        for (size_t I = VECTOR.size() - 1; I != SIZE_MAX; I--) {
+        for (size_t I = VECTOR.size(); --I;) {
             NUMBER <<= 1;
             NUMBER |= bool(VECTOR[I]);
         }
@@ -258,7 +255,8 @@ export namespace fsm {
 
 
 
-    class finestream {
+    class finestream 
+    {
     protected:
         bitremedy LAST;
         fstream FILE_STREAM;
@@ -296,7 +294,8 @@ export namespace fsm {
 
 
 
-    class ofinestream : public finestream {
+    class ofinestream : public finestream 
+    {
     public:
 
         ofinestream(const filesystem::path& FILE_PATH) :
@@ -320,7 +319,7 @@ export namespace fsm {
             Flush(); // clears LAST byte, no need to clear again
             ofstream::pos_type BYTE_POS = static_cast<ofstream::pos_type>(POS_ / CHB);
             int BIT_POS = POS_ % CHB;
-            FILE_STREAM.seekp(BYTE_POS + 1);
+            FILE_STREAM.seekp(BYTE_POS);
             LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), BIT_POS + 1, true };
         }
 
@@ -329,6 +328,7 @@ export namespace fsm {
         }
 
         void SeekP(fstream::pos_type POS) {
+            Flush();
             FILE_STREAM.seekp(POS);
         }
 
@@ -367,7 +367,7 @@ export namespace fsm {
         template <typename T>  // if you know how to safely use reference type parameter here - commit it
         inline void PutAny(T DATA) {
             uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
-            for (int I = 0, SIZE = sizeof(DATA); I < SIZE; I++) {
+            for (int I = 0, SIZE = sizeof(DATA); I < SIZE; ++I) {
                 PutByte(BYTE_PTR[I]);
             }
         }
@@ -375,7 +375,7 @@ export namespace fsm {
         template <typename T>
         inline void PutAnyReversed(T DATA) {
             uchar* BYTE_PTR = reinterpret_cast<uchar*>(&DATA);
-            for (int I = sizeof(DATA) - 1; I >= 0; I--) {
+            for (int I = sizeof(DATA) - 1; I >= 0; --I) {
                 PutByte(BYTE_PTR[I]);
             }
         }
@@ -422,10 +422,10 @@ export namespace fsm {
             LAST.MoveToLeft();
             if (BBYTE) {
                 LAST.UCBYTE |= (true << (CHB1 - LAST.BITSN)); // CHB - curr. seq. len. - new seq. len. = CHB - LAST.BITSN - 1 = CHB1 - LAST.BITSN
-                LAST.BITSN++;
+                ++LAST.BITSN;
             }
             else {
-                LAST.BITSN++;
+                ++LAST.BITSN;
             }
             if (LAST.BITSN >= CHB) {
                 FILE_STREAM.put(LAST.UCBYTE);
@@ -446,7 +446,7 @@ export namespace fsm {
         template <typename T>
             requires(is_array_v<T>)
         ofinestream& operator << (const T& DATA) {
-            for (int I = 0, SIZE = size(DATA); I < SIZE; I++) {
+            for (int I = 0, SIZE = size(DATA); I < SIZE; ++I) {
                 *this << DATA[I];
             }
             return *this;
@@ -505,7 +505,8 @@ export namespace fsm {
 
 
 
-    class ifinestream : public finestream {
+    class ifinestream : public finestream 
+    {
     public:
         ifinestream(const filesystem::path& FILE_PATH) :
             finestream()
@@ -523,7 +524,7 @@ export namespace fsm {
         void SeekBitG(T POS_) {
             ifstream::pos_type BYTE_POS = static_cast<ifstream::pos_type>(POS_ / CHB);
             int BIT_POS = POS_ % CHB;
-            FILE_STREAM.seekg(BYTE_POS + 1);
+            FILE_STREAM.seekg(BYTE_POS);
             LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), BIT_POS + 1, true };
         }
 
@@ -533,6 +534,7 @@ export namespace fsm {
 
         void SeekG(fstream::pos_type pos) {
             FILE_STREAM.seekg(pos);
+            Flush();
         }
 
         auto TellG() {
@@ -551,8 +553,9 @@ export namespace fsm {
                 LAST.ClearToLeft();
                 return 0;
             }
-            uchar UCREAD_BYTE = FILE_STREAM.get();
-            if (UCREAD_BYTE == (uchar) EOF) {
+            int IREAD_BYTE = FILE_STREAM.get();
+            uchar UCREAD_BYTE = (uchar) IREAD_BYTE;
+            if (IREAD_BYTE == EOF) {
                 cerr << "WARNING: reached end of file." << endl;
                 return EOF;
             }
@@ -579,8 +582,9 @@ export namespace fsm {
                 LAST.ExtractFromLeft(BRBYTE);
             }
             else {
-                uchar UCREAD_BYTE = (uchar)FILE_STREAM.get();
-                if (UCREAD_BYTE == (uchar)EOF) {
+                int IREAD_BYTE = FILE_STREAM.get();
+                uchar UCREAD_BYTE = (uchar)IREAD_BYTE;
+                if (IREAD_BYTE == EOF) {
                     cerr << "WARNING: reached end of file." << endl;
                     return EOF;
                 }
@@ -602,10 +606,10 @@ export namespace fsm {
         int GetAny(T& DATA) {
             uchar BYTES[sizeof(T)];
             int ERR{ 0 };
-            for (int I = sizeof(T) - 1; I >= 0 && ERR != int(EOF); I--) {
+            for (int I = sizeof(T) - 1; I >= 0 && ERR != EOF; --I) {
                 ERR = GetByte(BYTES[I]);
             }
-            DATA = *reinterpret_cast<const T*>(BYTES);   // will BYTES[] memory be released after exiting this function?
+            memcpy(&DATA, BYTES, sizeof(DATA));
             return ERR;
         }
 
@@ -613,11 +617,10 @@ export namespace fsm {
         int GetAnyReversed(T& DATA) {  // is it really reversed? or is normal?
             uchar BYTES[sizeof(T)];
             int ERR{ 0 };
-            for (int I = 0, SIZE = sizeof(T); I < SIZE; I++) {
+            for (int I = 0, SIZE = sizeof(T); I < SIZE; ++I) {
                 ERR = GetByte(BYTES[I]);
             }
-            const T* DATAPTR = reinterpret_cast<const T*>(BYTES);
-            DATA = *DATAPTR;
+            memcpy(&DATA, BYTES, sizeof(DATA));
             return ERR;
         }
 
@@ -670,13 +673,13 @@ export namespace fsm {
                 LAST.BITSN = CHB;
             }
             BBYTE = LAST.UCBYTE & (true << (LAST.BITSN - 1));
-            LAST.BITSN--;
+            --LAST.BITSN;
             return *this;
         }
 
         ifinestream& operator >> (vector<bool>& VB) {
              bool BIT;
-             for (size_t I = 0, SIZE = VB.size(); I < SIZE; I++) {
+             for (size_t I = 0, SIZE = VB.size(); I < SIZE; ++I) {
                  *this >> BIT;
                  VB[I] = BIT;
              }
@@ -695,7 +698,7 @@ export namespace fsm {
         template <typename T>
             requires(is_array_v <T>)
         ifinestream& operator >> (T& DATA) {
-            for (size_t I = 0, SIZE = size(DATA); I < SIZE; I++) {
+            for (size_t I = 0, SIZE = size(DATA); I < SIZE; ++I) {
                 *this >> DATA[I];
             }
             return *this;

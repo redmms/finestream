@@ -14,7 +14,7 @@ using namespace std;
 
 int main() {
 
-	fsm::ifinestream bsm("../output.txt");  // use ifinestream for input
+	fn::ifinestream bsm("../output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -45,7 +45,7 @@ int main() {
 	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
 	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 
-	bitremedy bra{ 0b00000111, 3, true },  // 000
+	fn::bitremedy bra{ 0b00000111, 3, true },  // 000
 			  brb{ 0b00000111, 3, false }, // 111
 			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit (the right one) will be erased
 			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit (the left one) will be erased	
@@ -140,39 +140,46 @@ int main() {
 			// Useful functions from namespace fsm
 
 	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help to compress even other types, not only bitsets and vector <bool> 
-	vector<bool> compressedvb = fsm::NonLeadingVector(0b00101);
+	vector<bool> compressedvb = fn::NonLeadingVector(0b00101);
 	int n;
-	fsm::FromVector(n, compressedvb); 
+	fn::FromVector(n, compressedvb); 
 	// open suggestion on github if you want this function
-	// or others with template argument, aka fsm::FromVector<int>(compressedvb);
+	// or others with template argument, aka fn::FromVector<int>(compressedvb);
 	//cout << n;
 	//bsm << compressedvb;
 	constexpr int num = 5;
-	auto compressedbs = fsm::NonLeadingBitset<num>;
+	auto compressedbs = fn::NonLeadingBitset<num>;
 	//bsm << compressedbs;
 
 	// I plan this method for cases when you don't want to write to a file:
 	int number = 0x1234;
 	char bytesarr[sizeof(number)];  // int bytesarr[size]; will crash, you can use any inner type that has size equal 1, for example char, unsigned char int8_t, etc
-	fsm::ToBytes(number, bytesarr);
+	fn::ToBytes(number, bytesarr);
 	vector <uint8_t> bytesvec;  // I recomend you to use an empty container (excluding strings and forward_lists), because ToBytes() will not rewrite your container, but will add new items to the back, making size bigger
-	fsm::ToBytes(number, bytesvec);
+	fn::ToBytes(number, bytesvec);
 	vector<short> lengthsvec;
 	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
-			int size = fsm::intNonLeadingN(vecelem);
+			int size = fn::intNonLeadingN(vecelem);
 			lengthsvec.push_back(size);
-			//bsm  << fsm::NonLeadingVector(vecelem);
+			//bsm  << fn::NonLeadingVector(vecelem);
 			//cout << hex << (int) vecelem << ": " << endl 
 			//	 << "size in finestream: " << size << ", view: " << bitset<8>(vecelem) << endl;
 		});
-	//cout << "System is " << (fsm::IsLittleEndian() ? "" : "not") << "little endian." << endl;
+	//cout << "System is " << (fn::IsLittleEndian() ? "" : "not") << "little endian." << endl;
 
 	//array <uint8_t, 2> vbuff{ 0x12, 0x34 };
 	//char vbuff[]{ 0x12, 0x34 };
 	//long long n{ 0 };
-	//fsm::FromBytes(n, vbuff);
+	//fn::FromBytes(n, vbuff);
 	//cout << hex << n;
 
+	//bitset<10> bstm;
+	//cout << "Bitset size is: " << fn::BitSize(bstm) << endl;
+	//cout << "Bitset size is: " << bstm.size() << endl;
+
+	vector<bool> vbtm(11);
+	//cout << fn::BitSize(vbtm);
+	cout << fn::LeadingN(vbtm);
 
 
 }
