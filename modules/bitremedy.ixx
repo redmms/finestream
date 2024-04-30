@@ -10,6 +10,8 @@ constexpr int CHB = CHAR_BIT;
 constexpr int CHB1 = CHAR_BIT - 1;
 using namespace std;
 
+
+
 export namespace fn 
 {
     class finestream;
@@ -29,7 +31,6 @@ export namespace fn
         uchar UCBYTE{ 0 };
         int BITSN{ 0 };
         bool MOVED_LEFT{ false }; // alias for leftAligned
-
 
     public:
         template <size_t N>
@@ -227,7 +228,7 @@ export namespace fn
 
         inline bitremedy& ExtractFromLeft(bitremedy& LESS) {
             if (LESS.BITSN > this->BITSN) {
-                cerr << "ERROR: you can't extract bigger bitremedy from less one" << endl;
+                throw invalid_argument("You can't extract bigger bitremedy from less one");
             }
             this->MoveToLeft(); LESS.MoveToLeft();
             LESS = { UCBYTE, LESS.BITSN, true };
@@ -238,7 +239,7 @@ export namespace fn
 
         inline bitremedy& ExtractFromRight(bitremedy& LESS) {
             if (LESS.BITSN > this->BITSN) {
-                cerr << "ERROR: you can't extract bigger bitremedy from less one" << endl;
+                throw invalid_argument("You can't extract bigger bitremedy from less one");
             }
             this->MoveToRight(); LESS.MoveToRight();
             LESS = { UCBYTE, LESS.BITSN, false };

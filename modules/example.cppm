@@ -42,13 +42,13 @@ int main() {
 
 			// The most useful types:
 
-	bitset <18> bsn(pow(2, 17) + pow(2, 15) + pow(2, 13) + 3); // N pos - left, 0 pos - right
+	bitset <18> bsn((1 << 17) + (1 << 15) + (1 << 13) + 3); // N pos - left, 0 pos - right
 	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 
-	fn::bitremedy bra{ 0b00000111, 3, true },  // 000
-			  brb{ 0b00000111, 3, false }, // 111
-			  brc{ 0b00000111, 7, true },  // 00000111 -> 0000011, [0] bit (the right one) will be erased
-			  brd{ 0b11100000, 7, false }; // 11100000 -> 1100000, [7] bit (the left one) will be erased	
+	fn::bitremedy bra{ 0b0000'0111, 3, true },  // 000
+			  brb{ 0b0000'0111, 3, false }, // 111
+			  brc{ 0b0000'0111, 7, true },  // 0000'0111 -> 0000'011, [0] bit (the right one) will be erased
+			  brd{ 0b1110'0000, 7, false }; // 1110'0000 -> 110'0000, [7] bit (the left one) will be erased	
 	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
 	//
 	//bsm << bra << brb;                   // compact way
@@ -100,11 +100,18 @@ int main() {
 		{ 1, 3, 5, 7, 9 }
 	};
 	//bsm << tree;
-	vector<vector<uint8_t>> read_tree{
+
+/*	vector<vector<uint8_t>> read_tree{
 		{ 0, 0, 0 },
 		{ 0, 0 },
 		{ 0, 0, 0, 0, 0 }
-	}; // could also be achieved by read_tree[n].resize();
+	}; */// could also be achieved by read_tree[n].resize();
+
+	vector<vector<uint8_t>> read_tree(3);
+	read_tree[0].resize(3);
+	read_tree[1].resize(2);
+	read_tree[2].resize(5);
+
 	//bsm >> read_tree;
 
 			// Specific types for unique use cases
@@ -118,6 +125,7 @@ int main() {
 	u.u1[1] = 6;
 	u.u2 = 256;
 	//bsm << u.u0; // 0x05
+	// 
 	//bsm << u.u1[0]; // 0x00 0x05
 	//bsm << u.u1[1]; // 0x00 0x00
 	//bsm << u.u2; // 0x00 0x00 0x00 0x05
@@ -140,7 +148,7 @@ int main() {
 			// Useful functions from namespace fsm
 
 	// This method is for truncating leading zeros, for example, before putting number to finestream, it will help to compress even other types, not only bitsets and vector <bool> 
-	vector<bool> compressedvb = fn::NonLeadingVector(0b00101);
+	vector<bool> compressedvb = fn::NonLeadingVector(0b00100);
 	int n;
 	fn::FromVector(n, compressedvb); 
 	// open suggestion on github if you want this function
@@ -155,7 +163,7 @@ int main() {
 	int number = 0x1234;
 	char bytesarr[sizeof(number)];  // int bytesarr[size]; will crash, you can use any inner type that has size equal 1, for example char, unsigned char int8_t, etc
 	fn::ToBytes(number, bytesarr);
-	vector <uint8_t> bytesvec;  // I recomend you to use an empty container (excluding strings and forward_lists), because ToBytes() will not rewrite your container, but will add new items to the back, making size bigger
+	vector <uint8_t> bytesvec(sizeof(number));  // I recomend you to use an empty container (excluding strings and forward_lists), because ToBytes() will not rewrite your container, but will add new items to the back, making size bigger
 	fn::ToBytes(number, bytesvec);
 	vector<short> lengthsvec;
 	for_each(bytesvec.begin(), bytesvec.end(), [&](auto vecelem) {  // a possible application	
@@ -178,8 +186,61 @@ int main() {
 	//cout << "Bitset size is: " << bstm.size() << endl;
 
 	vector<bool> vbtm(11);
+	vbtm[8] = 1;
 	//cout << fn::BitSize(vbtm);
-	cout << fn::LeadingN(vbtm);
+	//cout << fn::LeadingN(vbtm) << endl;
+
+	//tup
+	//lltup
+	
+	//read_tree[0][1] = 0b0100'0000;
+	//bitset<11> bstt(0);
+	//bstt[1] = 1;
+	//cout << bstt << endl;
+	//int lnn = fn::intNonLeadingN(bstt);
+	//cout << lnn << endl;
+	//cout << fn::BitSize(bstt) << endl;
 
 
+	//cout << fn::intLeadingN(fn::uchar(0b0010'0000));
+
+	//bsm.PutAny(2);
+	//const int itt = 2;
+	//bsm.PutAny(itt);
+
+	//vector<bool> vbtt(93);
+	//for (int i = 0; i < 93; i++) {
+	//	if (i&1) {
+	//		vbtt[i] = 1;
+	//	}
+	//}
+	//bsm << vbtt;
+	//bsm.GetAny(vbtt.data());
+
+
+	//vector<uint8_t> vbout{ 1, 2, 3, 4, 5 };
+	////bsm << vbout;
+	//vector<uint8_t> vbin(5, 0);
+	//bsm >> vbin;
+
+
+	//queue<uint8_t> qtt({ 0, 0, 0, 0, 0, 0 });
+	//bsm >> qtt;
+	//while (!qtt.empty()) {
+	//	cout << (int) qtt.front() << endl;
+	//	qtt.pop();
+	//}
+
+	uint8_t i1 = 0b10;
+	auto v1 = fn::ToVector(i1);
+	uint8_t i2; 
+	fn::FromVector(i2, v1);
+	uint8_t i3 = 0b10;
+	vector<bool> vb3(2);
+	fn::ToSizedVector(i3, vb3);
+	uint8_t i4 = fn::FromVector<uint8_t>(vb3);
+	//fn::FromVector(i4, vb3);
 }
+
+// добавить requires для ToSizedVector T of NUMBER
+// и для ToBytes() и FromBytes()

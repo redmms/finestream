@@ -1,15 +1,15 @@
-Don't use end lines, except between classes, or between logic parts, for example between member variables and constrtuctors of a class.
+Don't use empty lines in functions, only use 1 empty line between functions or methods and 3 between classes or class and includes.
 
 
-Add two empty lines before classes and structures and two lines after. Between two classes or structures use two empty lines instead of four.
-Don't skip first line with figure bracket, skip the last one. This brackets will work as end lines.{
-	Don't avoid figure brackets in "for" cycle with no exceptions. And try to use them for all blocks even if it's one line only, to make it easier to add new instructions in future.
-	For any type, concept, structure or class name use lower case, try to name them with one word, or with one word with 2-3 contractions, if not possible use_between words, but as rare as you can.
+
+Don't add empty line after function type with a bracket only, add it after a function block. {
+	Always use figure brackets with "for" cycles, "if" conditions, "try"/"catch" blocks even if they contain one line only - with no exceptions, to make it easier to add new instructions in the future.
+	For any type, concept, structure or class name use lower case, try to name them with one word, or with one word with 2-3 contractions, if not possible use_underscore between words, but as rare as you can.
 }
 For any function, including methods use CamelCase().
-For class members use M prefix (not m_ and not M_).
-For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool BBYTE, string STRNUMBER. If it's a phraze and at least one full word in it without contraction use _, otherwise make it a single word.
-In macros use the same rules, if it's a macro for a type, use lwcs, if it's a macro for a function use #define Macro(x, y) OriginalFunctionDoingThisAndThis(x, y), if it's macro for a variable or other identifier use UPCS.
+Don't use m_ prefix or its analogs for class members, when you want to denote class members use this->, but try to avoid it and give different variable different names.
+For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool BBYTE, string STRTEXT. If it's a phrase and at least one full word in it without contraction use _, otherwise make it a single word like LPZ (LEFT PUZZLE).
+In macros use the same rules, if it's a macros of a type, use lwcs (lowercase), if it's a macro function use #define Macros(x, y) CamelCaseFunctionName(x, y), if it's a macros of a variable or other identifier use UPCS (uppercase).
 If you make some commentary, use  // two spaces before slashes and one space after, if you are commenting code to disallow it don't use a space after it: //int a = 0;
 Don't write two instructions on one line;
 DoInstruction1();
@@ -30,36 +30,26 @@ same about streams, use:
 don't use:
  cout << "123";
  cout << "456";
-Divide lines more than 80 characters to several lines.
-If you do several identifiers declarations close to each other, left align them, for example, and if there're some operators, not only initialization, do several lines:
-you can write this way:
+This rule can be ignored for initializations if you think, that if will be better:
+you can write either this way:
 	int A, B;
-but you can't write this way:
-	int A = B + C, D = E + F;
 or this way:
+	int A,
+	    B;
+either this way:
 	int A = B, C = D;
-use this instead:
-	int 
-		A = B + C,
-		D = E + F;
-	double 
-		DA = DB;
-		DC = DD;
-another example:
-	int 
-		RPZSIZE = N % CHAR_BIT,
-		NEW_REMEDY_SIZE = - RPZSIZE + CHAR_BIT;
-	uchar 
-		CBYTE = GetByte();
-In "for" cycles separate each ; statement this way, if there's more than one assigning:
-	for (short 
-		L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
-		R <= N; 
-		L += CHAR_BIT, R += CHAR_BIT)
+or this way:
+	int A = B + C, 
+	    D = E + F;
+Divide lines more than 80 characters into several lines.
+In "for" cycles separate each ; statement this way, if there's more than one assignment:
+	for (short L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
+	     R <= N; 
+	     L += CHAR_BIT, R += CHAR_BIT)
 	{
 		(BSLINE <<= CHAR_BIT) |= GetByte();
 	}
-Don't use this way:
+Don't do this way:
 	for (short 
 		L = BRLAST_BYTE.BITSN, 
 		R = L + CHAR_BIT; 
@@ -69,7 +59,7 @@ Don't use this way:
 	{
 		(BSLINE <<= CHAR_BIT) |= GetByte();
 	}
-and don't use this way:
+and don't do this way:
 	for (short 
 		L = BRLAST_BYTE.BITSN, R = L + CHAR_BIT; 
 		R <= N; 
