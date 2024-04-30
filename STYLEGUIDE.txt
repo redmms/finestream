@@ -6,6 +6,7 @@ Don't add empty line after function type with a bracket only, add it after a fun
 	Always use figure brackets with "for" cycles, "if" conditions, "try"/"catch" blocks even if they contain one line only - with no exceptions, to make it easier to add new instructions in the future.
 	For any type, concept, structure or class name use lower case, try to name them with one word, or with one word with 2-3 contractions, if not possible use_underscore between words, but as rare as you can.
 }
+
 For any function, including methods use CamelCase().
 Don't use m_ prefix or its analogs for class members, when you want to denote class members use this->, but try to avoid it and give different variable different names.
 For any variable use UPPER_CASE, you can use from 1 to 3 upper case characters to denote its type, for example: bool BBYTE, string STRTEXT. If it's a phrase and at least one full word in it without contraction use _, otherwise make it a single word like LPZ (LEFT PUZZLE).
