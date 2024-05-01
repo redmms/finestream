@@ -71,6 +71,7 @@ In MS Visual Studio you may encounter this bug:
 https://developercommunity.visualstudio.com/t/macros-vc-includepath-and-vc-librarypath-x86-expan/4974   
 Try to add ucrt library paths manually to the project properties:  
 https://stackoverflow.com/questions/33104562/error-c1083-cannot-open-include-file-crtdbg-h-no-such-file-or-directory/77377130#77377130  
+https://developercommunity.visualstudio.com/t/ucrt-doesnt-work-in-x64-msbuild/1184283#T-N1201257  
   
 ### Try:  
 1) Open "example.cppm" file.  
@@ -154,15 +155,15 @@ To input data just replace 'o' by 'i' in fn::ofinestream:
 ```
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
 	bsm << tup;  
-```  
-	hexadecimal output:  
-```  
+```
+Hexadecimal output:  
+```
 00 00 00 00 00 00 00 01  // some bytes here are garbage and may be not 00
 40 09 1E B8 51 EB 85 1F 
 00 00 00 00 00 00 03 61  // 03 is not your data
-```   
-  	warning in cerr:  
-```  
+```
+Warning in cerr:  
+```
 WARNING: are you sure about this type - class std::tuple<int,double,char>?
 ```
   
@@ -170,8 +171,8 @@ WARNING: are you sure about this type - class std::tuple<int,double,char>?
 	tuple<long long, double, uint32_t, char, char, char, char> lltup{ 1, 3.14, 32, 'a', 'a', 'a', 'a'}; 
 	// no garbage, only leading zeros
 	bsm << lltup;   
-```  
-	hexadecimal output:  
+```
+Hexadecimal output:  
 ```  
 00 00 00 00 00 00 00 01 
 40 09 1E B8 51 EB 85 1F 
