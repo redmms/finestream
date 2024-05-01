@@ -30,10 +30,7 @@ It is also ready for running on embedded devices and other nonstandard machines 
 
 ## Project structure
 
-There's one ``bitremedy`` structure and one ``finestream`` class with its children classes - ``ofinestream`` for writing to a file and ``ifinestream`` for reading from a file. I've written them in two variants for your convenience: using classical C-style header files, and using C++20 modules, though I'm not planning to support and develop headers version, watch modules to see a later version. 
-
-In modules version they are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.  
-In headers version they are realized in "headers/bitremedy.cpp" and "headers/finestream.h" files respectively.   
+There's one ``bitremedy`` structure and one ``finestream`` class with its children classes - ``ofinestream`` for writing to a file and ``ifinestream`` for reading from a file. They are stored in "module/bitremedy.ixx" and "module/finestream.ixx" files.  
 Use "module/example.cppm" to see how it works, just disallow double-slash comments where you need.   
 Use Windows binary editor to watch the result file and Windows programmer calculator to convert hex into binary format, or some analog of them.  
 
@@ -63,24 +60,33 @@ NOTE: the project is updated regularly, so the pictures can be out of date a lit
   
 ## Fine start  
 
-1) Download "module" folder.  
-2) Add files from the folder to a new project. Make sure your project uses C++20 or later.  
-3) Open "example.cppm" file.  
-4) Uncomment an example you need:  
+### Build:
+1) Install last version of MS Visual Studio  
+2) Open Visual Studio.  
+3) In Get Started menu press "Open project or solution" and choose .sln file from the repo  
+To compile it in other IDEs enable C++20 and for MSVC compiler use this compiler command: /dxifcInlineFunctions- if you have this MSVC bug:  
+https://developercommunity.visualstudio.com/t/Modules-ICE-when-using-cout-inside-of/10299789  
+NOTE:  
+In MS Visual Studio you may encounter this bug:  
+https://developercommunity.visualstudio.com/t/macros-vc-includepath-and-vc-librarypath-x86-expan/4974   
+Try to add ucrt library paths manually to the project properties:  
+https://stackoverflow.com/questions/33104562/error-c1083-cannot-open-include-file-crtdbg-h-no-such-file-or-directory/77377130#77377130  
+  
+### Try:  
+1) Open "example.cppm" file.  
+2) Uncomment an example you need:  
 ![cppm](/pictures/0bitremedy/0.jpg)  
-5) Watch the information about the last byte. Here 6 is the length of FineStream and 2 is the number of the last byte's unused bits:  
+3) Watch the information about the last byte. Here 6 is the length of FineStream and 2 is the number of the last byte's unused bits:  
 ![console](/pictures/0bitremedy/1.jpg)  
-6) Add recently created "output.txt" to your project.  
-7) Open it with Windows Binary Editor:  
+4) Add recently created "output.txt" to your project.  
+5) Open it with Windows Binary Editor:  
 ![vsmenu](/pictures/0bitremedy/2.jpg)  
 ![editorslist](/pictures/0bitremedy/3.jpg)  
-8) Watch the result:  
+6) Watch the result:  
 ![output](/pictures/0bitremedy/4.jpg)  
-9) Use Windows calculator in programmer regime to know exactly how your bits sequence looks like:  
+7) Use Windows calculator in programmer regime to know exactly how your bits sequence looks like:  
 ![calculator](/pictures/0bitremedy/5.jpg)  
 
-
-  
 ## Fine examples  
 
 ### ``vector <bool>``:  
@@ -89,17 +95,13 @@ NOTE: the project is updated regularly, so the pictures can be out of date a lit
 ![](/pictures/1vector_bool/2.jpg)  
 ![](/pictures/1vector_bool/3.jpg)  
   
-  
-  
 ### ``bitset<N>``:  
 ![](/pictures/2bitset/0.jpg)  
 ![](/pictures/2bitset/1.jpg)  
 ![](/pictures/2bitset/2.jpg)  
 ![](/pictures/2bitset/3.jpg)  
   
-  
-  
-### ``containers``:  
+### Containers:  
 You can use any type with ``finestream``, though tuples are least tested at the moment.  
 For example, here are random size containers with ``ofinestream``:
 ```
@@ -131,7 +133,7 @@ Another way to do that:
 	bsm >> read_tree;
 ```
 
-### Queue and other container adaptors:
+### ``queue`` and other container adaptors:
 ```
 	fn::ofinestream bsm("../output.txt");
 	queue<uint8_t> qout({ 1, 2, 3, 4, 5, 6 });
@@ -148,19 +150,19 @@ To input data just replace 'o' by 'i' in fn::ofinestream:
 	}
 ```
 
-### Tuples:
+### ``tuple``:
 ```
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
 	bsm << tup;  
-```
-	hexadecimal output:
-```
+```  
+	hexadecimal output:  
+```  
 00 00 00 00 00 00 00 01  // some bytes here are garbage and may be not 00
 40 09 1E B8 51 EB 85 1F 
 00 00 00 00 00 00 03 61  // 03 is not your data
 ```   
-  	warning in cerr:
-```
+  	warning in cerr:  
+```  
 WARNING: are you sure about this type - class std::tuple<int,double,char>?
 ```
   
@@ -168,9 +170,9 @@ WARNING: are you sure about this type - class std::tuple<int,double,char>?
 	tuple<long long, double, uint32_t, char, char, char, char> lltup{ 1, 3.14, 32, 'a', 'a', 'a', 'a'}; 
 	// no garbage, only leading zeros
 	bsm << lltup;   
-```
-	hexadecimal output:
-```
+```  
+	hexadecimal output:  
+```  
 00 00 00 00 00 00 00 01 
 40 09 1E B8 51 EB 85 1F 
 00 00 00 20 61 61 61 61
@@ -221,17 +223,3 @@ Output:
 	cout << bstt << endl;  // 00000000010
 	cout << fn::IntLeadingN(bstt) << endl;  // 9
 ```
-
-## Build
-
-1) Install last version of MS Visual Studio  
-2) Open Visual Studio.  
-3) In Get Started menu press "Open project or solution" and choose .sln file from the repo  
-To compile it in other IDEs enable C++20 and for MSVC compiler use this compiler command: /dxifcInlineFunctions- if you have this MSVC bug:  
-https://developercommunity.visualstudio.com/t/Modules-ICE-when-using-cout-inside-of/10299789  
-  
-NOTE:  
-In MS Visual Studio you may encounter this bug:  
-https://developercommunity.visualstudio.com/t/macros-vc-includepath-and-vc-librarypath-x86-expan/4974   
-Try to add ucrt library paths manually to the project properties:  
-https://stackoverflow.com/questions/33104562/error-c1083-cannot-open-include-file-crtdbg-h-no-such-file-or-directory/77377130#77377130  
