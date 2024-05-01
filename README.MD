@@ -90,7 +90,7 @@ https://developercommunity.visualstudio.com/t/ucrt-doesnt-work-in-x64-msbuild/11
 
 ## Fine examples  
 
-### ``vector <bool>``:  
+### ``vector<bool>``:  
 ![](/pictures/1vector_bool/0.jpg)  
 ![](/pictures/1vector_bool/1.jpg)  
 ![](/pictures/1vector_bool/2.jpg)  
@@ -105,7 +105,7 @@ https://developercommunity.visualstudio.com/t/ucrt-doesnt-work-in-x64-msbuild/11
 ### Containers:  
 You can use any type with ``finestream``, though tuples are least tested at the moment.  
 For example, here are random size containers with ``ofinestream``:
-```
+```cpp
 	fn::ofinestream bsm("../output.txt");
 	vector<vector<uint8_t>> tree {
 		{ 0, 1, 3 },
@@ -115,7 +115,7 @@ For example, here are random size containers with ``ofinestream``:
 	bsm << tree;  
 ```  
 And here with ``ifinestream``:  
-```   
+```cpp
 	fn::ifinestream bsm("../output.txt");
 	vector<vector<uint8_t>> read_tree{
 		{ 0, 0, 0 },
@@ -125,7 +125,7 @@ And here with ``ifinestream``:
 	bsm >> read_tree;
 ```
 Another way to do that:
-```
+```cpp
 	fn::ifinestream bsm("../output.txt");
 	vector<vector<uint8_t>> read_tree(3);
 	read_tree[0].resize(3);
@@ -135,13 +135,13 @@ Another way to do that:
 ```
 
 ### ``queue`` and other container adaptors:
-```
+```cpp
 	fn::ofinestream bsm("../output.txt");
 	queue<uint8_t> qout({ 1, 2, 3, 4, 5, 6 });
 	bsm << qout;  // qout will still contain that 6 elements
 ```
 To input data just replace 'o' by 'i' in fn::ofinestream:
-```
+```cpp
 	fn::ifinestream bsm("../output.txt");
 	queue<uint8_t> qin({ 0, 0, 0, 0, 0, 0 });
 	bsm >> qin;  // now qin == qout
@@ -152,7 +152,7 @@ To input data just replace 'o' by 'i' in fn::ofinestream:
 ```
 
 ### ``tuple``:
-```
+```cpp
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
 	bsm << tup;  
 ```
@@ -167,7 +167,7 @@ Warning in cerr:
 WARNING: are you sure about this type - class std::tuple<int,double,char>?
 ```
   
-```
+```cpp
 	tuple<long long, double, uint32_t, char, char, char, char> lltup{ 1, 3.14, 32, 'a', 'a', 'a', 'a'}; 
 	// no garbage, only leading zeros
 	bsm << lltup;   
@@ -179,8 +179,8 @@ Hexadecimal output:
 00 00 00 20 61 61 61 61
 ```
 
-### A way to convert any number to vector<bool> and back:
-```	
+### A way to convert any number to ``vector<bool>`` and back:
+```cpp
 	uint8_t i1 = 0b10;  // i1 == 2
 	auto v1 = fn::ToVector(i1);  // v1.size() == 8, v1[0] == false, v1[1] == true
 	uint8_t i2 = fn::FromVector<uint8_t>(v1);  // i2 == 2
@@ -189,7 +189,7 @@ Hexadecimal output:
 ```	
 
 ### Counting bits in a number or any other data structure:
-```
+```cpp
 	uint8_t u8;
 	cout << "uint8_t: " << fn::BitSize(u8) << endl;
 	bitset<98> bs98;
@@ -200,7 +200,7 @@ Hexadecimal output:
 	cout << "uint16_t [3]: " << fn::BitSize(arr) << endl;
 ```
 Output:
-```
+```cpp
 	uint8_t: 8
 	bitset<98>: 98
 	forward_list<uint8_t>: 72
@@ -208,7 +208,7 @@ Output:
 ```
 
 ### Counting leading zeroes in a number or any other data structure:
-```
+```cpp
 	vector<vector<uint8_t>> empty_tree{
 		{ 0, 0, 0 },
 		{ 0, 0 },
@@ -218,7 +218,7 @@ Output:
 	cout << fn::IntNonLeadingN(empty_tree) << endl;  // 71 
 ```
 
-```
+```cpp
 	bitset<11> bstt(0);
 	bstt[1] = 1;
 	cout << bstt << endl;  // 00000000010
