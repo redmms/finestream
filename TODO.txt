@@ -26,3 +26,4 @@ several not less than 1 buffer size blocks (4) then use ofstream::write() and if
 with 1 byte only
 -  make ToVector() add new elements in the end instead of beggining
 -  make NonLeadingVector(container_ty CONTAINER) overload
+-  add ToVectorReversed() and all other Reversed versions for conversion functions
