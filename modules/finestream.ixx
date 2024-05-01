@@ -9,6 +9,7 @@ import <queue>;
 import <bit>;
 import <filesystem>;
 import <ranges>;
+import <forward_list>;
 using uchar = unsigned char;
 constexpr int CHB = CHAR_BIT;
 constexpr int CHB1 = CHAR_BIT - 1;
@@ -31,13 +32,15 @@ export namespace fn
     constexpr bool is_bitset_v<bitset<N>> = true;
 
     template <typename T>
-    concept is_container_v = requires(T STRUCTURE){
+    concept is_container_v = requires(T STRUCTURE)
+    {
         begin(STRUCTURE);
         end(STRUCTURE);
     };
 
     template <typename T>
-    concept is_container_adaptor_v = requires(T STRUCTURE) {
+    concept is_container_adaptor_v = requires(T STRUCTURE) 
+    {
         STRUCTURE.pop();
     };
 
@@ -47,31 +50,65 @@ export namespace fn
     template <typename T>
     concept is_bitseq_v = is_same_v<vector<bool>, T> || is_bitset_v<T>;
 
-    inline constexpr bool IsLittleEndian() {
+    inline constexpr bool IsLittleEndian() 
+    {
         return (endian::native == endian::little);
     }
 
     template <typename T>
         requires is_bitseq_v<T>
-    inline constexpr size_t BitSize(const T& BITSEQ) {
+    inline constexpr size_t BitSize(const T& BITSEQ)
+    {
         return BITSEQ.size();
     }
 
     template <typename T>
         requires is_arithmetic_v<T>
-    inline constexpr size_t BitSize(const T& NUMBER) {
+    inline constexpr size_t BitSize(const T& NUMBER) 
+    {
         return sizeof(NUMBER) * CHB;
     }
 
     template <typename T>
-    inline constexpr size_t BitSize(const T& DATA) {
+        requires(
+            !is_bitseq_v<T> &&
+            !is_arithmetic_v<T> && 
+            !is_iterable_v<T>
+        )
+    inline constexpr size_t BitSize(const T& DATA) 
+    {
         static_assert(!is_tuple_v<T>, "Not available for tuples yet");
         return size(DATA) * CHB;
     }
 
-    template <typename T>
-        requires is_iterable_v<T>
-    inline constexpr size_t BitSize(const T& CONTAINER) {
+    template <typename container_ty, typename value_ty = remove_reference_t<decltype(*begin(declval<container_ty&>()))>>
+        requires (
+            is_iterable_v<container_ty> && 
+            !is_same_v <container_ty, forward_list<value_ty>> &&
+            is_arithmetic_v<value_ty>
+        )
+    inline constexpr size_t BitSize(const container_ty& CONTAINER) 
+    {
+        return size(CONTAINER) * sizeof(value_ty) * CHB;
+    }
+
+    template <typename container_ty, typename value_ty = typename container_ty::value_type>
+        requires (
+            is_same_v <container_ty, forward_list<value_ty>> &&
+            is_arithmetic_v<value_ty>
+        )
+        inline constexpr size_t BitSize(const container_ty& CONTAINER)
+    {
+        return distance(CONTAINER.begin(), CONTAINER.end()) * sizeof(value_ty) * CHB;
+    }
+
+    template <typename container_ty, typename value_ty = remove_reference_t<decltype(*begin(declval<container_ty&>()))>>
+        requires (
+            is_iterable_v<container_ty> &&
+            !is_arithmetic_v<value_ty>
+        )
+    inline constexpr size_t BitSize(const container_ty& CONTAINER) 
+    {
         size_t TOTAL_SIZE = 0;
         for (const auto& ELEMENT : CONTAINER) {
             TOTAL_SIZE += BitSize(ELEMENT);
@@ -81,32 +118,37 @@ export namespace fn
 
     template <typename T>
         requires (is_arithmetic_v<T> && sizeof(T) == 1)
-    constexpr size_t LeadingN(const T& NUMBER) {  
+    constexpr size_t LeadingN(const T& NUMBER) 
+    {  
         // returns the number of leading zeros in a bit representation
         return static_cast<size_t>(countl_zero(static_cast<uint8_t>(NUMBER)));
     }
 
     template <typename T>
         requires (is_arithmetic_v<T> && sizeof(T) == 2)
-    constexpr size_t LeadingN(const T& NUMBER) {
+    constexpr size_t LeadingN(const T& NUMBER) 
+    {
         return static_cast<size_t>(countl_zero(static_cast<uint16_t>(NUMBER)));
     }
 
     template <typename T>
         requires (is_arithmetic_v<T> && sizeof(T) == 4)
-    constexpr size_t LeadingN(const T& NUMBER) {  
+    constexpr size_t LeadingN(const T& NUMBER) 
+    {  
         return static_cast<size_t>(countl_zero(static_cast<uint32_t>(NUMBER)));
     }
 
     template <typename T>
         requires (is_arithmetic_v<T> && sizeof(T) == 8)
-    constexpr size_t LeadingN(const T& NUMBER) {
+    constexpr size_t LeadingN(const T& NUMBER) 
+    {
         return static_cast<size_t>(countl_zero(static_cast<uint64_t>(NUMBER)));
     }
 
     template <typename T>
         requires is_bitseq_v<T>
-    constexpr size_t LeadingN(const T& BITSEQ) {  
+    constexpr size_t LeadingN(const T& BITSEQ) 
+    {  
         // Returns the number of leading zeros in a bit representation almost the 
         // same way if it would be written to a file using finestream and we would 
         // want to know consequential zero bits number in the beggining of this 
@@ -125,7 +167,8 @@ export namespace fn
 
     template <typename container_ty>
         requires is_iterable_v<container_ty>
-    constexpr size_t LeadingN(const container_ty& CONTAINER) {  
+    constexpr size_t LeadingN(const container_ty& CONTAINER) 
+    {  
         // returns the number of leading zeros in a bit representation
         size_t LEADING_N = 0, TEMP;
         for (const auto& ELEM : CONTAINER) {
@@ -139,23 +182,27 @@ export namespace fn
     }
 
     template <typename T>
-    inline constexpr int intLeadingN(const T& DATA) {
+    inline constexpr int IntLeadingN(const T& DATA) 
+    {
         return static_cast<int>(LeadingN(DATA));
     }
 
     template <typename T>
-    inline constexpr size_t NonLeadingN(const T& DATA) {
+    inline constexpr size_t NonLeadingN(const T& DATA) 
+    {
         return static_cast<size_t>(BitSize(DATA) - LeadingN(DATA));
     }
 
     template <typename T>
-    inline constexpr int intNonLeadingN(const T& DATA) {
+    inline constexpr int IntNonLeadingN(const T& DATA) 
+    {
         return static_cast<int>(NonLeadingN(DATA));
     }
 
     template <typename orig_ty, typename array_value_ty, size_t N>
         requires (sizeof(array_value_ty) == 1 && is_trivially_copyable_v<orig_ty>)
-    inline void ToBytes(const orig_ty& DATA, array_value_ty(&BYTES_ARRAY)[N]) {
+    inline void ToBytes(const orig_ty& DATA, array_value_ty(&BYTES_ARRAY)[N]) 
+    {
         static_assert(N == sizeof(orig_ty),
             "ERROR: use array of same size as original data in ToBytes()");
         memcpy(&BYTES_ARRAY, &DATA, sizeof(DATA));
@@ -166,8 +213,10 @@ export namespace fn
             sizeof(typename container_ty::value_type) == 1 &&
             is_container_v<container_ty> &&
             is_trivially_copyable_v<orig_ty>)
-    void ToBytes(const orig_ty& DATA, container_ty& BYTES_ARRAY) {
-        static_assert(!is_same_v<container_ty, forward_list<typename container_ty::value_type>>, "Use another container type");
+    void ToBytes(const orig_ty& DATA, container_ty& BYTES_ARRAY) 
+    {
+        static_assert(!is_same_v<container_ty, forward_list<typename container_ty::value_type>>, 
+            "Use another container type");
         if (size(BYTES_ARRAY) != sizeof(orig_ty)) {
             throw invalid_argument("ERROR: in ToBytes(): the size of container"
                 " is not the same as the size of number");
@@ -183,7 +232,8 @@ export namespace fn
 
     template <typename orig_ty, typename array_value_ty, size_t N>
         requires (sizeof(array_value_ty) == 1 && is_trivially_copyable_v<orig_ty>)
-    inline void FromBytes(orig_ty& DATA, const array_value_ty(&BYTES)[N]) {
+    inline void FromBytes(orig_ty& DATA, const array_value_ty(&BYTES)[N]) 
+    {
         memcpy(&DATA, &BYTES, sizeof(DATA));
     }
 
@@ -192,8 +242,10 @@ export namespace fn
             sizeof(typename container_ty::value_type) == 1 &&
             is_container_v<container_ty> &&
             is_trivially_copyable_v<orig_ty>)
-    void FromBytes(orig_ty& DATA, const container_ty& BYTES_ARRAY) {
-        static_assert(!is_same_v<container_ty, forward_list>, "Use another container type");
+    void FromBytes(orig_ty& DATA, const container_ty& BYTES_ARRAY) 
+    {
+        static_assert(!is_same_v<container_ty, forward_list<typename container_ty::value_type>>, 
+            "Use another container type");
         if (size(BYTES_ARRAY) != sizeof(orig_ty)) {
             throw invalid_argument("ERROR: in ToBytes(): the size of container"
                 " is not the same as the size of number");
@@ -209,7 +261,8 @@ export namespace fn
 
     template <typename orig_ty, typename mask_ty = typename make_unsigned<typename remove_const<orig_ty>::type>::type>
         requires is_arithmetic_v<orig_ty>
-    void NonLeadingVector(orig_ty NUMBER, vector<bool>& CONTAINER) {
+    void NonLeadingVector(orig_ty NUMBER, vector<bool>& CONTAINER) 
+    {
         mask_ty MASK{ 1u << BitSize(NUMBER) - 1};
         while (!(NUMBER & MASK)) {
             MASK >>= 1;
@@ -222,7 +275,8 @@ export namespace fn
 
     template <typename T>
         requires is_arithmetic_v<T>
-    inline vector<bool> NonLeadingVector(T NUMBER) {
+    inline vector<bool> NonLeadingVector(T NUMBER) 
+    {
         vector<bool> CONTAINER;
         NonLeadingVector(NUMBER, CONTAINER);
         return CONTAINER;
@@ -230,7 +284,9 @@ export namespace fn
 
     template <typename orig_ty, typename mask_ty = typename make_unsigned<typename remove_const<orig_ty>::type>::type>
         requires is_arithmetic_v<orig_ty>
-    void ToVector(orig_ty NUMBER, vector<bool>& CONTAINER) {
+    void ToVector(orig_ty NUMBER, vector<bool>& CONTAINER) 
+    {
+        // emplaces result in the beginning of the vector
         mask_ty MASK{ 1u << BitSize(NUMBER) - 1 };
         while (MASK) {
             CONTAINER.emplace(CONTAINER.begin(), bool(NUMBER & MASK));
@@ -240,7 +296,8 @@ export namespace fn
 
     template <typename orig_ty>
         requires is_arithmetic_v<orig_ty>
-    inline vector<bool> ToVector(orig_ty NUMBER) {
+    inline vector<bool> ToVector(orig_ty NUMBER) 
+    {
         vector<bool> CONTAINER;
         ToVector(NUMBER, CONTAINER);
         return CONTAINER;
@@ -248,7 +305,8 @@ export namespace fn
 
     template <typename orig_ty, typename mask_ty = typename make_unsigned<typename remove_const<orig_ty>::type>::type>
         requires is_arithmetic_v<orig_ty>
-    void ToSizedVector(orig_ty NUMBER, vector<bool>& CONTAINER) {
+    void ToSizedVector(orig_ty NUMBER, vector<bool>& CONTAINER) 
+    {
         if (CONTAINER.empty()){
             throw invalid_argument("In ToSizedVector: initial vector<bool> is empty. Size shouldn't be 0");
         }
@@ -257,13 +315,26 @@ export namespace fn
         }
         mask_ty MASK{ 1u };
         for (size_t BIT_IDX = 0, SIZE = CONTAINER.size(); BIT_IDX < SIZE; ++BIT_IDX, MASK <<= 1) {
-            CONTAINER[BIT_IDX] = bool(NUMBER & MASK); // result is casted to bool
+            CONTAINER[BIT_IDX] = bool(NUMBER & MASK);
         }
+    }
+
+    template <typename orig_ty, typename size_ty>
+        requires (is_arithmetic_v<orig_ty> && is_integral_v<size_ty>)
+    inline vector<bool> ToSizedVector(orig_ty NUMBER, size_ty SIZE) 
+    {
+        if (SIZE <= 0) {
+            throw invalid_argument("In ToSizedVector: SIZE parameter should be greater than 0");
+        }
+        vector<bool> RESULT(SIZE, 0);
+        ToSizedVector(NUMBER, RESULT);
+        return RESULT;
     }
 
     template <typename res_ty>
         requires is_arithmetic_v<res_ty>
-    inline void FromVector(res_ty& NUMBER, const vector<bool>& VECTOR) {
+    inline void FromVector(res_ty& NUMBER, const vector<bool>& VECTOR) 
+    {
         NUMBER = 0;
         for (size_t I = VECTOR.size(); I--;) {
             NUMBER <<= 1;
@@ -273,7 +344,8 @@ export namespace fn
 
     template <typename res_ty>
         requires is_arithmetic_v<res_ty>
-    inline res_ty FromVector(const vector<bool>& VECTOR) {
+    inline res_ty FromVector(const vector<bool>& VECTOR) 
+    {
         res_ty NUMBER;
         FromVector(NUMBER, VECTOR);
         return NUMBER;
@@ -283,7 +355,8 @@ export namespace fn
         constexpr auto NonLeadingBitset = bitset<NonLeadingN(NUMBER)>(NUMBER);
 
     template <typename T, size_t N>
-    inline void FromBitset(T& NUMBER, const bitset<N>& BITSET) {
+    inline void FromBitset(T& NUMBER, const bitset<N>& BITSET) 
+    {
         NUMBER = (T)BITSET.to_ullong();
     }
 
@@ -318,7 +391,7 @@ export namespace fn
             return FILE_STREAM.eof();
         }
 
-        void open(const filesystem::path& FILE_PATH) {
+        void Open(const filesystem::path& FILE_PATH) {
             FILE_STREAM.open(FILE_PATH);
         }
     };
@@ -339,8 +412,23 @@ export namespace fn
         }
 
         ~ofinestream() {
+            Close();
+        }
+
+        void Close() {
             Flush();
             FILE_STREAM.close();
+        }
+
+        void Flush() {
+            if (LAST.BITSN) { // outputs buffer for last byte before closing filestream
+                uchar ALREADY_WRITTEN = (uchar)FILE_STREAM.rdbuf()->sgetc();
+                bitremedy RIGHT_PZL{ ALREADY_WRITTEN, CHB - LAST.BITSN, false };
+                LAST.AddToRight(RIGHT_PZL);
+                FILE_STREAM.put(LAST.UCBYTE);
+                LAST.ClearToLeft();
+            }
+            FILE_STREAM.flush();
         }
 
         template <typename T>
@@ -366,17 +454,6 @@ export namespace fn
             return FILE_STREAM.tellp();
         }
 
-        void Flush() {
-            if (LAST.BITSN) { // outputs buffer for last byte before closing filestream
-                uchar ALREADY_WRITTEN = (uchar) FILE_STREAM.rdbuf()->sgetc();
-                bitremedy RIGHT_PZL{ ALREADY_WRITTEN, CHB - LAST.BITSN, false };
-                LAST.AddToRight(RIGHT_PZL);
-                FILE_STREAM.put(LAST.UCBYTE);
-                LAST.ClearToLeft();
-            }
-            FILE_STREAM.flush();
-        }
-
         inline void PutByte(const uchar UCBYTE) {
             PutByte({ UCBYTE, CHB, true });
         }  // is it safe to use inline here?
@@ -393,6 +470,26 @@ export namespace fn
             if (LAST.BITSN == CHB) {
                 FILE_STREAM.put(LAST.UCBYTE);
                 LAST = NEW_REMEDY;
+            }
+        }
+
+        template <typename T>
+        inline void PutLongAny(const T& DATA) {
+            // use it with long arithmetic types, for other types using it is UB;
+            // this method is in progress yet
+            const uchar* BYTE_PTR = reinterpret_cast<const uchar*>(&DATA);
+            for (int I = 0, SIZE = sizeof(DATA); I < SIZE; ++I) {
+                PutByte(BYTE_PTR[I]);
+            }
+        }
+
+        template <typename T>
+        inline void PutLongAnyReversed(const T& DATA) {
+            // use it with long arithmetic types, for other types using it is UB;
+            // this method is in progress yet
+            const uchar* BYTE_PTR = reinterpret_cast<const uchar*>(&DATA);
+            for (int I = sizeof(DATA); I--;) {
+                PutByte(BYTE_PTR[I]);
             }
         }
 
@@ -414,26 +511,6 @@ export namespace fn
         }
     
     public:
-        template <typename T>
-        inline void PutLongAny(const T& DATA) {
-            // use it with long arithmetic types, for other types using it is UB;
-            // this method is in progress yet
-            const uchar* BYTE_PTR = reinterpret_cast<const uchar*>(&DATA);
-            for (int I = 0, SIZE = sizeof(DATA); I < SIZE; ++I) {
-                PutByte(BYTE_PTR[I]);
-            }
-        }
-
-        template <typename T>
-        inline void PutLongAnyReversed(const T& DATA) {
-            // use it with long arithmetic types, for other types using it is UB;
-            // this method is in progress yet
-            const uchar* BYTE_PTR = reinterpret_cast<const uchar*>(&DATA);
-            for (int I = sizeof(DATA); I--;) {
-                PutByte(BYTE_PTR[I]);
-            }
-        }
-
         // operators:
         inline ofinestream& operator << (const bitset<CHB>& BSBYTE) {
             PutByte(BSBYTE);
@@ -562,6 +639,20 @@ export namespace fn
             LAST.MOVED_LEFT = true;
         }
 
+        ~ifinestream() {
+            Close();
+        }
+
+        void Close() {
+            Flush();
+            FILE_STREAM.close();
+        }
+
+        void Flush() {
+            LAST.Clear();
+            FILE_STREAM.flush();
+        }
+
         template <typename T>
             requires(is_integer_v<T>)
         void SeekBitG(T POS_) {
@@ -676,11 +767,6 @@ export namespace fn
         }
     
     public:
-        void Flush() {
-            LAST.Clear();
-            FILE_STREAM.flush();
-        }
- 
         // operators:
         ifinestream& operator >> (bitset<CHB>& BSBYTE) {
             GetByte(BSBYTE);

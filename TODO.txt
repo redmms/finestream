@@ -24,3 +24,5 @@ to the buffer bitshifting buffer sized block of their data during the process us
 save temporary result of bitshifting in the same variable but load it into the buffer that exact moment, (3) devide any bitset or other stream parameter into
 several not less than 1 buffer size blocks (4) then use ofstream::write() and ifstream::read() to read and write the full block instead of get() and put() working
 with 1 byte only
+-  make ToVector() add new elements in the end instead of beggining
+-  make NonLeadingVector(container_ty CONTAINER) overload

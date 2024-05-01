@@ -330,7 +330,7 @@ export namespace fn
             }
         }
 
-        inline string toStr() {
+        inline string ToStr() {
             uchar MASK{ 1 };
             if (MOVED_LEFT) {
                 MASK <<= CHB1;
