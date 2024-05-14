@@ -1,4 +1,5 @@
 import finestream;
+import bitremedy;
 import <iostream>;
 import <bitset>;
 import <vector>;
@@ -14,7 +15,7 @@ using namespace std;
 
 int main() {
 
-	fn::ofinestream bsm("../output.txt");  // use ifinestream for input
+	fn::ifinestream bsm("../output.txt");  // use ifinestream for input
 	uint64_t O{ 0 };
 	uint32_t o{ 0 };
 	uint8_t oo{ 0 }; // separators 
@@ -43,14 +44,12 @@ int main() {
 			// The most useful types:
 
 	bitset <18> bsn((1 << 17) + (1 << 15) + (1 << 13) + 3); // N pos - left, 0 pos - right
-	cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
+	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 
 	fn::bitremedy bra{ 0b0000'0111, 3, true },  // 000
 			  brb{ 0b0000'0111, 3, false }, // 111
-			  brc{ 0b0000'0111, 7, true },  // 0000'0111 -> 0000'011, [0] bit (the right one) will be erased
-			  brd{ 0b1110'0000, 7, false }; // 1110'0000 -> 110'0000, [7] bit (the left one) will be erased	
-	//brd.cByte |= true << 7; bsm << brd; // will throw exception, don't add wrong data after initialization;
-	//
+			  brc{ 0b0000'0111, 7, true },  // 0000'0111 -> 0000'011, the right bit will be erased
+			  brd{ 0b1110'0000, 7, false }; // 1110'0000 -> 110'0000, the left bit will be erased	
 	//bsm << bra << brb;                   // compact way
 	//cout << bsm.LastByte().Bitsn() << " " << bsm.ExtraZerosN() << endl;
 	//
@@ -80,7 +79,7 @@ int main() {
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
 	//bsm << tup;
 	tuple<long long, double, uint32_t, char, char, char, char> lltup{ 1, 3.14, 32, 'a', 'a', 'a', 'a'}; // no garbage, only leading zeros
-	bsm << lltup;
+	//bsm << lltup;
 
 
 	//vector<fn::uchar> temp = fn::ToBytes(lltup);
@@ -248,16 +247,15 @@ int main() {
 	//bsm << vbtt;
 
 	//fn::ofinestream bsm("../output.txt");
-	//queue<uint8_t> qout({ 1, 2, 3, 4, 5, 6 });
+	queue<uint8_t> qout({ 1, 2, 3, 4, 5, 6 });
 	//bsm << qout;  // qout will still contain that 6 elements
 
-	//fn::ifinestream bsm("../output.txt");
-	//queue<uint8_t> qin({ 0, 0, 0, 0, 0, 0 });
-	//bsm >> qin;
-	//while (!qin.empty()) {
-	//	cout << (int)qin.front() << endl;
-	//	qin.pop();
-	//}
+	queue<uint8_t> qin({ 0, 0, 0, 0, 0, 0 });
+	bsm >> qin;
+	while (!qin.empty()) {
+		cout << (int)qin.front() << endl;
+		qin.pop();
+	}
 
 	// Here's a way to convert any number to vector<bool> and back:
 	uint8_t i1 = 0b10;  // i1 == 2

@@ -1,18 +1,20 @@
 <p align="center">
    <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
-   <img src="https://img.shields.io/github/last-commit/redmms/FineStream" alt="Last Update">
-   <img src="https://img.shields.io/github/languages/code-size/redmms/FineStream" alt="Size">
+   <img src="https://img.shields.io/github/last-commit/redmms/finestream" alt="Last Update">
+   <img src="https://img.shields.io/github/languages/code-size/redmms/finestream" alt="Size">
 
 </p>
 
 # FineStream
 
-This is a BitStream realization for bits, whereas usual BitStreams can work only with bytes and are tough to understand how to be used.
-This is FINESTREAM!
+This is a bitstream realization for bits, whereas usual BitStreams can work only with bytes and are tough to understand how to be used.
+This is finestream!
 
 ## Why you should use it
 
-You need to serialize data for streaming? Or write a Huffman Coding realization? Or some other encryption? FineStream will help you. Or maybe you need to write ``vector <bool>`` to a file or to send it easily without wasting your time to understand ``vector <bool>`` specific realization? FineStream comes in handy. You can compress your file up to 8x times for ``bool``s. Or - let's imagine - you need to store short integers from 0 to 15, do you REALLY need 8 bits? Or maybe 4 is enough? Then you could compress your file by 2x times, using FineStream with no effort.
+You need to serialize data for streaming? Or write a Huffman Coding realization? Or some other encryption? FineStream will help you. Or maybe you need to write ``vector <bool>`` to a file or to send it easily without wasting your time to understand ``vector <bool>`` specific realization? FineStream comes in handy. You can compress your file up to 8x times for ``bool``s. Or - let's imagine - you need to store short integers from 0 to 15, do you REALLY need 8 bits? Or maybe 4 is enough? Then you could compress your file by 2x times, using FineStream with no effort.  
+Here's an example of data format created with finestream (.mmd18):  
+https://github.com/redmms/mercury_chess  
 
 ## Description
 
@@ -150,7 +152,16 @@ To input data just replace 'o' by 'i' in fn::ofinestream:
 		qin.pop();
 	}
 ```
-
+Output:  
+```
+1
+2
+3
+4
+5
+6
+```
+  
 ### ``tuple``:
 ```cpp
 	tuple<int, double, char> tup{ 1, 3.14, 'a' }; // includes 2 bytes of garbage
@@ -182,7 +193,7 @@ Hexadecimal output:
 ### A way to convert any number to ``vector<bool>`` and back:
 ```cpp
 	uint8_t i1 = 0b10;  // i1 == 2
-	auto v1 = fn::ToVector(i1);  // v1.size() == 8, v1[0] == false, v1[1] == true
+	vector<bool> v1 = fn::ToVector(i1);  // v1.size() == 8, v1[0] == false, v1[1] == true
 	uint8_t i2 = fn::FromVector<uint8_t>(v1);  // i2 == 2
 	vector<bool> v2 = fn::ToSizedVector(i1, 2);  // v2.size() == 2, v2[0] == false, v2[1] == true
 	uint8_t i3 = fn::FromVector<uint8_t>(v2);  //i3 == 2
@@ -196,8 +207,8 @@ Hexadecimal output:
 	cout << "bitset<98>: " << fn::BitSize(bs98) << endl;
 	forward_list<uint8_t> fl9(9);
 	cout << "forward_list<uint8_t>: " << fn::BitSize(fl9) << endl;
-	uint16_t arr[3];
-	cout << "uint16_t [3]: " << fn::BitSize(arr) << endl;
+	uint16_t arr3[3];
+	cout << "uint16_t [3]: " << fn::BitSize(arr3) << endl;
 ```
 Output:
 ```cpp

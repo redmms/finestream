@@ -71,7 +71,6 @@ export namespace fn
 
         bitremedy() {};
 
-        ~bitremedy() {};
         // TODO: add constructor from vector <bool> 
 
         uchar Ucbyte() {

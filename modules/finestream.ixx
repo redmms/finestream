@@ -92,7 +92,7 @@ export namespace fn
         return size(CONTAINER) * sizeof(value_ty) * CHB;
     }
 
-    template <typename container_ty, typename value_ty = typename container_ty::value_type>
+    template <typename container_ty, typename value_ty = container_ty::value_type>
         requires (
             is_same_v <container_ty, forward_list<value_ty>> &&
             is_arithmetic_v<value_ty>
@@ -208,21 +208,20 @@ export namespace fn
         memcpy(&BYTES_ARRAY, &DATA, sizeof(DATA));
     }
 
-    template <typename orig_ty, typename container_ty>
+    template <typename orig_ty, typename container_ty, typename value_ty = container_ty::value_type>
         requires(
-            sizeof(typename container_ty::value_type) == 1 &&
+            sizeof(value_ty) == 1 &&
             is_container_v<container_ty> &&
             is_trivially_copyable_v<orig_ty>)
     void ToBytes(const orig_ty& DATA, container_ty& BYTES_ARRAY) 
     {
-        static_assert(!is_same_v<container_ty, forward_list<typename container_ty::value_type>>, 
+        static_assert(!is_same_v<container_ty, forward_list<value_ty>>,
             "Use another container type");
         if (size(BYTES_ARRAY) != sizeof(orig_ty)) {
             throw invalid_argument("ERROR: in ToBytes(): the size of container"
                 " is not the same as the size of number");
         }
-        const typename container_ty::value_type* BYTE_PTR = reinterpret_cast<const typename  
-            container_ty::value_type*>(&DATA);
+        const value_ty* BYTE_PTR = reinterpret_cast<const value_ty*>(&DATA);
         size_t I = 0;
         for (auto& TBYTE : BYTES_ARRAY) {
             TBYTE = BYTE_PTR[I];
@@ -237,21 +236,20 @@ export namespace fn
         memcpy(&DATA, &BYTES, sizeof(DATA));
     }
 
-    template <typename orig_ty, typename container_ty>
+    template <typename orig_ty, typename container_ty, typename value_ty = container_ty::value_type>
         requires (
-            sizeof(typename container_ty::value_type) == 1 &&
+            sizeof(value_ty) == 1 &&
             is_container_v<container_ty> &&
             is_trivially_copyable_v<orig_ty>)
     void FromBytes(orig_ty& DATA, const container_ty& BYTES_ARRAY) 
     {
-        static_assert(!is_same_v<container_ty, forward_list<typename container_ty::value_type>>, 
+        static_assert(!is_same_v<container_ty, forward_list<value_ty>>,
             "Use another container type");
         if (size(BYTES_ARRAY) != sizeof(orig_ty)) {
             throw invalid_argument("ERROR: in ToBytes(): the size of container"
                 " is not the same as the size of number");
         }
-        typename container_ty::value_type* BYTE_PTR = reinterpret_cast<typename
-            container_ty::value_type*>(&DATA);
+        value_ty* BYTE_PTR = reinterpret_cast<value_ty*>(&DATA);
         size_t I = 0;
         for (auto& TBYTE : BYTES_ARRAY) {
             BYTE_PTR[I] = TBYTE;
@@ -367,9 +365,12 @@ export namespace fn
     protected:
         bitremedy LAST;
         fstream FILE_STREAM;
+        filesystem::path FILE_PATH;
 
     public:
-        finestream(const filesystem::path& FILE_PATH) {
+        finestream(const filesystem::path& FILE_PATH_) :
+            FILE_PATH(FILE_PATH_)
+        {
             FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::in );
             if (!FILE_STREAM.is_open()) {
                 throw runtime_error("File wasn't open.");
@@ -401,9 +402,10 @@ export namespace fn
     class ofinestream : public finestream 
     {
     public:
-        ofinestream(const filesystem::path& FILE_PATH) :
+        ofinestream(const filesystem::path& FILE_PATH_) :
             finestream()
         {
+            FILE_PATH = FILE_PATH_;
             FILE_STREAM.open(FILE_PATH, ios::binary | ios::out | ios::app);
             if (!FILE_STREAM.is_open()) {
                 throw runtime_error("File wasn't open.");
@@ -412,7 +414,12 @@ export namespace fn
         }
 
         ~ofinestream() {
-            Close();
+            try {
+                Close();
+            }
+            catch(const exception& error){
+                cerr << error.what() << endl;
+            }
         }
 
         void Close() {
@@ -421,7 +428,7 @@ export namespace fn
         }
 
         void Flush() {
-            if (LAST.BITSN) { // outputs buffer for last byte before closing filestream
+            if (LAST.BITSN) { // outputs buffer for last byte before closing filestream             
                 uchar ALREADY_WRITTEN = (uchar)FILE_STREAM.rdbuf()->sgetc();
                 bitremedy RIGHT_PZL{ ALREADY_WRITTEN, CHB - LAST.BITSN, false };
                 LAST.AddToRight(RIGHT_PZL);
@@ -521,7 +528,7 @@ export namespace fn
         ofinestream& operator << (const bitset<N>& BSLINE) {
             int LPZSIZE = CHB - LAST.BITSN;  // left puzzle size
             if (N <= LPZSIZE) {
-                PutByte((bitremedy) BSLINE);
+                PutByte({ BSLINE, N, false });
             }
             else {
                 bitset <N> MASK((1u << CHB) - 1);
@@ -624,14 +631,13 @@ export namespace fn
         }
     };
 
-
-
     class ifinestream : public finestream 
     {
     public:
-        ifinestream(const filesystem::path& FILE_PATH) :
+        ifinestream(const filesystem::path& FILE_PATH_) :
             finestream()
         {
+            FILE_PATH = FILE_PATH_;
             FILE_STREAM.open(FILE_PATH, ios::binary | ios::in);
             if (!FILE_STREAM.is_open()) {
                 throw runtime_error("File wasn't open.");
@@ -640,7 +646,12 @@ export namespace fn
         }
 
         ~ifinestream() {
-            Close();
+            try {
+                Close();
+            }
+            catch (const exception& error) {
+                cerr << error.what() << endl;
+            }
         }
 
         void Close() {
@@ -656,23 +667,48 @@ export namespace fn
         template <typename T>
             requires(is_integer_v<T>)
         void SeekBitG(T POS_) {
+            // sets up what next bit to read
             ifstream::pos_type BYTE_POS = static_cast<ifstream::pos_type>(POS_ / CHB);
             int BIT_POS = POS_ % CHB;
             FILE_STREAM.seekg(BYTE_POS);
-            LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), BIT_POS + 1, true };
+            LAST = { (uchar)FILE_STREAM.rdbuf()->sgetc(), CHB1 - BIT_POS, false };
         }
 
         auto TellBitG() {
-            return FILE_STREAM.tellg() * CHB + LAST.BITSN;
+            // tell you the position of the next bit to read
+            if (LAST.BITSN) {
+                return FILE_STREAM.tellg() * CHB - CHB + LAST.BITSN;
+            }
+            else {
+                return FILE_STREAM.tellg() * CHB;
+            }
         }
 
         void SeekG(fstream::pos_type pos) {
+            // sets up what next byte to read
             FILE_STREAM.seekg(pos);
             Flush();
         }
 
         auto TellG() {
+            // tell you the position of the next byte to read
             return FILE_STREAM.tellg();
+        }
+
+        size_t UnreadBits() {
+            // tells how much bits are on the right side from the current position
+            // excluding it
+            size_t FILE_BITSIZE = filesystem::file_size(FILE_PATH) * CHB;
+            size_t READ_BITS = TellBitG();  // next bit pos is equal to read bits number
+            return FILE_BITSIZE - READ_BITS;
+        }
+
+        size_t UnreadBytes() {
+            // tells how much bits are on the right side from the current position
+            // excluding it
+            size_t FILE_BYTESIZE = filesystem::file_size(FILE_PATH);
+            size_t READ_BYTES = TellG();  // next byte pos is equal to read bytes number
+            return FILE_BYTESIZE - READ_BYTES; 
         }
 
         inline int GetByte() {

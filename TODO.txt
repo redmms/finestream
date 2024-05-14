@@ -27,5 +27,5 @@ with 1 byte only
 -  make ToVector() add new elements in the end instead of beggining
 -  make NonLeadingVector(container_ty CONTAINER) overload
 -  add ToVectorReversed() and all other Reversed versions for conversion functions
--  addd some function that will help users to understand if there's enough unread data to extract such a bitset out of file, by counting distance
-between current TellBitG() and end of file;
+-  check how LeadingN() will work with a tuple containing a container, same about getAny()
+-  change ofinestream::flush() so that it will output only zeroes in the end of a file
